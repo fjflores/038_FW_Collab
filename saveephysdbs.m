@@ -1,0 +1,110 @@
+function exitStatus = saveephysdbs( expID, win, params, smoothEmg,...
+    dateProc, overwrite )
+% SAVEEPHYSDATA reads and saves processed data from an experiment.
+%
+% Usage:
+% exitStatus = saveephysdbs( expId, win, params, dateProc, overwrite )
+%
+% Inputs:
+% expID: experiment ID from table.
+% win: window for spectrogram processing.
+% params: all parameters in chronux format.
+% smoothEmg: if true, smooths EMG. If false, skips smoothing.
+% dateProc: timestamp for file processing.
+% overwrite: if true, overwrites exiting data. If false, skips processing.
+%
+% Output:
+% exitStatus: 0 if processing happened, 1 if processing aborted.
+
+% Set defaults.
+if nargin < 4
+    smoothEmg = true;
+    
+end
+
+if nargin < 5 || isempty( dateProc )
+    dateProc = datestr( now, 'yyyy-mm-dd HH:MM' );
+    
+end
+
+if nargin < 6
+    overwrite = true;
+    
+end
+
+% Define 'root' directories.
+rootDir = getrootdir;
+dataDir = 'Data';
+resDir = 'Results';
+
+% Get experiment metadata.
+metDat = getmetadata( expID );
+subject = metDat.subject;
+nlynxDir = metDat.nlynxDir;
+expName = metDat.expName;
+analyzeMask = metDat.analyzeMask;
+consciousness = metDat.consciousness;
+
+% Creating read and save directories.
+dir2read = fullfile( rootDir, dataDir, subject );
+dir2save = fullfile( rootDir, resDir, subject );
+f2save = fullfile( dir2save, strcat( expName, '.mat' ) );
+exitStatus = 0;
+flagAppend = false;
+
+if analyzeMask == 0
+    warning( '%s not in list of experiments to analyze.', expName )
+end
+
+% Check if containing folder exists.
+assert( exist( dir2read, 'dir' ) == 7,...
+    sprintf( '%s does not exist.', dir2read ) )
+
+% Check if experiment's .mat exists.
+if exist( f2save, 'file' ) == 2
+    fprintf( 'Exp %i''s results already gathered. ', expID )
+    if overwrite
+        fprintf( 'Overwriting...\n' )
+        flagAppend = true;
+        
+    else
+        fprintf( 'Aborted re-processing.\n' )
+        exitStatus = 1;
+        return
+        
+    end
+    
+end
+
+% Process experiment's ephys data.
+fprintf( 'Processing exp %u: %s...\n', expID, expName )
+ephysData = setupephysdbs( expID, win, params, smoothEmg );
+
+% Save experiment info to struct.
+ephysData.expID = expID;
+ephysData.subject = subject;
+ephysData.consciousness = consciousness;
+ephysData.dateProcessed = dateProc;
+
+% Save processed data.
+fprintf( 'Saving... ' )
+try
+    if flagAppend
+        save( f2save, 'ephysData', '-append' )
+        
+    else
+        save( f2save, 'ephysData', '-v7.3' )
+        
+    end
+    
+catch
+    warning( 'Directory did not exist. Creating... ' )
+    mkdir( dir2save );
+    save( f2save, 'ephysData', '-v7.3' );
+        
+end
+
+fprintf( 'Done.\n' )
+
+end
+

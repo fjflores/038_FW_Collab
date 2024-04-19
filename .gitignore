@@ -1,0 +1,9 @@
+*.asv
+*.orig
+*-checkpoint.ipynb
+*.txt
+EA_stats/.Rhistory
+slprj/
+*.slxc
+*.mat
+*.png
