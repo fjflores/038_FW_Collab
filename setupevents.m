@@ -1,5 +1,5 @@
-function [ tsOn, tsOff ] = setupeventsdbs( expID )
-% SETUPEVENTSDBS offsets and labels nlynx events.
+function [ tsOn, tsOff ] = setupevents( expID )
+% SETUPEVENTS offsets and labels nlynx events.
 
 % Get nlynx directory.
 metDat = getmetadata( expID );

@@ -1,8 +1,8 @@
-function batchprocephysdbs( expList, win, params, smoothEmg, overwrite )
-% BATCHPROCDBS batch-processess the given list of DBS experiments.
+function batchprocephys( expList, win, params, smoothEmg, overwrite )
+% BATCHPROCEPHYS batch-processess the given list of experiments.
 %
 % Usage:
-% batchprocdbs( expList, win, params, overwrite )
+% batchprocephys( expList, win, params, smoothEmg, overwrite )
 %
 % Input:
 % expList: list of experiments to process.
@@ -39,7 +39,7 @@ for expIdx = 1 : nExps
         ( expIdx - 1 ) / nExps,...
         hWait,...
         msg )
-    exStat = saveephysdbs(...
+    exStat = saveephys(...
         expId, win, params, smoothEmg, dateProc, overwrite );
     allSkipped( expIdx,1 ) = exStat;    
     disp( ' ' )

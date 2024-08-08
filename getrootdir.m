@@ -16,9 +16,6 @@ switch pc
         
     case 'HADES'
         root = 'D:\Dropbox (Personal)\034_DARPA_ABC\';
-    
-    case 'DESKTOP-M86OCIV'
-        root = 'D:\Helena\';
         
     otherwise
         error( 'Unknown Computer' )

@@ -1,9 +1,10 @@
-function exitStatus = saveephysdbs( expID, win, params, smoothEmg,...
+function exitStatus = saveephys( expID, win, params, smoothEmg,...
     dateProc, overwrite )
-% SAVEEPHYSDATA reads and saves processed data from an experiment.
+% SAVEEPHYS reads and saves processed data from an experiment.
 %
 % Usage:
-% exitStatus = saveephysdbs( expId, win, params, dateProc, overwrite )
+% exitStatus = saveephys( expID, win, params, smoothEmg, dateProc,...
+% overwrite )
 %
 % Inputs:
 % expID: experiment ID from table.
@@ -78,7 +79,7 @@ end
 
 % Process experiment's ephys data.
 fprintf( 'Processing exp %u: %s...\n', expID, expName )
-ephysData = setupephysdbs( expID, win, params, smoothEmg );
+ephysData = setupephys( expID, win, params, smoothEmg );
 
 % Save experiment info to struct.
 ephysData.expID = expID;

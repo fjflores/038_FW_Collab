@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 1 : 2;
+expList = 6;
 
 % Set parameters.
 win = [ 2 0.1 ];
@@ -18,8 +18,8 @@ overwrite = true;
 
 % Read and save processed data.
 % exps2proc = getexp2proc( expList ); % only includes to-analyze experiments
-% batchprocephysdbs( exps2proc, win, params, smoothEmg, overwrite )
-batchprocephysdbs( expList, win, params, smoothEmg, overwrite )
+% batchprocephys( exps2proc, win, params, smoothEmg, overwrite )
+batchprocephys( expList, win, params, smoothEmg, overwrite )
 
 
 %% Plot entire experiment.
@@ -28,17 +28,17 @@ batchprocephysdbs( expList, win, params, smoothEmg, overwrite )
 % clc
 
 % Define experiment of interest.
-expID = 1;
+expID = 6;
 
 expData = loadmixdata( expID );
 
 figure( 'Name', sprintf( 'Exp. %i', expID ), 'WindowState', 'maximized' )
-[ hAx, hLink ] = plotexpdbs( expData,...
+[ hAx, hLink ] = plotexp( expData,...
     'SetShowEeg', 'raw',...
-    'SetAmpEeg', [ -500 500 ],...
+    'SetAmpEeg', [ -400 400 ],...
     'SetFreqSpec', [ 0.5 80 ],...
     'SetCAxis', [ 0 30 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
-    'PlotAllEvents', 'yes',...
+    'PlotAllEvents', 'no',...
     'MinOrSec', 'sec' ); 
 

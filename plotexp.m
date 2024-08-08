@@ -1,8 +1,8 @@
-function [ hAx, hLink ] = plotexpdbs( ephysData, varargin )
-% PLOTEXPDBS plots raw and precessed dbs experiments.
+function [ hAx, hLink ] = plotexp( ephysData, varargin )
+% PLOTEXP plots raw and precessed experiments.
 %
 % Usage:
-% [ hAx, hLink ] = plotexpdbs( ephysData, Name, Value )
+% [ hAx, hLink ] = plotexp( ephysData, Name, Value )
 % 
 % This function plots eeg, spectrograms, coherence, emg/activation, and
 % video speed data (if exists). The epochs during which stimulation was
@@ -215,7 +215,7 @@ for plotIdx = 1 : nPlots
     switch plotIdx
         case { 1, 3 }
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
-            plotevents( plotIdx, evTs, yLimsEeg );
+%             plotevents( plotIdx, evTs, yLimsEeg );
             hold on
             colororder( cMap );
             thisEEGPlot = plot( t2plot{ plotIdx }, datPlot{ plotIdx } );
@@ -237,7 +237,7 @@ for plotIdx = 1 : nPlots
             xticks( [ ] )
             xticklabels( {} )
             hold on
-            plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
+%             plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
             ffcbar( gcf, hAx( plotIdx ), 'Power (db)' );
             
         case 5
@@ -248,12 +248,12 @@ for plotIdx = 1 : nPlots
             xticks( [ ] )
             xticklabels( {} )
             hold on
-            plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
+%             plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
             ffcbar( gcf, hAx( plotIdx ), 'tanh^{-1}(C)' );
             
         case 6
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
-            plotevents( plotIdx, evTs, yLimEmg );
+%             plotevents( plotIdx, evTs, yLimEmg );
             hold on
             plot( t2plot{ plotIdx }, datPlot{ plotIdx }, 'k' )
             ylim( yLimEmg )
@@ -261,7 +261,7 @@ for plotIdx = 1 : nPlots
             
         case 7
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
-            plotevents( plotIdx, evTs, yLimDlc );
+%             plotevents( plotIdx, evTs, yLimDlc );
             hold on
             col1 = getbodypartcolor( 'snout' );
             col2 = getbodypartcolor( 'hips' );
