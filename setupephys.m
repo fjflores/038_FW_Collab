@@ -114,9 +114,8 @@ tsOffOg = tsOff;
 % Add eeg data to structure.
 ephysData.expID = [];
 ephysData.subject = '';
-ephysData.schedType = '';
-ephysData.laterality = '';
-ephysData.consciousness = '';
+ephysData.expType = '';
+ephysData.dexDose = [];
 ephysData.eeg.raw = eeg;
 ephysData.eeg.filt = eegFilt;
 ephysData.eeg.filtBand = params.filtEeg;
@@ -150,8 +149,6 @@ end
 ephysData.emg.names = names( 3 );
 ephysData.events.tsOn = tsOn;
 ephysData.events.tsOff = tsOff;
-ephysData.events.allTsOn = tsOnOg;
-ephysData.events.allTsOff = tsOffOg;
 
 fprintf( 'Done processing data.\n' )
 

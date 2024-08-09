@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 6;
+expList = 5;
 
 % Set parameters.
 win = [ 2 0.1 ];
@@ -28,7 +28,7 @@ batchprocephys( expList, win, params, smoothEmg, overwrite )
 % clc
 
 % Define experiment of interest.
-expID = 6;
+expID = 5;
 
 expData = loadmixdata( expID );
 
@@ -39,6 +39,5 @@ figure( 'Name', sprintf( 'Exp. %i', expID ), 'WindowState', 'maximized' )
     'SetFreqSpec', [ 0.5 80 ],...
     'SetCAxis', [ 0 30 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
-    'PlotAllEvents', 'no',...
     'MinOrSec', 'sec' ); 
 

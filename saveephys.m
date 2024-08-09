@@ -44,7 +44,7 @@ subject = metDat.subject;
 nlynxDir = metDat.nlynxDir;
 expName = metDat.expName;
 analyzeMask = metDat.analyzeMask;
-consciousness = metDat.consciousness;
+dexDose = metDat.dexDose;
 
 % Creating read and save directories.
 dir2read = fullfile( rootDir, dataDir, subject );
@@ -52,10 +52,6 @@ dir2save = fullfile( rootDir, resDir, subject );
 f2save = fullfile( dir2save, strcat( expName, '.mat' ) );
 exitStatus = 0;
 flagAppend = false;
-
-if analyzeMask == 0
-    warning( '%s not in list of experiments to analyze.', expName )
-end
 
 % Check if containing folder exists.
 assert( exist( dir2read, 'dir' ) == 7,...
@@ -84,7 +80,7 @@ ephysData = setupephys( expID, win, params, smoothEmg );
 % Save experiment info to struct.
 ephysData.expID = expID;
 ephysData.subject = subject;
-ephysData.consciousness = consciousness;
+ephysData.dexDose = dexDose;
 ephysData.dateProcessed = dateProc;
 
 % Save processed data.

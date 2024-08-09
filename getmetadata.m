@@ -22,8 +22,8 @@ expTab = readtable( fullfile( tabPath,...
     "abc_experiment_list.xlsm" )  );
 expIdx = expTab.exp_id == expID;
 analyzeMask = expTab.analyze( expIdx );
-consc = expTab.consciousness( expIdx );
 subject = expTab.mouse_id( expIdx );
+dexDose = expTab.dex_dose_ugperkg( expIdx );
 expDate = expTab.date( expIdx );
 expNumber = expTab.exp_number( expIdx );
 expType = expTab.exp_type( expIdx );
@@ -43,8 +43,8 @@ chValid = expTab{ expIdx,...
 
 
 expMetaData.analyzeMask = analyzeMask;
-expMetaData.consciousness = consc{ 1 };
 expMetaData.subject = subject{ 1 };
+expMetaData.dexDose = dexDose;
 expMetaData.date = expDate{ 1 };
 expMetaData.expNumber = expNumber{ 1 };
 expMetaData.expType = expType{ 1 };

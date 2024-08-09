@@ -32,9 +32,7 @@ function [ hAx, hLink ] = plotexp( ephysData, varargin )
 %   SetShowEmg: 'raw' shows the unprocessed emg recording. 'smooth' shows
 %   the estimated muscle activation. Default: 'smooth'.
 % 
-%   PlotAllEvents: 'yes' plots all events, including those that are not 
-%   part or a normal experiment. 'no' plots only the evnts that are part 
-%   of a normal experiment. Default: 'no'.
+%   PlotEvents: 'yes' plots all events/TTLs. 'no' doesn't. Default: 'no'.
 % 
 %   MinOrSec: 'min' plots x-axis in minutes. 'sec' plots x-axis in seconds.
 %   Default: 'min'.
@@ -46,7 +44,7 @@ yLimsSpec = ephysData.spec.params.fpass;
 xLims = 'all';
 specLims = 'auto';
 showEmg = 'smooth';
-plotAllEvs = 'no';
+plotEvs = 'no';
 minOrSec = 'min';
 
 % Parse  name-value pairs
@@ -72,8 +70,8 @@ for k = 1 : numel( names )
         case "setshowemg"
             showEmg = values{ k };
 
-        case "plotallevents"
-            plotAllEvs = values{ k };
+        case "plotevents"
+            plotEvs = values{ k };
             
         case "minorsec"
             minOrSec = values{ k };
@@ -180,19 +178,14 @@ end
 
 f = ephysData.spec.f;
 
-if strcmpi( plotAllEvs, 'yes' ) && isfield( ephysData.events, 'allTsOn' )
-    tsOn = ephysData.events.allTsOn;
-    tsOff = ephysData.events.allTsOff;
-    evTs = sort( [ tsOn; tsOff ] ) / secConvers; 
-
-else
-    if ~isfield( ephysData.events, 'allTsOn' )
-        warning( 'Couldn''t find ''allTsOn'' so just using ''tsOn''.' )
-        
-    end
-    
+if strcmpi( plotEvs, 'yes' )
     tsOn = ephysData.events.tsOn;
     tsOff = ephysData.events.tsOff;
+    evTs = sort( [ tsOn; tsOff ] ) / secConvers; 
+
+else  
+    tsOn = [];
+    tsOff = [];
     evTs = sort( [ tsOn; tsOff ] ) / secConvers; 
     
 end
@@ -215,7 +208,7 @@ for plotIdx = 1 : nPlots
     switch plotIdx
         case { 1, 3 }
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
-%             plotevents( plotIdx, evTs, yLimsEeg );
+            plotevents( plotIdx, evTs, yLimsEeg );
             hold on
             colororder( cMap );
             thisEEGPlot = plot( t2plot{ plotIdx }, datPlot{ plotIdx } );
@@ -237,7 +230,7 @@ for plotIdx = 1 : nPlots
             xticks( [ ] )
             xticklabels( {} )
             hold on
-%             plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
+            plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
             ffcbar( gcf, hAx( plotIdx ), 'Power (db)' );
             
         case 5
@@ -248,12 +241,12 @@ for plotIdx = 1 : nPlots
             xticks( [ ] )
             xticklabels( {} )
             hold on
-%             plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
+            plotevents( plotIdx, evTs, [ f( 1 ) f( end ) ] );
             ffcbar( gcf, hAx( plotIdx ), 'tanh^{-1}(C)' );
             
         case 6
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
-%             plotevents( plotIdx, evTs, yLimEmg );
+            plotevents( plotIdx, evTs, yLimEmg );
             hold on
             plot( t2plot{ plotIdx }, datPlot{ plotIdx }, 'k' )
             ylim( yLimEmg )
@@ -261,7 +254,7 @@ for plotIdx = 1 : nPlots
             
         case 7
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
-%             plotevents( plotIdx, evTs, yLimDlc );
+            plotevents( plotIdx, evTs, yLimDlc );
             hold on
             col1 = getbodypartcolor( 'snout' );
             col2 = getbodypartcolor( 'hips' );
@@ -325,22 +318,26 @@ set( hAx, 'FontSize', 11 )
 function plotevents( plotIdx, evTs, yLims )
 
 % Plot events as lines if time-frequency, as patches otherwise.
-switch plotIdx
-    case{ 2, 4, 5 }
-        X = evTs * ones( 1, 2 );
-        Y = yLims .* ones( length( evTs ), 1 );
-        line( gca, X', Y',...
-            'color', [ 0.5 0.5 0.5 ],...
-            'Linewidth', 2 )
-        
-    otherwise
-        for i = 1 : 2 : length( evTs )
-            X = [ evTs( i ), evTs( i ), evTs( i + 1 ), evTs( i + 1 ) ];
-            Y = [ yLims( 1 ), yLims( 2 ), yLims( 2 ), yLims( 1 ) ];
-            patch( X, Y, [ 0.5 0.5 0.5 ],...
-                'FaceAlpha', 0.3,...
-                'EdgeColor', 'none' )
+if ~isempty( evTs )
+    switch plotIdx
+        case{ 2, 4, 5 }
+            X = evTs * ones( 1, 2 );
+            Y = yLims .* ones( length( evTs ), 1 );
+            line( gca, X', Y',...
+                'color', [ 0.5 0.5 0.5 ],...
+                'Linewidth', 2 )
             
-        end
-        
+        otherwise
+            for i = 1 : 2 : length( evTs )
+                X = [ evTs( i ), evTs( i ), evTs( i + 1 ), evTs( i + 1 ) ];
+                Y = [ yLims( 1 ), yLims( 2 ), yLims( 2 ), yLims( 1 ) ];
+                patch( X, Y, [ 0.5 0.5 0.5 ],...
+                    'FaceAlpha', 0.3,...
+                    'EdgeColor', 'none' )
+                
+            end
+            
+    end
+
 end
+
