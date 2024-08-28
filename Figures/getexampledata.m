@@ -23,9 +23,10 @@ tsTab = readtable( fullfile( path2load, f2load ) );
 %% load dex experiment
 dexIdx = strcmp( tsTab.expType, 'dex' );
 expId = tsTab.expId( dexIdx );
-tic
+t1 = tic;
 ephysData = loadprocdata( expId );
-toc
+t2 = toc( t1 );
+fprintf( 'Loading exp data took %s\n', humantime( t2 ) )
 
 tSpec = ephysData.spec.t;
 f = ephysData.spec.f;
@@ -61,9 +62,10 @@ tsDex = ts( idxDex );
 clear ephysData
 sleepIdx = strcmp( tsTab.expType, 'sleep' );
 expId = tsTab.expId( sleepIdx );
-tic
+t1 = tic;
 ephysData = loadprocdata( expId );
-toc
+t2 = toc( t1 );
+fprintf( 'Loading sleep data took %s\n', humantime( t2 ) )
 
 tSleep1 = tsTab.tsBase1( sleepIdx );
 idxSleep = ts >= tSleep1 & ts <= tSleep1 + 10;
@@ -77,19 +79,26 @@ tsSleep = ts( idxSleep );
 [ eegBaseR, eegSleepR, eegDexR ] = padvectors(...
     eegBase( :, 2 ), eegSleep( :, 2 ), eegDex( :, 2 ),...
     "nans" );
+[ tsBase1, tsSleep1, tsDex1 ] = padvectors( tsBase, tsSleep, tsDex,...
+    "linear" );
 
 %% Save data for plotting to figures folder
 if saveFlag
-    eeg.eegBase = [ eegBaseL eegBaseR ];
-    eeg.eegDex = [ eegDexL eegDexR ];
-    eeg.eegSleep = [ eegSleepL eegSleepR ];
-    eeg.t2plot = [ tsBase tsDex tsSleep ];
+    eeg.base.L = eegBaseL;
+    eeg.base.R = eegBaseR;
+    eeg.dex.L = eegDexL;
+    eeg.dex.R = eegDexR;
+    eeg.sleep.L = eegSleepL;
+    eeg.sleep.R = eegSleepR;
+    eeg.t2plot.base = tsBase1;
+    eeg.t2plot.dex = tsDex1;
+    eeg.t2plot.sleep = tsSleep1;
 
-    emg.emg2plot = emg2plot;
+    emg.data = emg2plot;
     emg.t2plot = tEmg2plot;
 
-    spec.specL = specL;
-    spec.specR = specR;
+    spec.L = specL;
+    spec.R = specR;
     spec.t2plot = t2plot;
     spec.f2plot = f2plot;
 
