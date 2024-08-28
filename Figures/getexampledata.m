@@ -1,34 +1,32 @@
-function getexampledata( presDir )
+function getexampledata( presDir, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
-% 
+%
 % Usage:
 % [ specData, traceData ] = getexampledata( dexId, sleepId, figPath )
-% 
+%
 % Input:
-% figPath: path to where the timestamps table is and where the data will 
+% figPath: path to where the timestamps table is and where the data will
 % be stored.
+% saveFlag: boolean to flag whether to save the figure data. Ddefault:
+% true.
 
-% ccc
+% Set defaults
+if ~exist( "saveFlag", "var" )
+    saveFlag = true;
+
+end
+
 path2load = fullfile( getrootdir, 'Pres', presDir, 'Assets' );
 f2load = "ExampleTs.csv";
 tsTab = readtable( fullfile( path2load, f2load ) );
 
-
-% matObj = matfile( fullfile( path2load, f2load ), 'Writable', false );
-
-% Get Spectrogram, EMG, and EEG traces
-% exp 8 (10 ug/kg dex injection @ ~3150 seconds)
-% baseline (awake): 2560 to 2390 seconds (2365 - 2375)
-% dex stuff: 5015 to 5045 seconds (5020 - 5030)
-%
-% exp 1
-% baseline (NREM): 3900 to 3930 seconds (3915 - 3925)
 %% load dex experiment
 dexIdx = strcmp( tsTab.expType, 'dex' );
 expId = tsTab.expId( dexIdx );
-tic
+t1 = tic;
 ephysData = loadprocdata( expId );
-toc
+t2 = toc( t1 );
+fprintf( 'Loading exp data took %s\n', humantime( t2 ) )
 
 tSpec = ephysData.spec.t;
 f = ephysData.spec.f;
@@ -49,17 +47,13 @@ tEmg2plot = tEmg( idxEmg );
 tEmg2plot = ( tEmg2plot - tEmg2plot( 1 ) ) / 60;
 emg2plot = ephysData.emg.smooth( idxEmg );
 
-
 ts = ephysData.eeg.ts( :, 1 );
-
 tBase1 = tsTab.tsBase1( dexIdx );
-% idxBase = ts >= tBase1 & ts <= tBase1 + 10;
 idxBase = getepochidx( ts, tBase1, 10 );
 eegBase = ephysData.eeg.filt( idxBase, : );
 tsBase = ts( idxBase );
 
 tDex1 = tsTab.tsDex1( dexIdx );
-% idxDex = ts >= tDex1 & ts <= tDex1 + 10;
 idxDex = getepochidx( ts, tDex1, 10 );
 eegDex = ephysData.eeg.filt( idxDex, : );
 tsDex = ts( idxDex );
@@ -68,26 +62,52 @@ tsDex = ts( idxDex );
 clear ephysData
 sleepIdx = strcmp( tsTab.expType, 'sleep' );
 expId = tsTab.expId( sleepIdx );
-tic
+t1 = tic;
 ephysData = loadprocdata( expId );
-toc
+t2 = toc( t1 );
+fprintf( 'Loading sleep data took %s\n', humantime( t2 ) )
 
 tSleep1 = tsTab.tsBase1( sleepIdx );
 idxSleep = ts >= tSleep1 & ts <= tSleep1 + 10;
 eegSleep = ephysData.eeg.filt( idxSleep, : );
 tsSleep = ts( idxSleep );
 
+%% Pad eeg and ts vectors 
+[ eegBaseL, eegSleepL, eegDexL ] = padvectors(...
+    eegBase( :, 1 ), eegSleep( :, 1 ), eegDex( :, 1 ),...
+    "nans" );
+[ eegBaseR, eegSleepR, eegDexR ] = padvectors(...
+    eegBase( :, 2 ), eegSleep( :, 2 ), eegDex( :, 2 ),...
+    "nans" );
+[ tsBase1, tsSleep1, tsDex1 ] = padvectors( tsBase, tsSleep, tsDex,...
+    "linear" );
+
 %% Save data for plotting to figures folder
-spec.specL = specL;
-spec.specR = specR;
-spec.t2plot = t2plot;
-spec.f2plot = f2plot;
+if saveFlag
+    fprintf( "Saving figure data..." )
+    eeg.base.L = eegBaseL;
+    eeg.base.R = eegBaseR;
+    eeg.dex.L = eegDexL;
+    eeg.dex.R = eegDexR;
+    eeg.sleep.L = eegSleepL;
+    eeg.sleep.R = eegSleepR;
+    eeg.t2plot.base = tsBase1;
+    eeg.t2plot.dex = tsDex1;
+    eeg.t2plot.sleep = tsSleep1;
 
-emg.emg2plot = emg2plot;
-emg.t2plot = tEmg2plot;
+    emg.smooth = emg2plot;
+    emg.t2plot = tEmg2plot;
 
-eeg.eegBase = eegBase;
-eeg.eegDex = eegDex;
-eeg.t2plot = ( tsBase - tsBase( 1 ) ) / 60;
+    spec.L = specL;
+    spec.R = specR;
+    spec.t2plot = t2plot;
+    spec.f2plot = f2plot;
+
+    f2save = "FigData.mat";
+    save( fullfile( path2load, f2save ), "eeg", "emg", "spec" )
+    
+    fprintf( "Done!\n" )
+
+end
 
 
