@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 5;
+expList = 14;
 
 % Set parameters.
 win = [ 2 0.1 ];
@@ -28,7 +28,7 @@ batchprocephys( expList, win, params, smoothEmg, overwrite )
 % clc
 
 % Define experiment of interest.
-expID = 5;
+expID = 11;
 
 expData = loadmixdata( expID );
 
@@ -41,3 +41,34 @@ figure( 'Name', sprintf( 'Exp. %i', expID ), 'WindowState', 'maximized' )
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
 
+
+%% Batch process and save DLC and video data.
+
+close all
+clear all
+clc
+
+addpath( '.\Vid_processing' )
+
+expList = 14; 
+
+params = struct(...
+    'pcutoff', 0.9,...
+    'deltalim', 20,...
+    'filterType', 'kalmanff',... % 'median' or 'kalmanFF'
+    'filterOrder', 15,... % for median filt
+    'dt', 0.5,... % for kalman filt
+    'fps', 30 );
+    
+overwrite = false;
+
+% expList = getexp2proc( expList ); % only includes to-analyze experiments
+
+% Batch process DLC data AND batch align and save all video timestamps.
+% batchprocdlc( expList, params, overwrite );
+% batchvidts( expList, overwrite );
+
+% OR Batch process DLC and align video ts all at once.
+batchprocvid( expList, params, overwrite );
+
+% rmpath( '.\Vid_processing\' )
