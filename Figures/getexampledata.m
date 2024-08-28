@@ -84,6 +84,7 @@ tsSleep = ts( idxSleep );
 
 %% Save data for plotting to figures folder
 if saveFlag
+    fprintf( "Saving figure data..." )
     eeg.base.L = eegBaseL;
     eeg.base.R = eegBaseR;
     eeg.dex.L = eegDexL;
@@ -94,7 +95,7 @@ if saveFlag
     eeg.t2plot.dex = tsDex1;
     eeg.t2plot.sleep = tsSleep1;
 
-    emg.data = emg2plot;
+    emg.smooth = emg2plot;
     emg.t2plot = tEmg2plot;
 
     spec.L = specL;
@@ -104,6 +105,8 @@ if saveFlag
 
     f2save = "FigData.mat";
     save( fullfile( path2load, f2save ), "eeg", "emg", "spec" )
+    
+    fprintf( "Done!\n" )
 
 end
 
