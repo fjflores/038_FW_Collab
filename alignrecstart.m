@@ -2,7 +2,7 @@
 
 ccc
 
-expID = 14;
+expID = 16;
 metDat = getmetadata( expID );
 subj = metDat.subject;
 nlynxDir = metDat.nlynxDir;
@@ -77,11 +77,11 @@ ledTimesRaw = ledFrames / fps - ( 1 / ( 2 * fps ) );
 
 offset = evTs( 1 ) - ledTimesRaw( 1 );
 
-if abs( offset - difRecTs ) > 0.3
+% if abs( offset - difRecTs ) > 0.3
     warning( [ 'Uh oh! The difference between the recorded start ',...
         'timestamps and the offset between first TTL and first LED are',...
-        'more than 0.3 seconds off!' ] )
-end
+        ' %.2f seconds off!' ], abs( offset - difRecTs ) )
+% end
 
 
 %% Compare ephys event timestamps v. LED times.

@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 14;
+expList = 16;
 
 % Set parameters.
 win = [ 2 0.1 ];
@@ -28,7 +28,7 @@ batchprocephys( expList, win, params, smoothEmg, overwrite )
 % clc
 
 % Define experiment of interest.
-expID = 11;
+expID = 16;
 
 expData = loadmixdata( expID );
 
