@@ -1,17 +1,9 @@
 function maketracefig( resDir )
 
 f2load = "ExampleFigData.mat";
-load( fullfile( resDir, f2load ), 'eeg' );
+load( fullfile( resDir, f2load ), "eeg", "info" );
 
 %% Set up data to plot
-% dat2plot{ 1, 1 } = data.eeg.base.L;
-% dat2plot{ 1, 2 } = data.eeg.base.R;
-% dat2plot{ 2, 1 } = data.eeg.dex.L;
-% dat2plot{ 2, 2 } = data.eeg.dex.R;
-% dat2plot{ 3, 1 } = data.eeg.sleep.L;
-% dat2plot{ 3, 2 } = data.eeg.sleep.R;
-
-
 cols = brewermap( 6, 'Set1' );
 offset = 400;
 gap = [ 0.005 0.01 ];
@@ -31,7 +23,7 @@ for i = 1 : nExps
     tBase = eeg( i ).t2plot.base - eeg( i ).t2plot.base( 1 );
     tExp = eeg( i ).t2plot.exp - eeg( i ).t2plot.exp( 1 );
 
-    %% EEG example figure
+    % EEG example figure
     hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
         opts{ : } );
     plot( tBase, thisBase.L, 'Color', cols( 1, : ) )
@@ -40,15 +32,14 @@ for i = 1 : nExps
     ylim( yLims )
     box off
     hold off
-    % ylabel( "Amp. (\muV)" )
-    % xLims = get( gca, 'xlim' );
-    % posX = xLims( 1 ) + 0.1;
-    % posY = yLims( 2 ) - 100;
-    % msg = sprintf( '%s', tits{ plotIdx } );
-    % text( posX, posY, msg,...
-    %     'Color', 'k',...
-    %     'FontWeight', 'bold',...
-    %     'FontSize', 10 )
+    xLims = get( gca, 'xlim' );
+    posX = xLims( 1 ) + 0.1;
+    posY = yLims( 2 ) - 100;
+    msg = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+    text( posX, posY, msg,...
+        'Color', 'k',...
+        'FontWeight', 'bold',...
+        'FontSize', 10 )
 
     subplot( nExps, 2, plotIdx( i ) + 1 )
     hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
@@ -59,15 +50,7 @@ for i = 1 : nExps
     ylim( yLims )
     box off
     hold off
-    % ylabel( "Amp. (\muV)" )
-    % xLims = get( gca, 'xlim' );
-    % posX = xLims( 1 ) + 0.1;
-    % posY = yLims( 2 ) - 100;
-    % msg = sprintf( '%s', tits{ plotIdx } );
-    % text( posX, posY, msg,...
-    %     'Color', 'k',...
-    %     'FontWeight', 'bold',...
-    %     'FontSize', 10 )
+
 
 end
 
