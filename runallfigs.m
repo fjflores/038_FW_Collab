@@ -8,4 +8,5 @@ resDir = fullfile( root, "Results", mouseId );
 getexampledata( resDir, true )
 
 %%
+close all
 maketracefig( resDir )
