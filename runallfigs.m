@@ -1,14 +1,26 @@
-%% Plot traces per dose per mouse
+%% Save data for examples
 ccc
 addpath(".\Figures")
 
 root = getrootdir( );
 mouseId = "M102";
 resDir = fullfile( root, "Results", mouseId );
-getexampledata( resDir, true )
+maxFreq = 50;
+getexampledata( resDir, maxFreq, [], true )
+
+%% Plot series of spectrograms
+close all
+clc
+
+addpath(".\Figures")
+root = getrootdir( );
+mouseId = "M102";
+resDir = fullfile( root, "Results", mouseId );
+makespecfig( resDir )
 
 %%
 close all
+
 addpath(".\Figures")
 root = getrootdir( );
 mouseId = "M102";

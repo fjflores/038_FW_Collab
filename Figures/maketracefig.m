@@ -11,7 +11,6 @@ margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
 yLims = [ -900 400 ];
-tits = { "Baseline", "Dex (10 \mug/kg)", "Non-REM sleep" };
 
 figure
 nExps = length( eeg );
@@ -35,8 +34,8 @@ for i = 1 : nExps
     xLims = get( gca, 'xlim' );
     posX = xLims( 1 ) + 0.1;
     posY = yLims( 2 ) - 100;
-    msg = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
-    text( posX, posY, msg,...
+    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+    text( posX, posY, tit,...
         'Color', 'k',...
         'FontWeight', 'bold',...
         'FontSize', 10 )

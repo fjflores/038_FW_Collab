@@ -1,4 +1,4 @@
-function getexampledata( resDir, saveFlag )
+function getexampledata( resDir, maxFreq, csvFile, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
@@ -17,8 +17,16 @@ if ~exist( "saveFlag", "var" )
 end
 
 % path2load = fullfile( getrootdir, 'Pres', presDir, 'Assets' );
-f2load = "example_traces.csv";
-tsTab = readtable( fullfile( resDir, f2load ) );
+
+
+if isempty( csvFile )
+    csvFile = "example_traces.csv";
+    tsTab = readtable( fullfile( resDir, csvFile ) );
+
+else
+    tsTab = readtable( fullfile( resDir, csvFile ) );
+
+end
 
 %% load dex experiment
 % allExpIdx = strcmp( tsTab.expType, 'dex' );
@@ -35,10 +43,10 @@ for expIdx = 1 : nExps
     tSpec = ephysData.spec.t;
     f = ephysData.spec.f;
 
-    tSpec1 = tsTab.tsSpec1( tsTab.expId == thisExp );
-    tSpec2 = tsTab.tsSpec2( tsTab.expId == thisExp );
-    idxSpec = tSpec >= tSpec1 & tSpec <= tSpec2;
-    fIdx = f <= 40;
+    tInj1 = tsTab.tInjDex( tsTab.expId == thisExp ) - 300; % 5 min before
+    tInj2 = tsTab.tInjDex( tsTab.expId == thisExp ) + 900; % 10 min after
+    idxSpec = tSpec >= tInj1 & tSpec <= tInj2;
+    fIdx = f <= maxFreq;
     f2plot = f( fIdx );
     t2plot = tSpec( idxSpec );
     t2plot = ( t2plot - t2plot( 1 ) ) / 60;
@@ -46,7 +54,7 @@ for expIdx = 1 : nExps
     specR = squeeze( ephysData.spec.S( idxSpec, fIdx, 2 ) );
 
     tEmg = ephysData.emg.tSmooth;
-    idxEmg = tEmg >= tSpec1 & tEmg <= tSpec2;
+    idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
     tEmg2plot = tEmg( idxEmg );
     tEmg2plot = ( tEmg2plot - tEmg2plot( 1 ) ) / 60;
     emg2plot = ephysData.emg.smooth( idxEmg );
