@@ -46,7 +46,7 @@ for i = 1 : nExps
     yLims = get( gca, 'ylim' );
     posX = xLims( 1 ) + 1;
     posY = yLims( 2 ) - 5;
-    tit = sprintf( '%s %u mcg/kg', info( i ).type, info( i ).dose );
+    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
@@ -67,8 +67,9 @@ hAx( 1 ).YLabel.String = "Freq. (Hz)";
 set( hAx( 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end - 1 : end ),...
-    "XTickLabel", [ 0 5 10 15 ] )
-hAx( end ).XLabel.String = "time (min)";
+    "XTick", [ -5 0 5 10 15 ],...
+    "XTickLabel", [ -5 0 5 10 15 ] )
+xlabel( hAx( end - 1 : end ), "time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 % set( gcf, 'Position', [ 0.3664    0.3208    0.3292    0.4338 ] )
 

@@ -53,11 +53,11 @@ for expIdx = 1 : nExps
     specL = squeeze( ephysData.spec.S( idxSpec, fIdx, 1 ) );
     specR = squeeze( ephysData.spec.S( idxSpec, fIdx, 2 ) );
 
-    tEmg = ephysData.emg.tSmooth;
-    idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
-    tEmg2plot = tEmg( idxEmg );
-    tEmg2plot = ( tEmg2plot - tEmg2plot( 1 ) ) / 60;
-    emg2plot = ephysData.emg.smooth( idxEmg );
+    % tEmg = ephysData.emg.tSmooth;
+    % idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
+    % tEmg2plot = tEmg( idxEmg );
+    % tEmg2plot = ( tEmg2plot - tEmg2plot( 1 ) ) / 60;
+    % emg2plot = ephysData.emg.smooth( idxEmg );
 
     ts = ephysData.eeg.ts( :, 1 );
     tBase1 = tsTab.tsBase1( tsTab.expId == thisExp );
@@ -91,8 +91,8 @@ for expIdx = 1 : nExps
         eeg( expIdx ).t2plot.base = tsBase1;
         eeg( expIdx ).t2plot.exp = tsExp1;
 
-        emg( expIdx ).smooth = emg2plot;
-        emg( expIdx ).t2plot = tEmg2plot;
+        % emg( expIdx ).smooth = emg2plot;
+        % emg( expIdx ).t2plot = tEmg2plot;
 
         spec( expIdx ).L = specL;
         spec( expIdx ).R = specR;
@@ -100,7 +100,7 @@ for expIdx = 1 : nExps
         spec( expIdx ).f2plot = f2plot;
 
         f2save = "ExampleFigData.mat";
-        save( fullfile( resDir, f2save ), "info", "eeg", "emg", "spec" )
+        save( fullfile( resDir, f2save ), "info", "eeg", "spec" )
 
         fprintf( "Done!\n" )
 

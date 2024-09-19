@@ -6,7 +6,8 @@ root = getrootdir( );
 mouseId = "M102";
 resDir = fullfile( root, "Results", mouseId );
 maxFreq = 50;
-getexampledata( resDir, maxFreq, [], true )
+csvFile = "example_traces_IDB.csv";
+getexampledata( resDir, maxFreq, csvFile, true )
 
 %% Plot series of spectrograms
 close all
