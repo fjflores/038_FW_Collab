@@ -49,6 +49,14 @@ for i = 1 : nExps
     ylim( yLims )
     box off
     hold off
+    xLims = get( gca, 'xlim' );
+    posX = xLims( 1 ) + 0.1;
+    posY = yLims( 2 ) - 100;
+    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+    text( posX, posY, tit,...
+        'Color', 'k',...
+        'FontWeight', 'bold',...
+        'FontSize', 10 )
 
 
 end
@@ -59,6 +67,8 @@ set( hAx,...
     'XTickLabel', [],...
     'YTick', [ -800 -400 0 400 ] )
 hAx( 1 ).YLabel.String = "Amp. (\muV)";
+hAx( 1 ).Title.String = "Baseline";
+hAx( 2 ).Title.String = "Injection";
 set( hAx( 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end ),...

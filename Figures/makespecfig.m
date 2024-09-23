@@ -1,7 +1,7 @@
 function makespecfig( resDir )
 
 f2load = "ExampleFigData.mat";
-load( fullfile( resDir, f2load ), 'spec', 'info' );
+load( fullfile( resDir, f2load ), "spec", "info", "emg" );
 
 gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
@@ -19,7 +19,7 @@ for i = 1 : nExps
     tSpec = spec( i ).t2plot - ( spec( i ).t2plot( 1 ) + 5 );
     fSpec = spec( i ).f2plot;
 
-    % EEG example figure
+    % Spectrogram figure
     hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
         opts{ : } );
     imagesc( tSpec, fSpec, pow2db( thisSpecL' ) )
@@ -28,13 +28,22 @@ for i = 1 : nExps
     clim( [ 0 35 ] )
     xLims = get( gca, 'xlim' );
     yLims = get( gca, 'ylim' );
-    posX = xLims( 1 ) + 1;
+    posX = xLims( 1 ) + 0.5;
     posY = yLims( 2 ) - 5;
     tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
         'FontSize', 10 )
+    
+    % Plot EMG activation on top
+    % pos = get( hAx( plotIdx( i ) ), "Position" );
+    % hEmg = axes(...
+    %     "Position", pos, ...
+    %     "Ylim", [ 0 1 ], ...
+    %     "YAxisLocation", "right",...
+    %     "Color", "none" )
+    % plot( hEmg, emg( i ).t2plot, emg( i ).smooth, 'w' )
 
     hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
         opts{ : } );
@@ -44,7 +53,7 @@ for i = 1 : nExps
     clim( [ 0 35 ] )
     xLims = get( gca, 'xlim' );
     yLims = get( gca, 'ylim' );
-    posX = xLims( 1 ) + 1;
+    posX = xLims( 1 ) + 0.5;
     posY = yLims( 2 ) - 5;
     tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
     text( posX, posY, tit,...
@@ -58,7 +67,7 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick', [ 0 : 10 : 50 ] )
+    'YTick',  0 : 10 : 50  )
 
 hAx( 1 ).Title.String = "Left hemisphere";
 hAx( 2 ).Title.String = "Right hemisphere";
