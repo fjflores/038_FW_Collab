@@ -2,13 +2,11 @@
 ccc
 addpath(".\Figures")
 
-root = getrootdir( );
-mouseId = "M102";
-resDir = fullfile( root, "Results", mouseId );
+mouseId = "M103";
 maxFreq = 50;
 csvFile = "example_traces_IDB.csv";
 tLims = [ ];
-getexampledata( resDir, maxFreq, csvFile, tLims, true )
+getexampledata( mouseId, maxFreq, csvFile, tLims, true )
 
 %% Plot series of spectrograms
 close all
@@ -34,11 +32,18 @@ clear all
 clc
 addpath(".\Figures")
 modo = 'median';
-% 
-% figure
-% for i = 1 : 3
-%     subplot( 3, 1, i )
-makedeltafig( "M102", modo, false );
-legend( 'saline', '1', '10', '50', '100', '150' )
+mice = { "M102", "M103" };
+figure
+for i = 1 : 2
+    subplot( 2, 1, i )
+    makedeltafig( mice{ i }, modo, false );
+    if i == 2
+        legend( 'saline', '10', '50', '100', '150' )
+
+    end
+    ylim( [ 0 6000 ] )
+    title( mice{ i } )
+
+end
 
 % end

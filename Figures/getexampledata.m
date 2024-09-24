@@ -1,12 +1,11 @@
-function getexampledata( resDir, maxFreq, csvFile, tLims, saveFlag )
+function getexampledata( mouseId, maxFreq, csvFile, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
 % getexampledata( resDir, maxFreq, csvFile, tLims, saveFlag )
 %
 % Input:
-% figPath: path to where the timestamps table is and where the data will
-% be stored.
+% mouseId: mouse ID.
 % maxFreq: maximu frequency to extrcat for spectrogram.
 % csvFile: name of cscvFile to use.
 % tLims: epoch to extract around time of injection.
@@ -28,6 +27,9 @@ if isempty( csvFile )
     csvFile = "example_traces.csv";
 
 end
+
+root = getrootdir( );
+resDir = fullfile( root, "Results", mouseId );
 tsTab = readtable( fullfile( resDir, csvFile ) );
 
 % load dex experiment
