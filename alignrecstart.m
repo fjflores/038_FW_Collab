@@ -78,7 +78,7 @@ ledTimesRaw = ledFrames / fps - ( 1 / ( 2 * fps ) );
 offset = evTs( 1 ) - ledTimesRaw( 1 );
 
 % if abs( offset - difRecTs ) > 0.3
-    warning( [ 'Uh oh! The difference between the recorded start ',...
+    warning( [ 'The difference between the recorded start ',...
         'timestamps and the offset between first TTL and first LED are',...
         ' %.2f seconds off!' ], abs( offset - difRecTs ) )
 % end
@@ -88,7 +88,6 @@ offset = evTs( 1 ) - ledTimesRaw( 1 );
 
 % Adjust LED times to be in ephys timestamp universe.
 ledTimes = ledTimesRaw + offset;
-
 
 landmarks = evTs( 1 : 60 : end );
 for i = 1 : length( landmarks )
