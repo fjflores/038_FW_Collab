@@ -30,5 +30,14 @@ resDir = fullfile( root, "Results", mouseId );
 maketracefig( resDir )
 
 %% Plot delta power across mice
-ccc
-P = makedeltafig( "M102" );
+clear all
+clc
+addpath(".\Figures")
+modos = { 'mean', 'median', 'total' };
+
+figure
+for i = 1 : 3
+    subplot( 3, 1, i )
+    makedeltafig( "M102", modos{ i }, false );
+
+end

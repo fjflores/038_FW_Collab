@@ -16,6 +16,9 @@ switch pc
         
     case 'HADES'
         root = 'D:\Dropbox (Personal)\034_DARPA_ABC\';
+
+    case 'ODYSSEUS'
+        root = 'C:\Users\Pancho\Dropbox (Personal)\Projects\034_DARPA_ABC\';
         
     otherwise
         error( 'Unknown Computer' )
