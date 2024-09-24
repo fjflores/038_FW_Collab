@@ -3,12 +3,12 @@ function P = makedeltafig( mList, modo, logFlag )
 % for i = 1 : length( mList )
 
 f2load = "ExampleFigData.mat";
-load( fullfile( getrootdir, "Results", mList, f2load ), "eeg", "info" );
+load( fullfile( getrootdir, "Results", mList, f2load ), "spec", "info" );
 
 % win = [ 20 1 ];
 % params = 
 
-for expIdx = 1 : length( spec )
+for expIdx = 1 : length( spec ) - 1
     % get mtm spectra
 
     % get power

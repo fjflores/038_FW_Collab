@@ -33,11 +33,12 @@ maketracefig( resDir )
 clear all
 clc
 addpath(".\Figures")
-modos = { 'mean', 'median', 'total' };
+modo = 'median';
+% 
+% figure
+% for i = 1 : 3
+%     subplot( 3, 1, i )
+makedeltafig( "M102", modo, false );
+legend( 'saline', '1', '10', '50', '100', '150' )
 
-figure
-for i = 1 : 3
-    subplot( 3, 1, i )
-    makedeltafig( "M102", modos{ i }, false );
-
-end
+% end
