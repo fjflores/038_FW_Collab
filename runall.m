@@ -28,7 +28,7 @@ close all
 clc
 
 % Define experiment of interest.
-expID = 18;
+expID = 16;
 
 expData = loadmixdata( expID );
 

@@ -1,7 +1,9 @@
-function makespecfig( resDir )
+function makespecfig( mouseId )
 
+root = getrootdir( );
+resDir = fullfile( root, "Results", mouseId );
 f2load = "ExampleFigData.mat";
-load( fullfile( resDir, f2load ), "spec", "info", "emg" );
+load( fullfile( resDir, f2load ), "spec", "info" );
 
 gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
@@ -16,7 +18,7 @@ plotIdx = 1 : 2 : 2 * nExps;
 for i = 1 : nExps
     thisSpecL = spec( i ).L;
     thisSpecR = spec( i ).R;
-    tSpec = spec( i ).t2plot - ( spec( i ).t2plot( 1 ) + 5 );
+    tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 ) + 300 ) ) / 60;
     fSpec = spec( i ).f2plot;
 
     % Spectrogram figure
@@ -35,6 +37,8 @@ for i = 1 : nExps
         'Color', 'w',...
         'FontWeight', 'bold',...
         'FontSize', 10 )
+    ylabel( "Freq. (Hz)" )
+    set( gca, 'YTick',  0 : 10 : 50  )
     
     % Plot EMG activation on top
     % pos = get( hAx( plotIdx( i ) ), "Position" );
@@ -68,18 +72,17 @@ set( hAx,...
     'TickDir', 'out',...
     'XTickLabel', [],...
     'YTick',  0 : 10 : 50  )
-
+ffcbar( gcf, hAx( end ) )
 hAx( 1 ).Title.String = "Left hemisphere";
 hAx( 2 ).Title.String = "Right hemisphere";
 
-hAx( 1 ).YLabel.String = "Freq. (Hz)";
-set( hAx( 2 : end ),...
+set( hAx( 2 : 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end - 1 : end ),...
     "XTick", [ -5 0 5 10 15 ],...
     "XTickLabel", [ -5 0 5 10 15 ] )
 xlabel( hAx( end - 1 : end ), "time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
-% set( gcf, 'Position', [ 0.3664    0.3208    0.3292    0.4338 ] )
+set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
 
 

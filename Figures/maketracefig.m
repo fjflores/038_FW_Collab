@@ -1,5 +1,8 @@
-function maketracefig( resDir )
+function maketracefig( mouseId )
 
+
+root = getrootdir( );
+resDir = fullfile( root, "Results", mouseId );
 f2load = "ExampleFigData.mat";
 load( fullfile( resDir, f2load ), "eeg", "info" );
 
@@ -19,8 +22,8 @@ for i = 1 : nExps
     thisBase = eeg( i ).base;
     thisExp = eeg( i ).exp;
 
-    tBase = eeg( i ).t2plot.base - eeg( i ).t2plot.base( 1 );
-    tExp = eeg( i ).t2plot.exp - eeg( i ).t2plot.exp( 1 );
+    tBase = eeg( i ).base.t2plot - eeg( i ).base.t2plot( 1 );
+    tExp = eeg( i ).exp.t2plot - eeg( i ).exp.t2plot( 1 );
 
     % EEG example figure
     hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
@@ -75,7 +78,7 @@ set( hAx( end ),...
     "XTickLabel", [ 0, 2, 4, 6, 8, 10 ] )
 hAx( end ).XLabel.String = "time (s)";
 legend( "Left", "Right" )
-set( gcf, "Units", "normalized", "Position", [ 0.03 0.23 0.52 0.63 ] )
+set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
 set( findobj( "Type", "legend" ), "Position", [ 0.91 0.16 0.07 0.05 ] )
 
 %%
