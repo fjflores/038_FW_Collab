@@ -1,6 +1,9 @@
-rec = datetime( 1, 1, 1, 16, 20, 55 );
-dex = datetime( 1, 1, 1, 16, 53, 30 );
-ati = datetime( 1, 1, 1, 17, 55, 00 );
+% Little script to calculate timestamps in seconds based on times written
+% in hh:mm:ss format.
+
+rec = datetime( 1, 1, 1, 13, 36, 15 );
+dex = datetime( 1, 1, 1, 14, 09, 20 );
+ati = datetime( 1, 1, 1, 15, 10, 00 );
 
 difDex = between( rec, dex );
 difDex = time( difDex );
