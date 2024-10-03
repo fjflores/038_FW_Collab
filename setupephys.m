@@ -111,42 +111,62 @@ end
 tsOnOg = tsOn;
 tsOffOg = tsOff;
   
-% Add eeg data to structure.
-ephysData.expID = [];
-ephysData.subject = '';
-ephysData.expType = '';
-ephysData.dexDose = [];
-ephysData.eeg.raw = eeg;
-ephysData.eeg.filt = eegFilt;
-ephysData.eeg.filtBand = params.filtEeg;
-ephysData.eeg.det = detEEG;
-ephysData.eeg.detWin = win;
-ephysData.eeg.clean = cleanEEG;
-ephysData.eeg.Fs = eegFs;
-ephysData.eeg.ts = eegTs;
-ephysData.eeg.names = names( 1 : 2 );
-ephysData.spec.S = cat( 3, S1, S2 );
-ephysData.spec.f = f;
-ephysData.spec.t = t;
-ephysData.spec.params = params;
-ephysData.spec.win = win;
-ephysData.spec.names = names( 1 : 2 );
-ephysData.coher.C = C;
-ephysData.coher.phi = phi;
-ephysData.coher.confC = confC;
-ephysData.coher.phistd = phistd;
-ephysData.coher.Cerr = Cerr;
-ephysData.emg.raw = emg;
-ephysData.emg.FsRaw = emgFs;
-ephysData.emg.tRaw = emgTs;
-ephysData.emg.filt = emgFilt;
+% Create the data structures.
+info.expID = [];
+info.subject = '';
+info.expType = '';
+info.dexDose = [];
+
+eegRaw.data = eeg;
+eegRaw.Fs = eegFs;
+eegRaw.ts = eegTs;
+eegRaw.names = names( 1 : 2 );
+
+eegFilt.data = eegFilt;
+eegFilt.band = params.filtEeg;
+eegFilt.Fs = eegFs;
+eegFilt.ts = eegTs;
+eegFilt.names = names( 1 : 2 );
+
+eegClean.data = cleanEEG;
+eegClean.detWin = win;
+eegClean.Fs = eegFs;
+eegClean.ts = eegTs;
+eegClean.names = names( 1 : 2 );
+
+spec.S = cat( 3, S1, S2 );
+spec.f = f;
+spec.t = t;
+spec.params = params;
+spec.win = win;
+spec.names = names( 1 : 2 );
+
+coher.C = C;
+coher.f = f;
+coher.t = t;
+coher.phi = phi;
+coher.confC = confC;
+coher.phistd = phistd;
+coher.Cerr = Cerr;
+coher.params = params;
+coher.win = win;
+
+emgRaw.data = emg;
+emgRaw.Fs = emgFs;
+emgRaw.ts = emgTs;
+emgRaw.names = names( 1 : 2 );
+
+emg.filt = emgFilt;
+
 if smoothEmg
-    ephysData.emg.smooth = emgAct;
-    ephysData.emg.tSmooth = tAct;
-    ephysData.emg.FsSmooth = FsSmooth;
-    ephysData.emg.smoothBand = fpassEmg;
+    emgSmooth.data = emgAct;
+    emgSmooth.ts = tAct;
+    emgSmooth.Fs = FsSmooth;
+    emgSmooth.band = fpassEmg;
+    emgSmooth.names = names( 3 );
+
 end
-ephysData.emg.names = names( 3 );
+
 ephysData.events.tsOn = tsOn;
 ephysData.events.tsOff = tsOff;
 
