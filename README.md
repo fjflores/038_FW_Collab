@@ -49,19 +49,6 @@ eegClean.names
 eegClean.detWin
 eegClean.dateProcessed
 
-emgRaw.data
-emgRaw.Fs
-emgRaw.t
-emgRaw.names
-emgRaw.dateProcessed
-
-emgFilt.data
-emgFilt.Fs
-emgFilt.t
-emgFilt.names
-emgFilt.band
-emgFilt.dateProcessed
-
 spec.S
 spec.f
 spec.t
@@ -80,6 +67,19 @@ coher.Cerr
 coher.params
 coher.win
 coher.dateProcessed
+
+emgRaw.data
+emgRaw.Fs
+emgRaw.t
+emgRaw.names
+emgRaw.dateProcessed
+
+emgFilt.data
+emgFilt.Fs
+emgFilt.t
+emgFilt.names
+emgFilt.band
+emgFilt.dateProcessed
 
 events.ttlOn
 events.ttlOff
@@ -105,36 +105,37 @@ In the `eegRaw` structure:
 
 In the `eegFilt` structure:
 - `data` - bandpass filtered using `eeg.filtBand` by *eegemgfilt* and is used solely for visualization
-- `Fs`, `ts`, and `names` are as before.
 
 In the `eegClean` structure
 - `data` - detrended using window `eeg.detWin` by *locdetrend*, with the 60 Hz artifact removed by *ffrmlinesc*; used for computing spectrograms and coherence
-- `Fs`, `ts`, and `names` are as before.
 
-In the `emgRaw` structure:
-- `data`, `Fs`, `ts`, and `names` are as before.
 
-In the `emgFilt` structure:
-- `data`, `Fs`, `ts`, and `names` are as before.
-- `band` - two-element vecotr with bandpass used to filter.
+In the spectrogram (`spec`) and coherence (`coher`) fields (computed by *cohgramc*):
+- `spec.S` - spectrogram of clean EEGs (`eeg.clean`), computed with window `spec.win` and using parameters indicated in `spec.params`
+- `spec.f` - frequencies for `spec.S`
+- `spec.t` - time vector for `spec.S`
+- `spec.names` - see `eeg.names`
+- `coher.C` - coherence between the 2 EEGs; has confidence `coher.confC` and error bars `coher.Cerr`
+- `coher.phi` - phase for `coher.C`; has standard deviation `coher.phistd`
 
-In the spectrogram (`spec`) structure (computed by *mtspectrogramc*):
-- `S` - spectrogram of clean EEGs (`eeg.clean`), computed with window `spec.win` and using parameters indicated in `spec.params`.
-- `f` - frequencies for `spec.S`.
-- `t` - time vector for `spec.S`.
-- `names` - see `eeg.names`.
-
-In the coherence (`coher`) structure (computed by *cohgramc*):
-- `C` - coherence between the 2 EEGs; has confidence `confC` and error bars `Cerr`.
-- `phi` - phase for `C`; has standard deviation `phistd`.
-- `t`, `f`, `params`, `win`, `names` are as in `spec`.
+In the EMG field:
+- `emg.raw` - raw EMG output from Neuralynx, read by *readallcsc*
+- `emg.FsRaw` - sampling frequency of raw EMG signal
+- `emg.tRaw` - relative timestamp vector in seconds for both `emg.raw` and `emg.filt`, beginning at 1/Fs
+- `emg.filt` - bandpass filtered using `spec.params.filtEmg` by *eegemgfilt*
+- `emg.smooth` - smoothed by *smoothemg* using the algorithm described [here](doi:10.1016/j.neuroimage.2015.06.088)
+- `emg.tSmooth` - time vector created by the smoothing algorithm for `emg.smooth` 
+- `emg.FsSmooth` - sampling frequency of the spectrogram of the raw EMG and thus also of `emg.smooth` 
+- `emg.smoothBand` - limits for bandpass filter of EMG from which its spectrogram and then `emg.smooth` is computed
+- `emg.names` - name of EMG CSC channel
 
 In the events field (extracted from Neuralynx by *readevnlynx* and processed by *setupeventsdbs*):
 - `events.tsOn` and `events.tsOff` - times at which the Neuralynx events indicating stimulation onset or offset, respectively, occured relative to `eeg.ts` time vector; only includes the timestamps for stimulation epochs to be analyzed (i.e. ignores timestamps of epochs when a seizure or other disturbance occured)
 - `events.stimFreqs` and `events.stimIs` - frequencies (Hz) and currents (uA) of all the stimulation epochs to be analyzed
 - `events.allTsOn` and `events.allTsOff` - same as `events.tsOn` and `events.tsOff` but includes all stimulation epochs even those that contain siezures or other disturbances
 
-In addtion, each structure stores the date and time at which *ephysData* was processed in the field `dateProcessed`.
+The date and time at which *ephysData* was processed is stored as `ephysData.dateProcessed`.
+
 
 The code that produces *ephysData* from the raw CSC Neuralynx files has the following workflow:
 
