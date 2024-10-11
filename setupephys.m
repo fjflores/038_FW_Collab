@@ -1,4 +1,4 @@
-function ephysData = setupephys( expID, win, params, smoothEmg )
+function varargout = setupephys( expID, win, params, smoothEmg )
 % SETUPEPHYS reads the csc data, processes it, and converts it
 % to a matlab structure.
 %
@@ -48,7 +48,7 @@ fprintf( 'Done.\n' )
 
 % Extract raw data.
 eeg = cscData.data( :, 1 : 2 ); % get raw eeg data.
-emg = cscData.data( :, 3 ); % get raw emg data.
+emgTmp = cscData.data( :, 3 ); % get raw emg data.
 eegFs = cscData.Fs( :, 1 : 2 );
 emgFs = cscData.Fs( :, 3 );
 eegTs = ( cscData.relTs( :, 1 : 2 ) / 1e6 ) + ( 1 / eegFs( 1 ) );
@@ -65,10 +65,10 @@ names = cscData.labels;
 % Filter data below 40 Hz for ease of viewing.
 fprintf( 'Filtering data... ' )
 fBandEeg = params.filtEeg;
-eegFilt = eegemgfilt( eeg, fBandEeg, eegFs( 1 ) );
+eegFiltTmp = eegemgfilt( eeg, fBandEeg, eegFs( 1 ) );
 
 fBandEmg = params.filtEmg;
-emgFilt = eegemgfilt( emg, fBandEmg, eegFs( 1 ) );
+emgFiltTmp = eegemgfilt( emgTmp, fBandEmg, eegFs( 1 ) );
 fprintf( 'Done.\n' )
 
 % Detrend and remove 60 Hz artifact.
@@ -108,31 +108,31 @@ else
     
 end
 
-tsOnOg = tsOn;
-tsOffOg = tsOff;
+% tsOnOg = tsOn;
+% tsOffOg = tsOff;
   
 % Create the data structures.
-info.expID = [];
-info.subject = '';
-info.expType = '';
-info.dexDose = [];
+% info.drugDose = [];
 
 eegRaw.data = eeg;
 eegRaw.Fs = eegFs;
 eegRaw.ts = eegTs;
 eegRaw.names = names( 1 : 2 );
+varargout{ 1 } = eegRaw;
 
-eegFilt.data = eegFilt;
+eegFilt.data = eegFiltTmp;
 eegFilt.band = params.filtEeg;
 eegFilt.Fs = eegFs;
 eegFilt.ts = eegTs;
 eegFilt.names = names( 1 : 2 );
+varargout{ 2 } = eegFilt;
 
 eegClean.data = cleanEEG;
 eegClean.detWin = win;
 eegClean.Fs = eegFs;
 eegClean.ts = eegTs;
 eegClean.names = names( 1 : 2 );
+varargout{ 3 } = eegClean;
 
 spec.S = cat( 3, S1, S2 );
 spec.f = f;
@@ -140,6 +140,7 @@ spec.t = t;
 spec.params = params;
 spec.win = win;
 spec.names = names( 1 : 2 );
+varargout{ 4 } = spec;
 
 coher.C = C;
 coher.f = f;
@@ -150,13 +151,23 @@ coher.phistd = phistd;
 coher.Cerr = Cerr;
 coher.params = params;
 coher.win = win;
+varargout{ 5 } = coher;
 
-emgRaw.data = emg;
+emgRaw.data = emgTmp;
 emgRaw.Fs = emgFs;
 emgRaw.ts = emgTs;
 emgRaw.names = names( 1 : 2 );
+varargout{ 6 } = emgRaw;
 
-emg.filt = emgFilt;
+emgFilt.data = emgFiltTmp;
+emgFilt.Fs = emgFs;
+emgFilt.ts = emgTs;
+emgFilt.names = names( 1 : 2 );
+varargout{ 7 } = emgFilt;
+
+events.tsOn = tsOn;
+events.tsOff = tsOff;
+varargout{ 8 } = events;
 
 if smoothEmg
     emgSmooth.data = emgAct;
@@ -164,14 +175,11 @@ if smoothEmg
     emgSmooth.Fs = FsSmooth;
     emgSmooth.band = fpassEmg;
     emgSmooth.names = names( 3 );
+    varargout{ 9 } = emgSmooth;
 
 end
 
-ephysData.events.tsOn = tsOn;
-ephysData.events.tsOff = tsOff;
-
 fprintf( 'Done processing data.\n' )
-
 
 end
 
