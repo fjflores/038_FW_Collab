@@ -1,11 +1,11 @@
 %% Little script to calculate timestamps in seconds based on times written
 % in hh:mm:ss format.
 
-ccc
+% ccc
 
-expID = 26;
-dexTime = "1:18:20";
-atiTime = "2:18:50";
+expID = 33;
+dexTime = "1:15:50";
+atiTime = "5:48:40";
 
 % Get actual REC timestamp.
 metDat = getmetadata( expID );

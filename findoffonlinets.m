@@ -14,4 +14,5 @@ tsOffOnLine = sort( tsOffOnLine );
 tsOffOnLine( 1 : 2 : end ) = floor( tsOffOnLine( 1 : 2 : end ) );
 tsOffOnLine( 2 : 2 : end ) = ceil( tsOffOnLine( 2 : 2 : end ) );
 
-% 4) Copy and paste timestamps (in variable "ts") into metadata Excel file.
+% 4) Copy and paste timestamps (in variable "tsOffOnLine") into metadata 
+% Excel file.
