@@ -12,12 +12,18 @@ function varargout = loadprocdata( expID, dataType )
 % Inputs:
 % expID: experiment ID from metadata table.
 % dataType: character string specifying which data to load. 
-%   'eeg' loads all EEG-related variables: eegRaw, eegFilt, eegClean, in 
-%       that order.
-%   'emg' loads all EMG related variables: emgRaw, emgFilt, emgSmooth,
-%       in that order.
-%   'all' loads all variables: info, eegRaw, eegFilt, eegClean, emgRaw, 
-%       emgFilt, spec, coher, events, in that order.
+%   'eeg' loads all EEG-related variables in alphabetic order: eegClean, 
+%       eegFilt, eegRaw.
+%
+%   'emg' loads all EMG-related variables in alphabetic order: emgFilt, 
+%       emgRaw.
+%
+%   'all' loads all variables in alphabetic order: coher, eegClean, 
+%       eegFilt, eegRaw, emgFilt, emgRaw, events, info, spec.
+%
+%   'plot' loads variables for plotting in alphabetic order: coher, 
+%       eegClean, eegFilt, emgFilt, emgRaw, events, spec.
+%
 %   Optionally, you can pass a single variable name and it will load just
 %   that one.
 %
@@ -46,15 +52,20 @@ end
 % Go over the different loading options
 switch dataType
     case 'eeg'
-        vars2load = { 'eegRaw', 'eegFilt', 'eegClean' };
+        vars2load = { 'eegClean', 'eegFilt', 'eegRaw' };
         varargout = getvars( f2load, vars2load{ : } );
 
     case 'emg'
-        vars2load = { 'emgRaw', 'emgFilt' };
+        vars2load = { 'emgFilt', 'emgRaw' };
         varargout = getvars( f2load, vars2load{ : } );
 
     case 'all'
         vars2load = { };
+        varargout = getvars( f2load, vars2load{ : } );
+
+    case 'plot'
+        vars2load = { 'coher', 'eegClean', 'eegFilt', 'emgFilt',...
+            'emgRaw', 'events', 'spec' };
         varargout = getvars( f2load, vars2load{ : } );
 
     otherwise

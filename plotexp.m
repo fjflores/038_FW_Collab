@@ -1,4 +1,4 @@
-function [ hAx, hLink ] = plotexp( ephysData, varargin )
+function [ hAx, hLink ] = plotexp( expId, varargin )
 % PLOTEXP plots raw and precessed experiments.
 %
 % Usage:
@@ -37,10 +37,15 @@ function [ hAx, hLink ] = plotexp( ephysData, varargin )
 %   MinOrSec: 'min' plots x-axis in minutes. 'sec' plots x-axis in seconds.
 %   Default: 'min'.
 
+% Load data to plot
+[ coher, eegClean, eegFilt, emgFilt, emgRaw, events, spec ]...
+    = loadprocdata( expId, 'plot' );
+
+
 % Set options default values
 showEeg = 'all';
 yLimsEeg = [ -500 500 ];
-yLimsSpec = ephysData.spec.params.fpass;
+yLimsSpec = spec.params.fpass;
 xLims = 'all';
 specLims = 'auto';
 showEmg = 'smooth';
@@ -84,7 +89,7 @@ for k = 1 : numel( names )
     
 end
 
-if ~isfield( ephysData.emg, 'smooth' ) && strcmpi( showEmg, 'smooth' )
+if ~exist( "emgSmooth", "var" ) && strcmpi( showEmg, 'smooth' )
     showEmg = 'raw';
     warning( [ 'Smooth EMG doesn''t exist, so plotting ',...
         'raw EMG instead.' ] )
@@ -95,50 +100,50 @@ end
 % Color for lfp: raw is blue, filt is red.
 cMapAll = flipud( brewermap( 2, 'Set1' ) );
 if strcmpi( showEeg, 'all' ) || strcmpi( showEeg, 'both' )
-    datPlot{ 1 } = [ ephysData.eeg.clean( :, 1 ),...
-        ephysData.eeg.filt( :, 1 ) ];
-    datPlot{ 3 } = [ ephysData.eeg.clean( :, 2 ),...
-        ephysData.eeg.filt( :, 2 ) ];
+    datPlot{ 1 } = [ eegClean.data( :, 1 ),...
+        eegFilt.data( :, 1 ) ];
+    datPlot{ 3 } = [ eegClean.data( :, 2 ),...
+        eegFilt.data( :, 2 ) ];
     cMap = cMapAll;
     
 elseif strcmpi( showEeg, 'filt' )
-    datPlot{ 1 } = ephysData.eeg.filt( :, 1 );
-    datPlot{ 3 } = ephysData.eeg.filt( :, 2 );
+    datPlot{ 1 } = eegFilt.data( :, 1 );
+    datPlot{ 3 } = eegFilt.data( :, 2 );
     cMap = cMapAll( 2, : );
     
 elseif strcmpi( showEeg, 'raw' )
-    datPlot{ 1 } = ephysData.eeg.clean( :, 1 );
-    datPlot{ 3 } = ephysData.eeg.clean( :, 2 );
+    datPlot{ 1 } = eegClean.data( :, 1 );
+    datPlot{ 3 } = eegClean.data( :, 2 );
     cMap = cMapAll( 1, : );
     
 end
 
-datPlot{ 2 } = ephysData.spec.S( :, :, 1 );
-datPlot{ 4 } = ephysData.spec.S( :, :, 2 );
-datPlot{ 5 } = ephysData.coher.C;
+datPlot{ 2 } = spec.S( :, :, 1 );
+datPlot{ 4 } = spec.S( :, :, 2 );
+datPlot{ 5 } = coher.C;
 
 if strcmpi( showEmg, 'smooth' )
-    datPlot{ 6 } = ephysData.emg.smooth;
+    datPlot{ 6 } = emgSmooth.data;
     emgLab = 'act';
     yLimEmg = [ 0 1 ];
            
 elseif strcmpi( showEmg, 'raw' )
-    datPlot{ 6 } = ephysData.emg.raw;
+    datPlot{ 6 } = emgRaw.data;
     emgLab = 'Amp. (\muV)';
     yLimEmg = [ min( datPlot{ 6 } ) max( datPlot{ 6 } ) ];
     
 elseif strcmpi( showEmg, 'filt' )
-    datPlot{ 6 } = ephysData.emg.filt;
+    datPlot{ 6 } = emgFilt.data;
     emgLab = 'Amp. (\muV)';
     yLimEmg = [ min( datPlot{ 6 } ) max( datPlot{ 6 } ) ];
     
 end
 
-dlcExist = isfield( ephysData, 'dlc' );
+dlcExist = exist( "dlc", "var" );
 if dlcExist
     % get position and speed
-    snoutSpeed = ephysData.dlc.snoutSpeed;
-    hipsSpeed = ephysData.dlc.hipsSpeed;
+    snoutSpeed = dlc.snoutSpeed;
+    hipsSpeed = dlc.hipsSpeed;
     datPlot{ 7 } = [ snoutSpeed hipsSpeed ];
     yLimDlc = [ 0 max( datPlot{ 7 }, [ ], 'all' ) ] ;
     dlcLab = '|v| (cm/s)';
@@ -156,15 +161,15 @@ elseif strcmpi( minOrSec, 'sec' )
 
 end
 
-t2plot{ 1 } = ephysData.eeg.ts( :, 1 ) / secConvers;
-t2plot{ 2 } = ephysData.spec.t / secConvers;
-t2plot{ 3 } = ephysData.eeg.ts( :, 2 ) / secConvers;
-t2plot{ 4 } = ephysData.spec.t / secConvers;
-t2plot{ 5 } = ephysData.spec.t / secConvers;
+t2plot{ 1 } = eegClean.ts( :, 1 ) / secConvers;
+t2plot{ 2 } = spec.t / secConvers;
+t2plot{ 3 } = t2plot{ 1 };
+t2plot{ 4 } = t2plot{ 2 };
+t2plot{ 5 } = t2plot{ 2 };
 
 switch showEmg
     case 'smooth'
-        t2plot{ 6 } = ephysData.emg.tSmooth / secConvers;
+        t2plot{ 6 } = emgSmooth.t / secConvers;
         
     case { 'raw', 'filt' }
         t2plot{ 6 } = t2plot{ 1 };
@@ -172,15 +177,15 @@ switch showEmg
 end
 
 if dlcExist
-    t2plot{ 7 } = ephysData.dlc.tDlc / secConvers;
+    t2plot{ 7 } = dlc.t / secConvers;
     
 end
 
-f = ephysData.spec.f;
+f = spec.f;
 
 if strcmpi( plotEvs, 'yes' )
-    tsOn = ephysData.events.tsOn;
-    tsOff = ephysData.events.tsOff;
+    tsOn = events.tsOn;
+    tsOff = events.tsOff;
     evTs = sort( [ tsOn; tsOff ] ) / secConvers; 
 
 else  
@@ -293,7 +298,7 @@ end
 
 % set default color axes for spectrogram .
 if strcmpi( specLims, 'auto' )
-    cLims = round( prctile( pow2db( ephysData.spec.S( : ) ), [ 5 99 ] ) );
+    cLims = round( prctile( pow2db( spec.S( : ) ), [ 5 99 ] ) );
     caxis( hAx( 2 ), cLims );
     
 else
@@ -302,7 +307,7 @@ else
 end
 
 % set default color axes for coherence
-cLimsCoher = prctile( atanh( ephysData.coher.C( : ) ), [ 5 99 ] );
+cLimsCoher = prctile( atanh( coher.C( : ) ), [ 5 99 ] );
 caxis( hAx( 5 ), cLimsCoher );
 
 % set other poperties
