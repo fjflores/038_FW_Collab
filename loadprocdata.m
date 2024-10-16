@@ -2,22 +2,29 @@ function varargout = loadprocdata( expID, dataType )
 % LOADPROCDATA loads the processed data from the experiment.
 %
 % Usage:
-% ephysData = loadprocdata( expID, dataType );
+% varargout = loadprocdata( expID, dataType );
 %
+% Thne output of this function uses varargout, so the output variables have
+% to be specified in the correct order. best practive is juts copy paste
+% from the help below. N.B.: emgSmooth is completely ignored in this
+% version.
+% 
 % Inputs:
 % expID: experiment ID from metadata table.
-% dataType: which data to load. 'eeg' loads all EEG-related variables:
-% 'eegRaw', 'eegFilt', 'eegClean', in that order.
-% 'emg' loads all EMG related variables: 'emgRaw', 'emgFilt', 'emgSmooth',
-% in that order.
-% 'all' loads all variables: 'info', 'eegRaw', 'eegFilt', 'eegClean',
-% 'emgRaw', 'emgFilt', 'emgSmooth', 'spec', 'coher', 'events', in that
-% order.
+% dataType: character string specifying which data to load. 
+%   'eeg' loads all EEG-related variables: eegRaw, eegFilt, eegClean, in 
+%       that order.
+%   'emg' loads all EMG related variables: emgRaw, emgFilt, emgSmooth,
+%       in that order.
+%   'all' loads all variables: info, eegRaw, eegFilt, eegClean, emgRaw, 
+%       emgFilt, spec, coher, events, in that order.
+%   Optionally, you can pass a single variable name and it will load just
+%   that one.
 %
 % Output:
-% procData: Matlab structure with either ephys data or video data.
-% Define directories.
+% A variable number of variables.
 
+% Define directories.
 rootDir = getrootdir;
 resDir = 'Results';
 metDat = getmetadata( expID );
@@ -43,7 +50,7 @@ switch dataType
         varargout = getvars( f2load, vars2load );
 
     case 'emg'
-        vars2load = { 'emgRaw', 'emgFilt', 'emgSmooth' };
+        vars2load = { 'emgRaw', 'emgFilt' };
         varargout = getvars( f2load, vars2load );
 
     case 'all'
