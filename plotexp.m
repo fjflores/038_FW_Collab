@@ -202,7 +202,7 @@ end
 %     'Parietal spectrogram',...
 %     'EMG' };
 
-disp( 'Plotting experiment...' )
+fprintf( 'Plotting experiment...' )
 % figure( 'Position', [ 360 63 744 555 ])
 nPlots = length( datPlot );
 gap = [ 0.005 0.01 ];
@@ -319,7 +319,10 @@ else
     
 end
 set( hAx, 'FontSize', 11 )
+fprintf( 'Done!\n' )
 
+
+% Helper function
 function plotevents( plotIdx, evTs, yLims )
 
 % Plot events as lines if time-frequency, as patches otherwise.
