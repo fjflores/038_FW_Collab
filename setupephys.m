@@ -134,6 +134,18 @@ eegClean.ts = eegTs;
 eegClean.names = names( 1 : 2 );
 varargout{ 3 } = eegClean;
 
+emgRaw.data = emgTmp;
+emgRaw.Fs = emgFs;
+emgRaw.ts = emgTs;
+emgRaw.names = names( 1 : 2 );
+varargout{ 6 } = emgRaw;
+
+emgFilt.data = emgFiltTmp;
+emgFilt.Fs = emgFs;
+emgFilt.ts = emgTs;
+emgFilt.names = names( 1 : 2 );
+varargout{ 7 } = emgFilt;
+
 spec.S = cat( 3, S1, S2 );
 spec.f = f;
 spec.t = t;
@@ -152,18 +164,6 @@ coher.Cerr = Cerr;
 coher.params = params;
 coher.win = win;
 varargout{ 5 } = coher;
-
-emgRaw.data = emgTmp;
-emgRaw.Fs = emgFs;
-emgRaw.ts = emgTs;
-emgRaw.names = names( 1 : 2 );
-varargout{ 6 } = emgRaw;
-
-emgFilt.data = emgFiltTmp;
-emgFilt.Fs = emgFs;
-emgFilt.ts = emgTs;
-emgFilt.names = names( 1 : 2 );
-varargout{ 7 } = emgFilt;
 
 events.tsOn = tsOn;
 events.tsOff = tsOff;
