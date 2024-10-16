@@ -43,19 +43,19 @@ if exist( f2load, 'file' ) ~= 2
 
 end
 
-dataType = lower( dataType );
+% Go over the different loading options
 switch dataType
     case 'eeg'
         vars2load = { 'eegRaw', 'eegFilt', 'eegClean' };
-        varargout = getvars( f2load, vars2load );
+        varargout = getvars( f2load, vars2load{ : } );
 
     case 'emg'
         vars2load = { 'emgRaw', 'emgFilt' };
-        varargout = getvars( f2load, vars2load );
+        varargout = getvars( f2load, vars2load{ : } );
 
     case 'all'
         vars2load = { };
-        varargout = getvars( f2load, vars2load );
+        varargout = getvars( f2load, vars2load{ : } );
 
     otherwise
         vars2load = dataType;
@@ -65,10 +65,10 @@ end
 
 
 % Helper function to gather vars as varargouts
-function thisVars = getvars( f2load, vars2load )
+function thisVars = getvars( f2load, varargin )
 
-if ~isempty( vars2load )
-    tmp = load( f2load, vars2load{ : } );
+if ~isempty( varargin )
+    tmp = load( f2load, varargin{ : } );
 
 else
     tmp = load( f2load );
