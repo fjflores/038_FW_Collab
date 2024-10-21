@@ -50,6 +50,7 @@ if exist( f2load, 'file' ) ~= 2
 end
 
 % Go over the different loading options
+if isstring( dataType ) || ischar( dataType )
 switch dataType
     case 'eeg'
         vars2load = { 'eegClean', 'eegFilt', 'eegRaw' };
@@ -69,10 +70,19 @@ switch dataType
         varargout = getvars( f2load, vars2load{ : } );
 
     otherwise
-        vars2load = dataType;
-        varargout = getvars( f2load, vars2load );
+        error( "dataType must be either a string, char, or a cell array of those." )
 
 end
+
+elseif iscell( dataType )
+    vars2load = string( dataType );
+    varargout = getvars( f2load, vars2load{ : } );
+
+else
+    error( "dataType must be either a string, a char, or a cell array of those." )
+
+end
+
 
 
 % Helper function to gather vars as varargouts
