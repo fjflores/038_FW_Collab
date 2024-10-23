@@ -36,7 +36,7 @@ tsTab = readtable( fullfile( resDir, csvFile ) );
 nExps = height( tsTab );
 for expIdx = 1 : nExps
     thisExp = tsTab.expId( expIdx );
-    fprintf( 'Loading exp %u...', thisExp )
+    fprintf( 'Loading %s exp %u...', mouseId, thisExp )
     t1 = tic;
     ephysData = loadprocdata( thisExp );
     t2 = toc( t1 );
@@ -44,7 +44,8 @@ for expIdx = 1 : nExps
 
     tSpec = ephysData.spec.t;
     f = ephysData.spec.f;
-
+    
+    % Spec for plotting
     tInj1 = tsTab.tInjDex( tsTab.expId == thisExp ) - tLims( 1 ); % 5 min before
     tInj2 = tsTab.tInjDex( tsTab.expId == thisExp ) + tLims( 2 ); % 10 min after
     idxSpec = tSpec >= tInj1 & tSpec <= tInj2;
@@ -53,6 +54,12 @@ for expIdx = 1 : nExps
     t2plot = tSpec( idxSpec );
     specL = squeeze( ephysData.spec.S( idxSpec, fIdx, 1 ) );
     specR = squeeze( ephysData.spec.S( idxSpec, fIdx, 2 ) );
+
+    % Spec for normalization
+    tBaseSpec = tsTab.tsBase1( tsTab.expId == thisExp );
+    idxNorm = tSpec >= tBaseSpec & tSpec <= tBaseSpec + 30;
+    tmp = squeeze( ephysData.spec.S( idxNorm, fIdx, 1 ) );
+    spec2normL = median( tmp, 1 );
 
     if isfield( ephysData.emg, "smooth" )
         tEmg = ephysData.emg.tSmooth;
@@ -115,6 +122,7 @@ for expIdx = 1 : nExps
         spec( expIdx ).R = specR;
         spec( expIdx ).t2plot = t2plot;
         spec( expIdx ).f2plot = f2plot;
+        spec( expIdx ).S2norm = spec2normL;
 
         f2save = "ExampleFigData.mat";
         save( fullfile( resDir, f2save ), ...

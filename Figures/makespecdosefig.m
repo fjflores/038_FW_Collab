@@ -1,4 +1,4 @@
-function makespecdosefig( dose )
+function makespecdosefig( dose, normFlag )
 % Plot all specs for a given dose acros mice
 
 root = getrootdir( );
@@ -28,18 +28,51 @@ for idxExp = 1 : nExps
     S = spec( tabExpIdx ).L;
     t = spec( tabExpIdx ).t2plot;
     f = spec( tabExpIdx ).f2plot;
-
+    
     hAx( idxExp ) = subtightplot( nExps, 1, idxExp,...
         opts{ : } );
-    imagesc( t, f, pow2db( S' ) )
+    if normFlag 
+        temp = spec( tabExpIdx ).S2norm;
+        Snormalizing = repmat( temp, size( S, 1 ), 1 );
+        Sorig = S;
+        S = Sorig - Snormalizing;
+        imagesc( t, f, S' )
+        clim([ -25 500])
+
+    else
+        imagesc( t, f, pow2db( S' ) )        
+        clim( [ 0 35 ] )
+
+    end
+
     axis xy
     box off
-    clim( [ 0 35 ] )
-
+    xLims = get( gca, 'xlim' );
+    yLims = get( gca, 'ylim' );
+    posX = xLims( 1 ) + 0.5;
+    posY = yLims( 2 ) - 5;
+    tit = sprintf( '%s', metDat.subject );
+    text( posX, posY, tit,...
+        'Color', 'w',...
+        'FontWeight', 'bold',...
+        'FontSize', 10 )
 
 end
 
+set( hAx,...
+    'FontSize', 12,...
+    'TickDir', 'out',...
+    'XTickLabel', [],...
+    'YTick',  0 : 10 : 50  )
+ffcbar( gcf, hAx( end ) )
+hAx( 1 ).Title.String = sprintf( "Dose: %u ug/kg", dose );
 
+set( hAx( end - 1 : end ),...
+    "XTick", [ -5 0 5 10 15 ],...
+    "XTickLabel", [ -5 0 5 10 15 ] )
+xlabel( hAx( end - 1 : end ), "time (min)" );
+set( hAx, 'FontSize', 12, 'TickDir', 'out' )
+set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
 
 % 
 % 
@@ -96,22 +129,6 @@ end
 % 
 % end
 % 
-% set( hAx,...
-%     'FontSize', 12,...
-%     'TickDir', 'out',...
-%     'XTickLabel', [],...
-%     'YTick',  0 : 10 : 50  )
-% ffcbar( gcf, hAx( end ) )
-% hAx( 1 ).Title.String = "Left hemisphere";
-% hAx( 2 ).Title.String = "Right hemisphere";
-% 
-% set( hAx( 2 : 2 : end ),...
-%     "YTickLabel", [] )
-% set( hAx( end - 1 : end ),...
-%     "XTick", [ -5 0 5 10 15 ],...
-%     "XTickLabel", [ -5 0 5 10 15 ] )
-% xlabel( hAx( end - 1 : end ), "time (min)" );
-% set( hAx, 'FontSize', 12, 'TickDir', 'out' )
-% set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
+
 % 
 % 

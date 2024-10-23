@@ -1,14 +1,4 @@
-%% Save data for examples
-ccc
-addpath(".\Figures")
-
-mouseId = "M106";
-maxFreq = 50;
-csvFile = "example_traces.csv";
-tLims = [ ];
-getexampledata( mouseId, maxFreq, csvFile, tLims, true )
-
-%% batchprocess example data
+%% Batchprocess example data
 ccc
 addpath(".\Figures")
 
@@ -45,14 +35,16 @@ for i = 1 : length( mice )
 
 end
 
-%% Plot spectrograms across mice for the same dose
+%% Plot spectrograms for the same dose across mice 
 clear all
 clc
 addpath( ".\Figures" )
 
 doses = [ 0 10 50 100 150 ];
+% doses = 150;
+nomalizeFlag = true;
 for i = 1 : length( doses )
-thisDose = doses( i ); 
-makespecdosefig( thisDose )
+    thisDose = doses( i ); 
+    makespecdosefig( thisDose, nomalizeFlag )
 
 end
