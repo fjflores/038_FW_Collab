@@ -2,11 +2,21 @@
 ccc
 addpath(".\Figures")
 
-mouseId = "M103";
+mouseId = "M106";
 maxFreq = 50;
-csvFile = "example_traces_IDB.csv";
+csvFile = "example_traces.csv";
 tLims = [ ];
 getexampledata( mouseId, maxFreq, csvFile, tLims, true )
+
+%% batchprocess example data
+ccc
+addpath(".\Figures")
+
+mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
+maxFreq = 50;
+csvFile = "example_traces.csv";
+tLims = [ ];
+batchexampledata( mList, maxFreq, csvFile, tLims, true )
 
 %% Plot series of spectrograms
 % close all
@@ -35,4 +45,14 @@ for i = 1 : length( mice )
 
 end
 
-% end
+%% Plot spectrograms across mice for the same dose
+clear all
+clc
+addpath( ".\Figures" )
+
+doses = [ 0 10 50 100 150 ];
+for i = 1 : length( doses )
+thisDose = doses( i ); 
+makespecdosefig( thisDose )
+
+end
