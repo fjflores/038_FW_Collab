@@ -19,7 +19,7 @@ if ~exist( "saveFlag", "var" )
 end
 
 if isempty( tLims )
-    tLims = [ 300 900 ];
+    tLims = [ 300 1800 ];
 
 end
 
