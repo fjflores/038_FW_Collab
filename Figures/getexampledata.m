@@ -42,25 +42,6 @@ for expIdx = 1 : nExps
     t2 = toc( t1 );
     fprintf( 'done in %s.\n', humantime( t2 ) )
 
-    tSpec = ephysData.spec.t;
-    f = ephysData.spec.f;
-    
-    % Spec for plotting
-    tInj1 = tsTab.tInjDex( tsTab.expId == thisExp ) - tLims( 1 ); % 5 min before
-    tInj2 = tsTab.tInjDex( tsTab.expId == thisExp ) + tLims( 2 ); % 10 min after
-    idxSpec = tSpec >= tInj1 & tSpec <= tInj2;
-    fIdx = f <= maxFreq;
-    f2plot = f( fIdx );
-    t2plot = tSpec( idxSpec );
-    specL = squeeze( ephysData.spec.S( idxSpec, fIdx, 1 ) );
-    specR = squeeze( ephysData.spec.S( idxSpec, fIdx, 2 ) );
-
-    % Spec for normalization
-    tBaseSpec = tsTab.tsBase1( tsTab.expId == thisExp );
-    idxNorm = tSpec >= tBaseSpec & tSpec <= tBaseSpec + 30;
-    tmp = squeeze( ephysData.spec.S( idxNorm, fIdx, 1 ) );
-    spec2normL = median( tmp, 1 );
-
     if isfield( ephysData.emg, "smooth" )
         tEmg = ephysData.emg.tSmooth;
         idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
@@ -73,16 +54,24 @@ for expIdx = 1 : nExps
         tEmg2plot = [ ];
 
     end
-
+    
+    % Get all EEG.
     ts = ephysData.eeg.ts( :, 1 );
+    tOff = tsTab.tOfflineDex( tsTab.expId == thisExp );
     tAllIdx = ts >= tInj1 & ts <= tInj2;
     tsAll = ts( tAllIdx );
     eegAll = ephysData.eeg.filt( tAllIdx, : );
+    
+    % isolate baseline and compute z-score
+    tBaseZIdx = ts <= tInj;
+
+    % Get example baseline trace
     tBase1 = tsTab.tsBase1( tsTab.expId == thisExp );
     idxBase = getepochidx( ts, tBase1, 10 );
     eegBase = ephysData.eeg.filt( idxBase, : );
     tsBase = ts( idxBase );
-
+    
+    % Get example experiment trace
     tExp1 = tsTab.tsExp1( tsTab.expId == thisExp );
     idxExp = getepochidx( ts, tExp1, 10 );
     eegExp = ephysData.eeg.filt( idxExp, : );
