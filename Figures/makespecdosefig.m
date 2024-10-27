@@ -41,7 +41,7 @@ for idxExp = 1 : nExps
 
     else
         imagesc( t, f, pow2db( S' ) )        
-        clim( [ 0 35 ] )
+        clim( [ -35 -8 ])
 
     end
 
@@ -64,7 +64,7 @@ set( hAx,...
     'TickDir', 'out',...
     'XTickLabel', [],...
     'YTick',  0 : 10 : 50  )
-ffcbar( gcf, hAx( end ) )
+ffcbar( gcf, hAx( end ), "Power" );
 hAx( 1 ).Title.String = sprintf( "Dose: %u ug/kg", dose );
 
 set( hAx( end - 1 : end ),...

@@ -3,17 +3,17 @@ ccc
 addpath(".\Figures")
 
 mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-maxFreq = 50;
+% mList = { "M105" };
 csvFile = "example_traces.csv";
-tLims = [ ];
-batchexampledata( mList, maxFreq, csvFile, tLims, true )
+tLims = [ 300 1800 ];
+batchexampledata( mList, csvFile, tLims, true )
 
 %% Plot series of spectrograms
 % close all
 clc
 
 addpath(".\Figures")
-mouseId = "M103";
+mouseId = "M105";
 makespecfig( mouseId )
 
 %% Plot series of traces
@@ -38,11 +38,12 @@ end
 %% Plot spectrograms for the same dose across mice 
 clear all
 clc
+close all
 addpath( ".\Figures" )
 
 doses = [ 0 10 50 100 150 ];
 % doses = 150;
-nomalizeFlag = true;
+nomalizeFlag = false;
 for i = 1 : length( doses )
     thisDose = doses( i ); 
     makespecdosefig( thisDose, nomalizeFlag )
