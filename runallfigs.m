@@ -2,10 +2,10 @@
 ccc
 addpath(".\Figures")
 
-% mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-mList = { "M102" };
+mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
+% mList = { "M102" };
 csvFile = "example_traces.csv";
-tLims = [ 600 3600 + 600 ];
+tLims = [ 600 3600 ];
 batchexampledata( mList, csvFile, tLims, true )
 
 %% Plot series of spectrograms
@@ -41,8 +41,8 @@ clc
 close all
 addpath( ".\Figures" )
 
-doses = [ 0 10 50 100 150 ];
-% doses = 50;
+% doses = [ 0 10 50 100 150 ];
+doses = 50;
 nomalizeFlag = false;
 for i = 1 : length( doses )
     thisDose = doses( i ); 

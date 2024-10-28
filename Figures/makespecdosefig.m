@@ -26,27 +26,26 @@ for idxExp = 1 : nExps
     tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = tsTab.dose == dose;
     S = spec( tabExpIdx ).L;
-    % t = spec( tabExpIdx ).t2plot;
     t = ( spec( tabExpIdx ).t2plot - ...
-        ( spec( tabExpIdx ).t2plot( 1 ) + 300 ) ) / 60;
+        ( spec( tabExpIdx ).t2plot( 1 ) + 600 ) ) / 60;
     f = spec( tabExpIdx ).f2plot;
     
     hAx( idxExp ) = subtightplot( nExps, 1, idxExp,...
         opts{ : } );
     imagesc( t, f, pow2db( S' ) )
-    clim( [ -35 -8 ])
-
     axis xy
+    clim( [ -35 -5 ])
     box off
     xLims = get( gca, 'xlim' );
     yLims = get( gca, 'ylim' );
-    posX = xLims( 1 ) + 0.5;
+    posX = xLims( 1 ) + 1;
     posY = yLims( 2 ) - 5;
     tit = sprintf( '%s', metDat.subject );
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
         'FontSize', 10 )
+    ylabel( 'Freq. (Hz)' )
 
 end
 
@@ -55,12 +54,12 @@ set( hAx,...
     'TickDir', 'out',...
     'XTickLabel', [],...
     'YTick',  0 : 10 : 50  )
-ffcbar( gcf, hAx( end ), "Power" );
+ffcbar( gcf, hAx( end ), "Power (dB)" );
 hAx( 1 ).Title.String = sprintf( "Dose: %u ug/kg", dose );
 
 set( hAx( end - 1 : end ),...
-    "XTick", [ -5 0 5 10 15 ],...
-    "XTickLabel", [ -5 0 5 10 15 ] )
+    "XTick", [ -10 : 5 : 60 ],...
+    "XTickLabel", [ -10 : 5 : 60 ] )
 xlabel( hAx( end - 1 : end ), "time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
