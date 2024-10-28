@@ -15,9 +15,10 @@ figure
 colormap magma
 nExps = length( spec );
 plotIdx = 1 : 2 : 2 * nExps;
+colorLims = [ -35 -10 ];
 for i = 1 : nExps
     thisSpecL = spec( i ).L;
-    thisSpecR = spec( i ).R;
+    thisSpecR = spec( i ).L;
     tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 ) + 300 ) ) / 60;
     fSpec = spec( i ).f2plot;
 
@@ -27,7 +28,7 @@ for i = 1 : nExps
     imagesc( tSpec, fSpec, pow2db( thisSpecL' ) )
     axis xy
     box off
-    clim( [ 0 35 ] )
+    clim( colorLims )
     xLims = get( gca, 'xlim' );
     yLims = get( gca, 'ylim' );
     posX = xLims( 1 ) + 0.5;
@@ -54,7 +55,7 @@ for i = 1 : nExps
     imagesc( tSpec, fSpec, pow2db( thisSpecR' ) )
     axis xy
     box off
-    clim( [ 0 35 ] )
+    clim( colorLims )
     xLims = get( gca, 'xlim' );
     yLims = get( gca, 'ylim' );
     posX = xLims( 1 ) + 0.5;
