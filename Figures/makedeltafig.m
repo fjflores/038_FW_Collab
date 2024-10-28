@@ -1,4 +1,4 @@
-function P = makedeltafig( mouseId )
+function makedeltafig( mouseId )
 
 % for i = 1 : length( mList )
 
@@ -19,7 +19,7 @@ for expIdx = 1 : nExp
     % remove artifact
     tOff = info( expIdx ).injOff;
     tOn = info( expIdx ).injOn;
-    S = replacechunkspec( Stemp, t, [ tOff tOn ] );
+    S = replacedatachunk( Stemp, t, [ tOff tOn ], 'min' );
 
     % get power
     bandtc = getbandtimecourse( S, t, f, band, dur, base, art );
