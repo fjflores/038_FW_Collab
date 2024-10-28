@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 35;
+expList = 42 : 43;
 
 % Set parameters.
 win = [ 2 0.1 ];
@@ -28,7 +28,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expID = 35;
+expID = 43;
 
 expData = loadmixdata( expID );
 
@@ -40,6 +40,14 @@ figure( 'Name', sprintf( 'Exp. %i', expID ), 'WindowState', 'maximized' )
     'SetCAxis', [ 0 30 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
+
+% TEMPORARY: turn this chunk into an option within plotexp
+metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
+tsTab = table2array( metTab( :, 28 : 33 ) );
+xline( hAx( 1 ), tsTab( expID, 1 : 4 ), 'm', 'LineWidth', 2 )
+xline( hAx( 1 ), tsTab( expID, 5 : 6 ), 'g', 'LineWidth', 2 )
+xline( hAx( 3 ), tsTab( expID, 1 : 4 ), 'm', 'LineWidth', 2 )
+xline( hAx( 3 ), tsTab( expID, 5 : 6 ), 'g', 'LineWidth', 2 )
 
 
 %% Batch process and save DLC and video data.
