@@ -28,7 +28,7 @@ clear all
 clc
 addpath(".\Figures")
 modo = 'median';
-mice = { "M102", "M103" };
+mice = { "M102", "M103", "M105" };
 for i = 1 : length( mice )
     figure
     makedeltafig( mice{ i } );
@@ -49,3 +49,29 @@ for i = 1 : length( doses )
     makespecdosefig( thisDose, nomalizeFlag )
 
 end
+
+%% Plot delta power time course after dex
+clear all
+clc
+addpath( ".\Figures" )
+
+doses = [ 0 10 50 100 150 ];
+% dose = 100;
+aucFlag = false;
+figure
+for i = 1 : length( doses )
+    thisDose = doses( i ); 
+    subplot( 5, 1, i )
+    plotdeltatc( thisDose, aucFlag )
+    box off
+    ylabel( 'Power (db)' )
+    title( sprintf( "Dose: %u ug/kg", thisDose ) )
+    ylim( [ 0 0.4 ] )
+
+    if i == length( doses )
+        xlabel( "time (min)" )
+
+    end
+
+end
+

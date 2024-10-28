@@ -1,4 +1,4 @@
-function makespecdosefig( dose, normFlag )
+function makespecdosefig( dose )
 % Plot all specs for a given dose acros mice
 
 root = getrootdir( );
@@ -63,62 +63,3 @@ set( hAx( end ),...
 xlabel( hAx( end - 1 : end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
-
-% 
-% 
-% plotIdx = 1 : 2 : 2 * nExps;
-% for i = 1 : nExps
-%     thisSpecL = spec( i ).L;
-%     thisSpecR = spec( i ).R;
-%     tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 ) + 300 ) ) / 60;
-%     fSpec = spec( i ).f2plot;
-% 
-%     % Spectrogram figure
-%     hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
-%         opts{ : } );
-%     imagesc( tSpec, fSpec, pow2db( thisSpecL' ) )
-%     axis xy
-%     box off
-%     clim( [ 0 35 ] )
-%     xLims = get( gca, 'xlim' );
-%     yLims = get( gca, 'ylim' );
-%     posX = xLims( 1 ) + 0.5;
-%     posY = yLims( 2 ) - 5;
-%     tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
-%     text( posX, posY, tit,...
-%         'Color', 'w',...
-%         'FontWeight', 'bold',...
-%         'FontSize', 10 )
-%     ylabel( "Freq. (Hz)" )
-%     set( gca, 'YTick',  0 : 10 : 50  )
-% 
-%     % Plot EMG activation on top
-%     % pos = get( hAx( plotIdx( i ) ), "Position" );
-%     % hEmg = axes(...
-%     %     "Position", pos, ...
-%     %     "Ylim", [ 0 1 ], ...
-%     %     "YAxisLocation", "right",...
-%     %     "Color", "none" )
-%     % plot( hEmg, emg( i ).t2plot, emg( i ).smooth, 'w' )
-% 
-%     hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
-%         opts{ : } );
-%     imagesc( tSpec, fSpec, pow2db( thisSpecR' ) )
-%     axis xy
-%     box off
-%     clim( [ 0 35 ] )
-%     xLims = get( gca, 'xlim' );
-%     yLims = get( gca, 'ylim' );
-%     posX = xLims( 1 ) + 0.5;
-%     posY = yLims( 2 ) - 5;
-%     tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
-%     text( posX, posY, tit,...
-%         'Color', 'w',...
-%         'FontWeight', 'bold',...
-%         'FontSize', 10 )
-% 
-% end
-% 
-
-% 
-% 
