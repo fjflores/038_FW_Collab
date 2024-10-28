@@ -75,7 +75,7 @@ for i = 1 : length( doses )
 
 end
 
-%% Plot dominant freqeuency time course after dex in the delta band
+%% Plot spectral edge after dex
 clear all
 clc
 addpath( ".\Figures" )
@@ -96,3 +96,12 @@ for i = 1 : length( doses )
     end
 
 end
+
+%% Plot average spectrogram for each dose
+clear all
+clc
+addpath( ".\Figures" )
+
+doses = [ 0 10 50 100 150 ];
+plotavedosespec( doses )
+
