@@ -26,24 +26,15 @@ for idxExp = 1 : nExps
     tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = tsTab.dose == dose;
     S = spec( tabExpIdx ).L;
-    t = spec( tabExpIdx ).t2plot;
+    % t = spec( tabExpIdx ).t2plot;
+    t = ( spec( tabExpIdx ).t2plot - ...
+        ( spec( tabExpIdx ).t2plot( 1 ) + 300 ) ) / 60;
     f = spec( tabExpIdx ).f2plot;
     
     hAx( idxExp ) = subtightplot( nExps, 1, idxExp,...
         opts{ : } );
-    if normFlag 
-        temp = spec( tabExpIdx ).S2norm;
-        Snormalizing = repmat( temp, size( S, 1 ), 1 );
-        Sorig = S;
-        S = Sorig - Snormalizing;
-        imagesc( t, f, S' )
-        clim([ -25 500])
-
-    else
-        imagesc( t, f, pow2db( S' ) )        
-        clim( [ -35 -8 ])
-
-    end
+    imagesc( t, f, pow2db( S' ) )
+    clim( [ -35 -8 ])
 
     axis xy
     box off
