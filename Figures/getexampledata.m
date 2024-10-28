@@ -62,14 +62,14 @@ for expIdx = 1 : nExps
     ts = ephysData.eeg.ts( :, 1 );
     tAllIdx = ts >= tInj1 & ts <= tInj2;
     tsAll = ts( tAllIdx );
-    eegAll = ephysData.eeg.filt( tAllIdx, : );
+    eegAll = ephysData.eeg.clean( tAllIdx, : );
     
     % isolate baseline and compute z-score
     tOff = tsTab.tOfflineDex( tsTab.expId == thisExp );
     tOn = tsTab.tOfflineDex( tsTab.expId == thisExp );
     tBaseZIdx = ts <= tOff;
-    mu = mean( ephysData.eeg.filt( tBaseZIdx, 1 ) );
-    sigma = std( ephysData.eeg.filt( tBaseZIdx, 1 ) );
+    mu = mean( ephysData.eeg.clean( tBaseZIdx, 1 ) );
+    sigma = std( ephysData.eeg.clean( tBaseZIdx, 1 ) );
     eegZAll = ( eegAll - mu ) ./ sigma;
 
     % Get example baseline trace
@@ -88,9 +88,9 @@ for expIdx = 1 : nExps
     params = struct(...
         'tapers', [ 3 5 ],...
         'Fs', ephysData.eeg.Fs( 1 ),...
-        'fpass', [ 1 35 ],...
+        'fpass', [ 0.5 40 ],...
         'pad', 1 );
-    win = [ 15 1 ];
+    win = [ 15 1.5 ];
     [ S, t, f ] = mtspecgramc( eegZAll, win, params );
 
     % Pad eeg and ts vectors
@@ -132,7 +132,7 @@ for expIdx = 1 : nExps
 
         f2save = "ExampleFigData.mat";
         save( fullfile( resDir, f2save ), ...
-            "info", "eeg", "spec", "emg" )
+            "info", "eeg", "spec", "emg", "-v7.3" )
         fprintf( "Done!\n" )
 
     end
