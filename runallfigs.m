@@ -15,7 +15,7 @@ warning on
 clc
 
 addpath(".\Figures")
-mouseId = "M106";
+mouseId = "M101";
 tLims = [ 600 3600 ];
 makespecfig( mouseId, tLims )
 

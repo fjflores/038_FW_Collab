@@ -1,4 +1,12 @@
-function makespecfig( mouseId )
+function makespecfig( mouseId, tLims )
+% MAKESPECFIG plots spectrograms for all doses of a drug in a signle mouse.
+% 
+% Usage:
+% makespecfig( mouseId, tLims )
+% 
+% Input:
+% mouseId: mous ID.
+% tLims: 2-element vector with time limits before and after the event.
 
 root = getrootdir( );
 resDir = fullfile( root, "Results", mouseId );
@@ -19,7 +27,8 @@ colorLims = [ -35 -10 ];
 for i = 1 : nExps
     thisSpecL = spec( i ).L;
     thisSpecR = spec( i ).L;
-    tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 ) + 300 ) ) / 60;
+    tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 )...
+        + tLims( 1 ) ) ) / 60;
     fSpec = spec( i ).f2plot;
 
     % Spectrogram figure
@@ -33,7 +42,13 @@ for i = 1 : nExps
     yLims = get( gca, 'ylim' );
     posX = xLims( 1 ) + 0.5;
     posY = yLims( 2 ) - 5;
-    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+    if i == 1
+        tit = "saline";
+
+    else
+        tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+
+    end
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
@@ -58,9 +73,8 @@ for i = 1 : nExps
     clim( colorLims )
     xLims = get( gca, 'xlim' );
     yLims = get( gca, 'ylim' );
-    posX = xLims( 1 ) + 0.5;
+    posX = xLims( 1 ) + 1;
     posY = yLims( 2 ) - 5;
-    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
@@ -73,15 +87,15 @@ set( hAx,...
     'TickDir', 'out',...
     'XTickLabel', [],...
     'YTick',  0 : 10 : 50  )
-ffcbar( gcf, hAx( end ) )
+ffcbar( gcf, hAx( end ), "Power (dB)" );
 hAx( 1 ).Title.String = "Left hemisphere";
 hAx( 2 ).Title.String = "Right hemisphere";
 
 set( hAx( 2 : 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end - 1 : end ),...
-    "XTick", [ -5 0 5 10 15 ],...
-    "XTickLabel", [ -5 0 5 10 15 ] )
+    "XTick", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60,...
+    "XTickLabel", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60 )
 xlabel( hAx( end - 1 : end ), "time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
