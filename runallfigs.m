@@ -3,18 +3,21 @@ ccc
 addpath(".\Figures")
 
 mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-% mList = { "M102" };
-csvFile = "example_traces.csv";
+% mList = { "M103" };
+csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
+warning off
 batchexampledata( mList, csvFile, tLims, true )
+warning on
 
 %% Plot series of spectrograms
 % close all
 clc
 
 addpath(".\Figures")
-mouseId = "M105";
-makespecfig( mouseId )
+mouseId = "M106";
+tLims = [ 600 3600 ];
+makespecfig( mouseId, tLims )
 
 %% Plot series of traces
 close all

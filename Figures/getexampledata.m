@@ -7,7 +7,7 @@ function getexampledata( mouseId, csvFile, tLims, saveFlag )
 % Input:
 % mouseId: mouse ID.
 % maxFreq: maximu frequency to extrcat for spectrogram.
-% csvFile: name of cscvFile to use.
+% csvFile: name of csvFile to use.
 % tLims: epoch to extract around time of injection.
 % saveFlag: boolean to flag whether to save the figure data. Ddefault:
 % true.
@@ -24,26 +24,33 @@ if isempty( tLims )
 end
 
 if isempty( csvFile )
-    csvFile = "example_traces.csv";
+    csvFile = "abc_experiment_list.xlsm";
 
 end
 
 root = getrootdir( );
-resDir = fullfile( root, "Results", mouseId );
-tsTab = readtable( fullfile( resDir, csvFile ) );
+resDir = fullfile( root, "Results" );
+masterTab = readtable( fullfile( resDir, csvFile ) );
+
+% get experiments to load
+doseSortTab = sortrows( masterTab, "dex_dose_ugperkg" );
+exps2procIdx = doseSortTab.analyze == 1 & doseSortTab.mouse_id == mouseId;
+exps2proc = doseSortTab.exp_id( exps2procIdx );
+doses = doseSortTab.dex_dose_ugperkg( exps2procIdx );
 
 % load dex experiment
-nExps = height( tsTab );
+nExps = length( exps2proc );
 for expIdx = 1 : nExps
-    thisExp = tsTab.expId( expIdx );
+    thisExp = exps2proc( expIdx );
+    thisExpIdx = masterTab.exp_id == thisExp;
     fprintf( 'Loading %s exp %u...', mouseId, thisExp )
     t1 = tic;
     ephysData = loadprocdata( thisExp );
     t2 = toc( t1 );
     fprintf( 'done in %s.\n', humantime( t2 ) )
     
-    tInj1 = tsTab.tInjDex( tsTab.expId == thisExp ) - tLims( 1 ); % epoch before
-    tInj2 = tsTab.tInjDex( tsTab.expId == thisExp ) + tLims( 2 ); % epoch after
+    tInj1 = masterTab.dex_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
+    tInj2 = masterTab.dex_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
     if isfield( ephysData.emg, "smooth" )
         tEmg = ephysData.emg.tSmooth;
         idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
@@ -65,24 +72,12 @@ for expIdx = 1 : nExps
     eegAll = ephysData.eeg.clean( tAllIdx, : );
     
     % isolate baseline and compute z-score
-    tOff = tsTab.tOfflineDex( tsTab.expId == thisExp );
-    tOn = tsTab.tOfflineDex( tsTab.expId == thisExp );
+    tOff = masterTab.dex_ts_offline( thisExpIdx );
+    tOn = masterTab.dex_ts_online( thisExpIdx );
     tBaseZIdx = ts <= tOff;
     mu = mean( ephysData.eeg.clean( tBaseZIdx, 1 ) );
     sigma = std( ephysData.eeg.clean( tBaseZIdx, 1 ) );
     eegZAll = ( eegAll - mu ) ./ sigma;
-
-    % Get example baseline trace
-    tBase1 = tsTab.tsBase1( tsTab.expId == thisExp );
-    idxBase = getepochidx( ts, tBase1, 10 );
-    eegBase = ephysData.eeg.filt( idxBase, : );
-    tsBase = ts( idxBase );
-    
-    % Get example experiment trace
-    tExp1 = tsTab.tsExp1( tsTab.expId == thisExp );
-    idxExp = getepochidx( ts, tExp1, 10 );
-    eegExp = ephysData.eeg.filt( idxExp, : );
-    tsExp = ts( idxExp );
 
     % Get new spectrogram
     params = struct(...
@@ -93,33 +88,20 @@ for expIdx = 1 : nExps
     win = [ 15 1.5 ];
     [ S, t, f ] = mtspecgramc( eegZAll, win, params );
 
-    % Pad eeg and ts vectors
-    [ eegBaseL, eegExpL ] = padvectors(...
-        eegBase( :, 1 ), eegExp( :, 1 ), "nans" );
-    [ eegBaseR, eegExpR ] = padvectors(...
-        eegBase( :, 2 ), eegExp( :, 2 ), "nans" );
-    [ tsBase1, tsExp1 ] = padvectors( tsBase, tsExp, "linear" );
-
     %% Save data for plotting to figures folder
     if saveFlag
         fprintf( "Saving figure data..." )
         info( expIdx ).expId = thisExp;
-        info( expIdx ).dose = tsTab.dose( tsTab.expId == thisExp );
-        info( expIdx ).type = tsTab.expType{ tsTab.expId == thisExp };
-        info( expIdx ).injDex = tsTab.tInjDex( tsTab.expId == thisExp );
-        info( expIdx ).injOff = tsTab.tOfflineDex( tsTab.expId == thisExp );
-        info( expIdx ).injOn = tsTab.tOnlineDex( tsTab.expId == thisExp );
+        info( expIdx ).dose = doses( expIdx );
+        info( expIdx ).type = masterTab.drug{ thisExpIdx };
+        info( expIdx ).injDex = masterTab.dex_ts_inj( thisExpIdx );
+        info( expIdx ).injOff = tOff;
+        info( expIdx ).injOn = tOn;
         
         eeg( expIdx ).all.L = eegAll( :, 1 );
         eeg( expIdx ).all.R = eegAll( :, 2 );
         eeg( expIdx ).all.t2plot = tsAll;
         eeg( expIdx ).all.ZL = eegZAll;
-        eeg( expIdx ).base.L = eegBaseL;
-        eeg( expIdx ).base.R = eegBaseR;
-        eeg( expIdx ).base.t2plot = tsBase1;
-        eeg( expIdx ).exp.L = eegExpL;
-        eeg( expIdx ).exp.R = eegExpR;
-        eeg( expIdx ).exp.t2plot = tsExp1;
 
         emg( expIdx ).smooth = emg2plot;
         emg( expIdx ).t2plot = tEmg2plot;
@@ -128,7 +110,6 @@ for expIdx = 1 : nExps
         spec( expIdx ).R = S( :, :, 2 );
         spec( expIdx ).t2plot = t;
         spec( expIdx ).f2plot = f;
-        % spec( expIdx ).S2norm = spec2normL;
 
         f2save = "ExampleFigData.mat";
         save( fullfile( resDir, f2save ), ...
