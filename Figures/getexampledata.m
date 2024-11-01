@@ -51,19 +51,11 @@ for expIdx = 1 : nExps
     
     tInj1 = masterTab.dex_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
     tInj2 = masterTab.dex_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
-    if isfield( ephysData.emg, "smooth" )
-        tEmg = ephysData.emg.tSmooth;
-        idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
-        tEmg2plot = tEmg( idxEmg );
-        emg2plot = ephysData.emg.smooth( idxEmg );
+    tEmg = ephysData.emg.tRaw;
+    idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
+    tEmg2plot = tEmg( idxEmg );
+    emg2plot = ephysData.emg.filt( idxEmg );
 
-    else
-        warning( " EMG does not exist. Setting to empty" )
-        emg2plot = [ ];
-        tEmg2plot = [ ];
-
-    end
-    
     % Get all EEG.
     % Spec for plotting
     ts = ephysData.eeg.ts( :, 1 );
@@ -75,17 +67,23 @@ for expIdx = 1 : nExps
     tOff = masterTab.dex_ts_offline( thisExpIdx );
     tOn = masterTab.dex_ts_online( thisExpIdx );
     tBaseZIdx = ts <= tOff;
-    mu = mean( ephysData.eeg.clean( tBaseZIdx, 1 ) );
-    sigma = std( ephysData.eeg.clean( tBaseZIdx, 1 ) );
-    eegZAll = ( eegAll - mu ) ./ sigma;
-
-    % Get new spectrogram
     params = struct(...
         'tapers', [ 3 5 ],...
         'Fs', ephysData.eeg.Fs( 1 ),...
         'fpass', [ 0.5 40 ],...
         'pad', 1 );
     win = [ 15 1.5 ];
+    eegZAll = zeros( size( eegAll ) );
+    for eegIdx = 1 : 2
+        mu = mean( ephysData.eeg.clean( tBaseZIdx, eegIdx ) );
+        sigma = std( ephysData.eeg.clean( tBaseZIdx, eegIdx ) );
+        % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
+        %     eegIdx, )
+        eegZAll( :, eegIdx) = ( eegAll( :, eegIdx ) - mu ) ./ sigma;
+
+    end
+
+    % Get new spectrogram
     [ S, t, f ] = mtspecgramc( eegZAll, win, params );
 
     %% Save data for plotting to figures folder
@@ -103,16 +101,16 @@ for expIdx = 1 : nExps
         eeg( expIdx ).all.t2plot = tsAll;
         eeg( expIdx ).all.ZL = eegZAll;
 
-        emg( expIdx ).smooth = emg2plot;
+        emg( expIdx ).filt = emg2plot;
         emg( expIdx ).t2plot = tEmg2plot;
 
-        spec( expIdx ).L = S( :, :, 1 );
-        spec( expIdx ).R = S( :, :, 2 );
+        spec( expIdx ).L = squeeze( S( :, :, 1 ) );
+        spec( expIdx ).R = squeeze( S( :, :, 2 ) );
         spec( expIdx ).t2plot = t;
         spec( expIdx ).f2plot = f;
 
         f2save = "ExampleFigData.mat";
-        save( fullfile( resDir, f2save ), ...
+        save( fullfile( resDir, mouseId, f2save ), ...
             "info", "eeg", "spec", "emg", "-v7.3" )
         fprintf( "Done!\n" )
 
