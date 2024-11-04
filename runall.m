@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 19;
+expList = 6;
 
 % Set parameters.
 win = [ 2 0.1 ];
