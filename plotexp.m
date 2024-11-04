@@ -272,7 +272,7 @@ for plotIdx = 1 : nPlots
     
 end
 
-xlabel( sprintf( 'time (%s)', tUnits ) )
+xlabel( sprintf( 'Time (%s)', tUnits ) )
 
 % Set properties
 set( hAx,...
