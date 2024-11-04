@@ -23,10 +23,10 @@ figure
 colormap magma
 nExps = length( spec );
 plotIdx = 1 : 2 : 2 * nExps;
-colorLims = [ -35 -10 ];
+colorLims = [ -35 -5 ];
 for i = 1 : nExps
     thisSpecL = spec( i ).L;
-    thisSpecR = spec( i ).L;
+    thisSpecR = spec( i ).R;
     tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 )...
         + tLims( 1 ) ) ) / 60;
     fSpec = spec( i ).f2plot;
@@ -42,7 +42,7 @@ for i = 1 : nExps
     yLims = get( gca, 'ylim' );
     posX = xLims( 1 ) + 0.5;
     posY = yLims( 2 ) - 5;
-    if i == 1
+    if info( i ).dose == 0
         tit = "saline";
 
     else

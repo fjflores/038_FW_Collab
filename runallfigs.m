@@ -2,8 +2,8 @@
 ccc
 addpath(".\Figures")
 
-mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-% mList = { "M103" };
+% mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
+mList = { "M107" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off
@@ -15,7 +15,7 @@ warning on
 clc
 
 addpath(".\Figures")
-mouseId = "M101";
+mouseId = "M108";
 tLims = [ 600 3600 ];
 makespecfig( mouseId, tLims )
 
