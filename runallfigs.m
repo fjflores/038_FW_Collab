@@ -85,19 +85,8 @@ addpath( ".\Figures" )
 doses = [ 0 10 50 100 150 ];
 % dose = 100;
 figure
-for i = 1 : length( doses )
-    thisDose = doses( i ); 
-    subplot( 5, 1, i )
-    plotdeltadf( thisDose, "mf" )
-    title( sprintf( "Dose: %u %cg/kg", thisDose, 956 ) )
-    % ylim( [ 0 0.4 ] )
+plotqeeg( doses, "sef" )
 
-    if i == length( doses )
-        xlabel( "time (min)" )
-
-    end
-
-end
 
 %% Plot average spectrogram for each dose
 clear all
