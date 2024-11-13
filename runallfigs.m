@@ -2,8 +2,8 @@
 ccc
 addpath(".\Figures")
 
-% mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-mList = { "M107" };
+mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
+% mList = { "M107" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off
@@ -85,7 +85,42 @@ addpath( ".\Figures" )
 doses = [ 0 10 50 100 150 ];
 % dose = 100;
 figure
-plotqeeg( doses, "sef" )
+qeeg = plotqeeg( doses, "sef" );
+
+figure
+plot( doses, qeeg, 'ok' )
+box off
+xlim([ -5 155 ] )
+ylim( [ 5 25 ] )
+xlabel( "dose (ug/kg)" )
+ylabel( "Frequency (Hz)")
+title( { "Median spectral edge", "30-40 min after dex" } )
+
+%% Fit an exponential decay model to the data
+x = repmat( doses, size( qeeg, 1 ), 1 );
+x = x( : );
+y = qeeg( : );
+idxNan = isnan( y );
+x( idxNan ) = [ ];
+y( idxNan ) = [ ];
+fitType = fittype(...
+    'a*exp(b*x) + c*exp(d*x)',...
+    'independent', 'x',...
+    'dependent', 'y' );
+fitOptions = fitoptions(...
+    'Method', 'NonlinearLeastSquares',...
+    'StartPoint', [ 1, -0.1, 1, -0.01 ] );
+[fitResult, gof] = fit( x, y, fitType, fitOptions );
+
+% Display the fit results
+disp( fitResult );
+plot( fitResult, x, y );
+xlabel( 'X Data' );
+ylabel( 'Y Data' );
+title( 'Exponential Decay Fit' );
+legend( 'Data', 'Fitted Curve' );
+xlim([ -5 155 ] )
+ylim( [ 5 25 ] )
 
 
 %% Plot average spectrogram for each dose

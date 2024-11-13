@@ -1,6 +1,22 @@
-function plotqeeg( doses, kind )
-% Plot delta power AUC across all mice for a single dose
+function qeeg = plotqeeg( doses, kind, tLims )
+% PLOTQEEG plot a qeeg feature across all mice for the given doses.
+% 
+% Usage:
+% qeeg = plotqeeg( doses, kind )
+% 
+% Input:
+% doses: vector with dose or doses to be plotted and extracted.
+% kind: string whith qeeg feature to plot/extract. "mf" for median freq, 
+% "sef" for spectral edge, and "df" for dominant frequency.
+% tLims: time limits to take qeeg median.
+% 
+% Output:
+% qeeg: requested spectral feature
 
+if nargin < 3
+    tLims = [ 30 40 ];
+
+end
 
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
@@ -29,8 +45,8 @@ for doseIdx = 1 : nDoses
     nExps = length( expList );
 
     hAx( doseIdx ) = subtightplot( nDoses, 1, doseIdx, opts{ : } );
-    for idxExp = 1 : nExps
-        thisExp = expList( idxExp );
+    for expIdx = 1 : nExps
+        thisExp = expList( expIdx );
         metDat = getmetadata( thisExp );
         resDir = fullfile( root, "Results", metDat.subject );
         f2load = "ExampleFigData.mat";
@@ -59,11 +75,13 @@ for doseIdx = 1 : nDoses
                 var2plot = df;
 
         end
+        qeeg( expIdx, doseIdx ) = median( var2plot(...
+            t2plot > tLims( 1 ) & t2plot < tLims( 2 ) ) );
         plot( t2plot, var2plot, Color=[ 0.5 0.5 0.5 ] )
         box off
         hold on
 
-        disprog( idxExp, nExps, 20 )
+        disprog( expIdx, nExps, 20 )
 
     end
 
@@ -88,6 +106,11 @@ for doseIdx = 1 : nDoses
     ylabel( 'Freq. (Hz)' )
 
 end
+
+% Remove zeros from qEEG.
+qeeg( qeeg == 0 ) = NaN;
+
+
 set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
