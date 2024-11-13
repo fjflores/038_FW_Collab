@@ -1,4 +1,4 @@
-function makespecfig( mouseId, tLims )
+function makespecfig( mouseId, drug, tLims, db2load )
 % MAKESPECFIG plots spectrograms for all doses of a drug in a signle mouse.
 % 
 % Usage:
@@ -9,9 +9,17 @@ function makespecfig( mouseId, tLims )
 % tLims: 2-element vector with time limits before and after the event.
 
 root = getrootdir( );
-resDir = fullfile( root, "Results", mouseId );
-f2load = "ExampleFigData.mat";
-load( fullfile( resDir, f2load ), "spec", "info" );
+resDir = fullfile( root, "Results" );
+
+if ~exist( "db2load", "var" )
+    db2load = "abc_experiment_list.xlsm";
+
+end
+
+masterTab = readtable( fullfile( resDir, db2load ) );
+expListIdx = masterTab.analyze == 1 ...
+    & strcmp( masterTab.drug, drug ) ...
+    & strcmp( masterTab.mouse_id, mouseId );
 
 gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
@@ -21,15 +29,17 @@ yLims = [ 0 50 ];
 
 figure
 colormap magma
-nExps = length( spec );
+expList = masterTab.exp_id( expListIdx )
+nExps = sum( expListIdx );
 plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
-for i = 1 : nExps
-    thisSpecL = spec( i ).L;
-    thisSpecR = spec( i ).R;
-    tSpec = ( spec( i ).t2plot - ( spec( i ).t2plot( 1 )...
+for expIdx = 1 : nExps
+    [ spec, info ] = loadprocdata( expList( expIdx ), { "spec", "info" } );
+    thisSpecL = spec.L;
+    thisSpecR = spec.R;
+    tSpec = ( spec.t2plot - ( spec.t2plot( 1 )...
         + tLims( 1 ) ) ) / 60;
-    fSpec = spec( i ).f2plot;
+    fSpec = spec.f2plot;
 
     % Spectrogram figure
     hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
