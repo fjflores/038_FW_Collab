@@ -2,7 +2,8 @@
 ccc
 
 % Define experiment of interest.
-expList = [ 9 11 13 15 17 24 ];
+expList = [ 8 10 12 14 16 18 26 28 29 30 31 32 34 35 36 37 38 39 40 41 42 ...
+    43 45 47 48 49 ];
 
 % Set parameters.
 win = [ 10 1 ];
@@ -28,12 +29,12 @@ clear all
 % clc
 
 % Define experiment of interest.
-expID = 43;
+expId = 9;
 
 % expData = loadmixdata( expID );
 
-figure( 'Name', sprintf( 'Exp. %i', expID ), 'WindowState', 'maximized' )
-[ hAx, hLink ] = plotexp( 19,...
+figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
+[ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -400 400 ],...
     'SetFreqSpec', [ 0.5 80 ],...
@@ -44,10 +45,10 @@ figure( 'Name', sprintf( 'Exp. %i', expID ), 'WindowState', 'maximized' )
 % TEMPORARY: turn this chunk into an option within plotexp
 metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
 tsTab = table2array( metTab( :, 28 : 33 ) );
-xline( hAx( 1 ), tsTab( expID, 1 : 4 ), 'm', 'LineWidth', 2 )
-xline( hAx( 1 ), tsTab( expID, 5 : 6 ), 'g', 'LineWidth', 2 )
-xline( hAx( 3 ), tsTab( expID, 1 : 4 ), 'm', 'LineWidth', 2 )
-xline( hAx( 3 ), tsTab( expID, 5 : 6 ), 'g', 'LineWidth', 2 )
+xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
+xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
+xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
+xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 
 
 %% Batch process and save DLC and video data.
