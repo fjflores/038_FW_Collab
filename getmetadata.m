@@ -23,7 +23,7 @@ expTab = readtable( fullfile( tabPath,...
 expIdx = expTab.exp_id == expID;
 analyzeMask = expTab.analyze( expIdx );
 subject = expTab.mouse_id( expIdx );
-dexDose = expTab.dex_dose_ugperkg( expIdx );
+dexDose = expTab.drug_dose( expIdx );
 expDate = expTab.date( expIdx );
 expNumber = expTab.exp_number( expIdx );
 expType = expTab.exp_type( expIdx );
