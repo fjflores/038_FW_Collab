@@ -29,20 +29,22 @@ yLims = [ 0 50 ];
 
 figure
 colormap magma
-expList = masterTab.exp_id( expListIdx )
+expList = masterTab.exp_id( expListIdx );
+doseList = masterTab.drug_dose( expListIdx );
 nExps = sum( expListIdx );
 plotIdx = 1 : 2 : 2 * nExps;
-colorLims = [ -35 -5 ];
+colorLims = [ 0 30 ];
 for expIdx = 1 : nExps
     [ spec, info ] = loadprocdata( expList( expIdx ), { "spec", "info" } );
-    thisSpecL = spec.L;
-    thisSpecR = spec.R;
-    tSpec = ( spec.t2plot - ( spec.t2plot( 1 )...
+    thisSpecL = squeeze( spec.S( :, :, 1 ) );
+    thisSpecR = squeeze( spec.S( :, :, 2 ) );
+    tSpec = ( spec.t - ( spec.t( 1 )...
         + tLims( 1 ) ) ) / 60;
-    fSpec = spec.f2plot;
+    fSpec = spec.f;
+    thisDose = doseList( expIdx );
 
     % Spectrogram figure
-    hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
+    hAx( plotIdx( expIdx ) ) = subtightplot( nExps, 2, plotIdx( expIdx ),...
         opts{ : } );
     imagesc( tSpec, fSpec, pow2db( thisSpecL' ) )
     axis xy
@@ -52,11 +54,11 @@ for expIdx = 1 : nExps
     yLims = get( gca, 'ylim' );
     posX = xLims( 1 ) + 0.5;
     posY = yLims( 2 ) - 5;
-    if info( i ).dose == 0
+    if thisDose == 0
         tit = "saline";
 
     else
-        tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+        tit = sprintf( '%s %u %cg/kg', drug, thisDose, 956 );
 
     end
     text( posX, posY, tit,...
@@ -75,8 +77,8 @@ for expIdx = 1 : nExps
     %     "Color", "none" )
     % plot( hEmg, emg( i ).t2plot, emg( i ).smooth, 'w' )
 
-    hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
-        opts{ : } );
+    hAx( plotIdx( expIdx ) + 1 ) = subtightplot(...
+        nExps, 2, plotIdx( expIdx ) + 1, opts{ : } );
     imagesc( tSpec, fSpec, pow2db( thisSpecR' ) )
     axis xy
     box off
