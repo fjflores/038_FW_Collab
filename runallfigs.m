@@ -15,9 +15,9 @@ warning on
 clc
 
 addpath(".\Figures")
-mouseId = "M108";
+mouseId = "M102";
 tLims = [ 600 3600 ];
-makespecfig( mouseId, tLims )
+makespecfig( mouseId, "dex", tLims )
 
 %% Plot series of traces
 close all
