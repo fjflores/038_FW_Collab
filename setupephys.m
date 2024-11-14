@@ -1,4 +1,4 @@
-function ephysData = setupephys( expID, win, params, smoothEmg )
+function varargout = setupephys( expID, win, params, smoothEmg )
 % SETUPEPHYS reads the csc data, processes it, and converts it
 % to a matlab structure.
 %
@@ -46,16 +46,18 @@ fprintf( 'Reading events... ' )
 [ tsOn, tsOff ] = setupevents( expID );
 fprintf( 'Done.\n' )
 
-% Extract raw data.
+% Extract raw eeg.
 eeg = cscData.data( :, 1 : 2 ); % get raw eeg data.
-emg = cscData.data( :, 3 ); % get raw emg data.
 eegFs = cscData.Fs( :, 1 : 2 );
-emgFs = cscData.Fs( :, 3 );
 eegTs = ( cscData.relTs( :, 1 : 2 ) / 1e6 ) + ( 1 / eegFs( 1 ) );
+
+% Extract raw EMG
+emgTmp = cscData.data( :, 3 ); % get raw emg data.
+emgFs = cscData.Fs( :, 3 );
 emgTs = ( cscData.relTs( :, 3 ) / 1e6 ) + ( 1 / eegFs( 1 ) );
-tsOnCorrection = 1 / eegFs( 1 );
 
 % Add 1/Fs to tsOn and tsOff (output from SETUPEVENTS).
+tsOnCorrection = 1 / eegFs( 1 );
 tsOn = tsOn + tsOnCorrection;
 tsOff = tsOff + tsOnCorrection;
 
@@ -63,12 +65,16 @@ tsOff = tsOff + tsOnCorrection;
 names = cscData.labels;
 
 % Filter data below 40 Hz for ease of viewing.
-fprintf( 'Filtering data... ' )
-fBandEeg = params.filtEeg;
-eegFilt = eegemgfilt( eeg, fBandEeg, eegFs( 1 ) );
+% fprintf( 'Filtering data... ' )
+% fBandEeg = params.filtEeg;
+% eegFiltTmp = eegemgfilt( eeg, fBandEeg, eegFs( 1 ) );
 
-fBandEmg = params.filtEmg;
-emgFilt = eegemgfilt( emg, fBandEmg, eegFs( 1 ) );
+% Downsample filtered eeg to ~80 Hz
+fprintf( 'Downsampling EEG... ' )
+eegFsFilt = 2 * params.filtEeg( 2 );     % Target sampling frequency in Hz
+dnFactor = round( eegFs( 1 ) / eegFsFilt );
+eegDn = downsample( eeg, dnFactor );
+tEegFilt = ( 0 : length( eegDn ) - 1 ) / eegFsFilt;
 fprintf( 'Done.\n' )
 
 % Detrend and remove 60 Hz artifact.
@@ -95,63 +101,86 @@ fprintf( 'Computing specgrams and coherence... ' )
     cleanEEG( :, 1 ), cleanEEG( :, 2 ), win, params );
 fprintf( 'Done.\n' )
 
-% Smooth EMG.
-if smoothEmg
-    fprintf( 'Smoothing EMG... ' )
-    tStart = tic;
-    [ emgAct, tAct, fpassEmg, FsSmooth ] = smoothemg( emg, emgFs );
-    tElaps = toc( tStart );
-    fprintf( 'Done. Smoothing took %s.\n', humantime( tElaps ) )
-    
-else
-    fprintf( 'Skipped smoothing EMG.\n' )
-    
-end
-
-tsOnOg = tsOn;
-tsOffOg = tsOff;
+% % Smooth EMG.
+% if smoothEmg
+%     fprintf( 'Smoothing EMG... ' )
+%     tStart = tic;
+%     [ emgAct, tAct, fpassEmg, FsSmooth ] = smoothemg( emg, emgFs );
+%     tElaps = toc( tStart );
+%     fprintf( 'Done. Smoothing took %s.\n', humantime( tElaps ) )
+% 
+% else
+%     fprintf( 'Skipped smoothing EMG.\n' )
+% 
+% end
+% 
+% % tsOnOg = tsOn;
+% % tsOffOg = tsOff;
   
-% Add eeg data to structure.
-ephysData.expID = [];
-ephysData.subject = '';
-ephysData.expType = '';
-ephysData.dexDose = [];
-ephysData.eeg.raw = eeg;
-ephysData.eeg.filt = eegFilt;
-ephysData.eeg.filtBand = params.filtEeg;
-ephysData.eeg.det = detEEG;
-ephysData.eeg.detWin = win;
-ephysData.eeg.clean = cleanEEG;
-ephysData.eeg.Fs = eegFs;
-ephysData.eeg.ts = eegTs;
-ephysData.eeg.names = names( 1 : 2 );
-ephysData.spec.S = cat( 3, S1, S2 );
-ephysData.spec.f = f;
-ephysData.spec.t = t;
-ephysData.spec.params = params;
-ephysData.spec.win = win;
-ephysData.spec.names = names( 1 : 2 );
-ephysData.coher.C = C;
-ephysData.coher.phi = phi;
-ephysData.coher.confC = confC;
-ephysData.coher.phistd = phistd;
-ephysData.coher.Cerr = Cerr;
-ephysData.emg.raw = emg;
-ephysData.emg.FsRaw = emgFs;
-ephysData.emg.tRaw = emgTs;
-ephysData.emg.filt = emgFilt;
-if smoothEmg
-    ephysData.emg.smooth = emgAct;
-    ephysData.emg.tSmooth = tAct;
-    ephysData.emg.FsSmooth = FsSmooth;
-    ephysData.emg.smoothBand = fpassEmg;
-end
-ephysData.emg.names = names( 3 );
-ephysData.events.tsOn = tsOn;
-ephysData.events.tsOff = tsOff;
+
+% Create the data structures.
+% info.drugDose = [];
+
+eegRaw.data = eeg;
+eegRaw.Fs = eegFs;
+eegRaw.ts = eegTs;
+eegRaw.names = names( 1 : 2 );
+varargout{ 1 } = eegRaw;
+
+eegFilt.data = eegDn;
+eegFilt.band = params.filtEeg( 2 );
+eegFilt.Fs = eegFsFilt;
+eegFilt.ts = tEegFilt;
+eegFilt.names = names( 1 : 2 );
+varargout{ 2 } = eegFilt;
+
+eegClean.data = cleanEEG;
+eegClean.detWin = win;
+eegClean.Fs = eegFs;
+eegClean.ts = eegTs;
+eegClean.names = names( 1 : 2 );
+varargout{ 3 } = eegClean;
+
+spec.S = cat( 3, S1, S2 );
+spec.f = f;
+spec.t = t;
+spec.params = params;
+spec.win = win;
+spec.names = names( 1 : 2 );
+varargout{ 4 } = spec;
+
+coher.C = C;
+coher.f = f;
+coher.t = t;
+coher.phi = phi;
+coher.confC = confC;
+coher.phistd = phistd;
+coher.Cerr = Cerr;
+coher.params = params;
+coher.win = win;
+varargout{ 5 } = coher;
+
+emgRaw.data = emgTmp;
+emgRaw.Fs = emgFs;
+emgRaw.ts = emgTs;
+emgRaw.names = names( 1 : 2 );
+varargout{ 6 } = emgRaw;
+
+events.tsOn = tsOn;
+events.tsOff = tsOff;
+varargout{ 7 } = events;
+
+% if smoothEmg
+%     emgSmooth.data = emgAct;
+%     emgSmooth.ts = tAct;
+%     emgSmooth.Fs = FsSmooth;
+%     emgSmooth.band = fpassEmg;
+%     emgSmooth.names = names( 3 );
+%     varargout{ 9 } = emgSmooth;
+% 
+% end
 
 fprintf( 'Done processing data.\n' )
-
 
 end
 
