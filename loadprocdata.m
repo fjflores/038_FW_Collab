@@ -15,9 +15,6 @@ function varargout = loadprocdata( expID, dataType )
 %   'eeg' loads all EEG-related variables in alphabetic order: eegClean, 
 %       eegFilt, eegRaw.
 %
-%   'emg' loads all EMG-related variables in alphabetic order: emgFilt, 
-%       emgRaw.
-%
 %   'all' loads all variables in alphabetic order: coher, eegClean, 
 %       eegFilt, eegRaw, emgFilt, emgRaw, events, info, spec.
 %
@@ -56,16 +53,12 @@ switch dataType
         vars2load = { 'eegClean', 'eegFilt', 'eegRaw' };
         varargout = getvars( f2load, vars2load{ : } );
 
-    case 'emg'
-        vars2load = { 'emgFilt', 'emgRaw' };
-        varargout = getvars( f2load, vars2load{ : } );
-
     case 'all'
         vars2load = { };
         varargout = getvars( f2load, vars2load{ : } );
 
     case 'plot'
-        vars2load = { 'coher', 'eegClean', 'eegFilt', 'emgFilt',...
+        vars2load = { 'coher', 'eegClean', 'eegFilt',...
             'emgRaw', 'events', 'spec' };
         varargout = getvars( f2load, vars2load{ : } );
 
