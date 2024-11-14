@@ -54,7 +54,11 @@ for expIdx = 1 : nExps
     tEmg = ephysData.emg.tRaw;
     idxEmg = tEmg >= tInj1 & tEmg <= tInj2;
     tEmg2plot = tEmg( idxEmg );
-    emg2plot = ephysData.emg.filt( idxEmg );
+    emg2proc = ephysData.emg.filt( idxEmg );
+
+    % filter and downsample emg.
+    
+
 
     % Get all EEG.
     % Spec for plotting
