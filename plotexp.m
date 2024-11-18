@@ -38,7 +38,7 @@ function [ hAx, hLink ] = plotexp( expId, varargin )
 %   Default: 'min'.
 
 % Load data to plot
-[ coher, eegClean, eegFilt, emgFilt, emgRaw, events, spec ]...
+[ coher, eegClean, eegFilt, emgRaw, events, spec ]...
     = loadprocdata( expId, 'plot' );
 
 
