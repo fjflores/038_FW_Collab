@@ -2,8 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = [ 8 10 12 14 16 18 26 28 29 30 31 32 34 35 36 37 38 39 40 41 42 ...
-    43 45 47 48 49 ];
+expList = 50 : 52;
 
 % Set parameters.
 win = [ 10 1 ];
@@ -52,7 +51,6 @@ xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 
 
 %% Batch process and save DLC and video data.
-
 close all
 clear all
 clc
@@ -81,3 +79,10 @@ overwrite = false;
 batchprocvid( expList, params, overwrite );
 
 % rmpath( '.\Vid_processing\' )
+
+%% Save the data for sleep scoring
+ccc
+warning off
+
+mouseId = "M102";
+savesleepdata( mouseId )
