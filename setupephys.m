@@ -1,14 +1,14 @@
-function varargout = setupephys( expID, win, params, smoothEmg )
+function varargout = setupephys( expID, params, smoothEmg )
 % SETUPEPHYS reads the csc data, processes it, and converts it
 % to a matlab structure.
 %
 % Usage:
-% ephysData = setupephys( expID, win, params, smoothEmg );
+% ephysData = setupephys( expID, params, smoothEmg );
 %
 % Inputs:
 % expID: experiment ID from metadata table.
-% win: window for spectrogram processing.
-% params: parameters in chronux format.
+% params: all parameters in chronux format, plus window for spectrogram
+% processing and window for detrending.
 % smoothEmg: if true, smooths EMG. If false, skips smoothing.
 %
 % Output:
@@ -83,7 +83,7 @@ fprintf( 'Detrending and removing 60 Hz line... ' )
 warning off
 params.Fs = eegFs( 1 );
 for i = 1 : nCh
-    detEEG( :, i ) = locdetrend( eeg( :, i ), params.Fs, win );
+    detEEG( :, i ) = locdetrend( eeg( :, i ), params.Fs, params.detWin );
     tempEEG = ffrmlinesc( detEEG( :, i ), params.Fs );
     
     % fix shorter length of clean signal
@@ -97,8 +97,10 @@ fprintf( 'Done.\n' )
 
 % Compute spectrogram and coherence.
 fprintf( 'Computing specgrams and coherence... ' )
+specWin = params.specWin;
+paramsChrnx = rmfield( params, { 'specWin', 'detWin' } );
 [ C, phi, ~, S1, S2, t, f, confC, phistd, Cerr ] = cohgramc(...
-    cleanEEG( :, 1 ), cleanEEG( :, 2 ), win, params );
+    cleanEEG( :, 1 ), cleanEEG( :, 2 ), specWin, paramsChrnx );
 fprintf( 'Done.\n' )
 
 % % Smooth EMG.
@@ -135,7 +137,7 @@ eegFilt.names = names( 1 : 2 );
 varargout{ 2 } = eegFilt;
 
 eegClean.data = cleanEEG;
-eegClean.detWin = win;
+eegClean.detWin = params.detWin;
 eegClean.Fs = eegFs;
 eegClean.ts = eegTs;
 eegClean.names = names( 1 : 2 );
@@ -144,8 +146,8 @@ varargout{ 3 } = eegClean;
 spec.S = cat( 3, S1, S2 );
 spec.f = f;
 spec.t = t;
-spec.params = params;
-spec.win = win;
+spec.params = paramsChrnx;
+spec.win = params.specWin;
 spec.names = names( 1 : 2 );
 varargout{ 4 } = spec;
 
@@ -156,8 +158,8 @@ coher.phi = phi;
 coher.confC = confC;
 coher.phistd = phistd;
 coher.Cerr = Cerr;
-coher.params = params;
-coher.win = win;
+coher.params = paramsChrnx;
+coher.win = params.specWin;
 varargout{ 5 } = coher;
 
 emgRaw.data = emgTmp;

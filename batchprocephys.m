@@ -1,13 +1,13 @@
-function batchprocephys( expList, win, params, smoothEmg, overwrite )
+function batchprocephys( expList, params, smoothEmg, overwrite )
 % BATCHPROCEPHYS batch-processess the given list of experiments.
 %
 % Usage:
-% batchprocephys( expList, win, params, smoothEmg, overwrite )
+% batchprocephys( expList, params, smoothEmg, overwrite )
 %
 % Input:
 % expList: list of experiments to process.
-% win: window for spectrogram processing.
-% params: parameters for spectrogram processing.
+% params: all parameters in chronux format, plus window for spectrogram
+% processing and window for detrending.
 % smoothEmg: true if should smooth EMG. False if should skip this step (and
 % only save raw and filtered EMG).
 % overwrite: True if should overwrite already processed data. False
@@ -40,7 +40,7 @@ for expIdx = 1 : nExps
         hWait,...
         msg )
     exStat = saveephys(...
-        expId, win, params, smoothEmg, dateProc, overwrite );
+        expId, params, smoothEmg, dateProc, overwrite );
     allSkipped( expIdx,1 ) = exStat;    
     disp( ' ' )
         

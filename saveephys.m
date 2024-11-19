@@ -1,15 +1,15 @@
-function exitStatus = saveephys( expID, win, params, smoothEmg,...
+function exitStatus = saveephys( expID, params, smoothEmg,...
     dateProc, overwrite )
 % SAVEEPHYS reads and saves processed data from an experiment.
 %
 % Usage:
-% exitStatus = saveephys( expID, win, params, smoothEmg, dateProc,...
+% exitStatus = saveephys( expID, params, smoothEmg, dateProc,...
 % overwrite )
 %
 % Inputs:
 % expID: experiment ID from table.
-% win: window for spectrogram processing.
-% params: all parameters in chronux format.
+% params: all parameters in chronux format, plus window for spectrogram
+% processing and window for detrending.
 % smoothEmg: if true, smooths EMG. If false, skips smoothing.
 % dateProc: timestamp for file processing.
 % overwrite: if true, overwrites exiting data. If false, skips processing.
@@ -82,7 +82,7 @@ fprintf( 'Processing exp %u: %s...\n', expID, expName )
     spec,...
     coher,...
     emgRaw,...
-    events ] = setupephys( expID, win, params, smoothEmg );
+    events ] = setupephys( expID, params, smoothEmg );
 
 % Save experiment info to struct.
 info.expID = expID;
