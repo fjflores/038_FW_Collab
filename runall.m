@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 50 : 52;
+expList = 22;
 
 % Set parameters.
 win = [ 10 1 ];
@@ -28,7 +28,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 9;
+expId = 52;
 
 % expData = loadmixdata( expID );
 
@@ -70,7 +70,6 @@ params = struct(...
 overwrite = false;
 
 % expList = getexp2proc( expList ); % only includes to-analyze experiments
-
 % Batch process DLC data AND batch align and save all video timestamps.
 % batchprocdlc( expList, params, overwrite );
 % batchvidts( expList, overwrite );
@@ -84,5 +83,5 @@ batchprocvid( expList, params, overwrite );
 ccc
 warning off
 
-mouseId = "M102";
+mouseId = "M106";
 savesleepdata( mouseId )

@@ -53,9 +53,9 @@ for miceIdx = 1 : nMice
             mkdir( accDir )
 
         end
-
-        EEG = eegRaw.data;
-        EMG = emgRaw.data;
+    
+        EEG = eegemgfilt( eegRaw.data( :, 1 ), [ 0.5 300 ], eegRaw.Fs );
+        EMG = eegemgfilt( emgRaw.data, [ 10 1000 ], eegRaw.Fs ); 
         sessDir = fullfile( accDir, masterTab.exp_name( thisExpIdx ) );
 
         try
