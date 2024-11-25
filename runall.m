@@ -87,3 +87,15 @@ warning off
 
 mouseId = "M106";
 savesleepdata( mouseId )
+
+%% Batchprocess mice to get tidy data
+ccc
+addpath(".\DoseEffect\")
+
+mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
+% mList = { "M107" };
+csvFile = "abc_experiment_list.xlsm";
+tLims = [ 600 3600 ];
+warning off
+batchexampledata( mList, csvFile, tLims, true )
+warning on
