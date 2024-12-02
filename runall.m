@@ -90,12 +90,12 @@ savesleepdata( mouseId )
 
 %% Batchprocess mice to get tidy data
 ccc
-addpath(".\DoseEffect\")
+addpath( ".\DoseEffect\" )
 
-mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-% mList = { "M107" };
+mList = { "M102", "M103", "M105", "M106", "M107", "M108" };
+% mList = { "M101" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off
-batchexampledata( mList, csvFile, tLims, true )
+batchtidydata( mList, csvFile, tLims, true )
 warning on
