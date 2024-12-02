@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 22;
+expList = 59;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 52;
+expId = 59;
 
 % expData = loadmixdata( expID );
 
@@ -45,7 +45,8 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 
 % TEMPORARY: turn this chunk into an option within plotexp
 metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
-tsTab = table2array( metTab( :, 28 : 33 ) );
+tsTab = table2array( metTab( :, { 'dex_ts_offline', 'dex_ts_online',...
+    'ati_ts_offline', 'ati_ts_online', 'dex_ts_inj', 'ati_ts_inj' } ) );
 xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
