@@ -7,7 +7,7 @@ mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off
-batchexampledata( mList, csvFile, tLims, true )
+batchtidydata( mList, csvFile, tLims, true )
 warning on
 
 %% Plot series of spectrograms
@@ -84,17 +84,19 @@ addpath( ".\Figures" )
 
 doses = [ 0 10 50 100 150 ];
 % dose = 100;
-figure
-qeeg = plotqeeg( doses, "sef" );
+% figure
+warning off
+featTab = plotqeeg( doses, "sef" );
+warning on
 
-figure
-plot( doses, qeeg, 'ok' )
-box off
-xlim([ -5 155 ] )
-ylim( [ 5 25 ] )
-xlabel( "dose (ug/kg)" )
-ylabel( "Frequency (Hz)")
-title( { "Median spectral edge", "30-40 min after dex" } )
+% figure
+% plot( doses, qeeg, 'ok' )
+% box off
+% xlim([ -5 155 ] )
+% ylim( [ 5 25 ] )
+% xlabel( "dose (ug/kg)" )
+% ylabel( "Frequency (Hz)")
+% title( { "Median spectral edge", "30-40 min after dex" } )
 
 %% Fit an exponential decay model to the data
 x = repmat( doses, size( qeeg, 1 ), 1 );
