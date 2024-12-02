@@ -4,7 +4,7 @@ function makespecdosefig( dose )
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
-expListIdx = fTab.analyze == 1 & fTab.dex_dose_ugperkg == dose;
+expListIdx = fTab.analyze == 1 & fTab.drug_dose == dose & fTab.drug == "dex";
 expList = fTab.exp_id( expListIdx );
 
 gap = [ 0.005 0.01 ];
@@ -16,19 +16,19 @@ yLims = [ 0 50 ];
 figure( 'WindowState', 'maximized' )
 colormap magma
 nExps = length( expList );
-csvFileSpec = "example_traces.csv";
+
 for idxExp = 1 : nExps
     thisExp = expList( idxExp );
     metDat = getmetadata( thisExp );
     resDir = fullfile( root, "Results", metDat.subject );
-    f2load = "ExampleFigData.mat";
+    f2load = "TidyData.mat";
     load( fullfile( resDir, f2load ), "spec", "info" );
-    tsTab = readtable( fullfile( resDir, csvFileSpec ) );
-    tabExpIdx = tsTab.dose == dose;
-    S = spec( tabExpIdx ).L;
-    t = ( spec( tabExpIdx ).t2plot - ...
-        ( spec( tabExpIdx ).t2plot( 1 ) + 600 ) ) / 60;
-    f = spec( tabExpIdx ).f2plot;
+    % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
+    tabExpIdx = find( [ info.expId ] == thisExp );
+    S = spec( tabExpIdx ).SL;
+    t = ( spec( tabExpIdx ).t - ...
+        ( spec( tabExpIdx ).t( 1 ) + 600 ) ) / 60;
+    f = spec( tabExpIdx ).f;
     
     hAx( idxExp ) = subtightplot( nExps, 1, idxExp,...
         opts{ : } );
