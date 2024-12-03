@@ -1,9 +1,9 @@
-function percQuiet = getperctquiet( emg, ts, tDexOn, Fs )
+function [ percQuiet, rmsVals ] = getperctquiet( emg, ts, tDexOn, Fs )
 
 % Get emg during "dex" action
 % tStart = tDexOn;
-dur = floor( ts( end ) - tDexOn );
-dexDataIdx = getepochidx( ts, tDexOn, dur );
+% dur = floor( ts( end ) - tDexOn );
+dexDataIdx = ts > tDexOn;
 dexEmg = emg( dexDataIdx );
 
 % Square emg 

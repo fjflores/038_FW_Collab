@@ -1,9 +1,9 @@
 %% Batchprocess example data
 ccc
-addpath(".\Figures")
+addpath(".\DoseEffect")
 
-mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
-% mList = { "M107" };
+% mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108" };
+mList = { "M109" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off

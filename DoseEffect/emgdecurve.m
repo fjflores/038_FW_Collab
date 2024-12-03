@@ -1,17 +1,31 @@
-function percTab = emgdecurve( drug )
+function [ percQuietTab, rmsVals ] = emgdecurve( drug )
 % Plot average spectra for each dose across all mice
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
 doses = sort( unique( masterTab.drug_dose(...
-    masterTab.drug == drug & masterTab.analyze == 1 ) ) );
+    masterTab.drug == drug & ...
+    masterTab.analyze == 1 ) ) );
+
+% Create the table
+% expId = [ ];          % Example experiment IDs
+% mouseId = { };  % Example mouse IDs
+% drug = { };
+% dose = [ ];   % Example doses
+% percMov = [ ]; % Example percentage movement
+percQuietTab = table(...
+    'Size', [ 5, 5 ], ...
+    'VariableTypes', {'double', 'string', 'string', 'double', 'double'}, ...
+    'VariableNames', { 'expId', 'mouseId', 'drug', 'dose', 'percQuiet' } );
 
 nDoses = length( doses );
+cnt = 1;
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
-    expListIdx = masterTab.analyze == 1 &...
-        masterTab.drug_dose == thisDose;
+    expListIdx = masterTab.analyze == 1 & ...
+        masterTab.drug_dose == thisDose & ...
+        masterTab.analyze_EMG == 1;
     expList = masterTab.exp_id( expListIdx );
     fprintf( "Processing dose %u %cg\\kg...\n", thisDose, 965 )
     
@@ -25,60 +39,23 @@ for doseIdx = 1 : nDoses
         tabExpIdx = find( [ info.expId ] == thisExp );
         data = emg( tabExpIdx ).data;
         ts = emg( tabExpIdx ).t;
-        Fs = emg( tabExpIdx ).Fs;
-        tDexOn = info( tabExpIdx ).tDexOn;
-        percMov = getpercmov( data, ts, tDexOn, Fs );
-
-        if idxExp == 1
-            t = ( spec( tabExpIdx ).t2plot - ...
-            ( spec( tabExpIdx ).t2plot( 1 ) + 600 ) ) / 60;
-            f = spec( tabExpIdx ).f2plot;
-
-        end
-
-        disprog( idxExp, nExps, 10 )
-        
-    end
-
-    hAx( doseIdx ) = subtightplot( nDoses, 1, doseIdx, opts{ : } );
-    imagesc( t, f, pow2db( Sdose' ) )
-    axis xy
-    box off
-    clim( [ -35 0 ] )
-    ylabel( 'Freq. (Hz)' )
-    xLims = get( gca, 'xlim' );
-    yLims = get( gca, 'ylim' );
-    posX = xLims( 1 ) + 1;
-    posY = yLims( 2 ) - 5;
-
-    if thisDose == 0
-        tit = "Saline";
-
-    else
-        tit = sprintf( "Dose: %u %cg/kg", thisDose, 956 );
+        emgFs = emg( tabExpIdx ).Fs;
+        tDexOn = info( tabExpIdx ).injOn;
+        [ percQuiet, rmsTmp ] = getperctquiet( data, ts, tDexOn, emgFs );
+        rmsVals{ cnt } = rmsTmp';
+        % figure
+        % histogram( rmsVals, 100 )
+        % title( sprintf( "RMS values %s %u ug/kg", metDat.subject, thisDose ) )
+        % Fill table
+        percQuietTab.expId( cnt ) = thisExp;
+        percQuietTab.mouseId( cnt ) = metDat.subject;
+        percQuietTab.drug( cnt ) = drug;
+        percQuietTab.dose( cnt ) = thisDose;
+        percQuietTab.percQuiet( cnt ) = percQuiet;
+        cnt = cnt + 1;
 
     end
-    text( posX, posY, tit,...
-        'Color', 'w',...
-        'FontWeight', 'bold',...
-        'FontSize', 10 )
-    ylabel( 'Freq. (Hz)' )
 
-    clear S Sdose spec info
     disp( ' ' )
 
 end
-
-set( hAx,...
-    'FontSize', 12,...
-    'TickDir', 'out',...
-    'XTickLabel', [],...
-    'YTick',  0 : 10 : 40  )
-ffcbar( gcf, hAx( end ), "Power (dB)" );
-
-set( hAx( end ),...
-    "XTick", [ -10 : 5 : 60 ],...
-    "XTickLabel", [ -10 : 5 : 60 ] )
-xlabel( hAx( end - 1 : end ), "time (min)" );
-set( hAx, 'FontSize', 12, 'TickDir', 'out' )
-% set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
