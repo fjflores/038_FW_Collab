@@ -46,38 +46,54 @@ for expIdx = 1 : nExps
     thisExp = exps2proc( expIdx );
     thisExpIdx = masterTab.exp_id == thisExp;
     fprintf( 'Loading %s exp %u...', mouseId, thisExp )
-    [ eegRaw, emgRaw ] = loadprocdata( thisExp, { "eegClean", "emgRaw" } );
+    [ eegClean, emgRaw ] = loadprocdata( thisExp, { "eegClean", "emgRaw" } );
     fprintf( 'done.\n' )
+    
+    % get rid of offline to injection period.
+    fprintf( " Removing pre injection period..." )
+    tOff = masterTab.dex_ts_offline( thisExpIdx );
+    tInj = masterTab.dex_ts_inj( thisExpIdx );
+    tOn = masterTab.dex_ts_online( thisExpIdx );
+    tsOrig = emgRaw.ts;
+    sigs = [ eegClean.data emgRaw.data ];
+    preIdx = tsOrig <= tOff;
+    postIdx = tsOrig >= tInj;
+    preData = sigs( preIdx, : );
+    postData = sigs( postIdx, : );
+    preTs = tsOrig( preIdx );
+    postTs = tsOrig( postIdx );
+    postWoArt = replaceartifact( postData, postTs, [ postTs( 1 ) tOn ], 'zeros' );
+    newSigs = cat( 1, preData, postWoArt );
+    % newTs = cat( 1, , postTs );
+    newTs = linspace( preTs( 1 ) + ( tInj - tOff ), postTs( end ), size( newSigs, 1 ) );
+    fprintf( "done.\n" )
 
-    tInj1 = masterTab.dex_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
-    tInj2 = masterTab.dex_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
+    % Define epoch to extract
+    tEpochStart = masterTab.dex_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
+    tEpochEnd = masterTab.dex_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
 
     % Downsample adn filter emg
     fprintf( " Processing emg..." )
     decFactor = 3;
-    chunkIdx = emgRaw.ts >= tInj1 & emgRaw.ts <= tInj2;
-    tEmg = downsample( emgRaw.ts( chunkIdx ), decFactor );
-    emgTmp = eegemgfilt( emgRaw.data, [ 10 900 ], emgRaw.Fs );
+    chunkIdx = newTs >= tEpochStart & newTs <= tEpochEnd;
+    tEmg = downsample( newTs( chunkIdx ), decFactor ) - tInj;
+    emgTmp = eegemgfilt( newSigs( :, 3 ), [ 10 900 ], emgRaw.Fs );
     emgTmp( ~chunkIdx ) = [ ];
-    emgFilt = decimate( emgTmp, decFactor );
+    emgFilt = downsample( emgTmp, decFactor );
     fprintf( "done.\n" )
     emgFs = emgRaw.Fs ./ decFactor;
 
     % Downsample and filter eeg
     fprintf( " Processing eeg..." )
     decFactor = 10;
-    tEeg = downsample( emgRaw.ts( chunkIdx ), decFactor );
-    eegTmp = eegemgfilt( eegRaw.data, [ 0.5 100 ], eegRaw.Fs );
-    eegFs = eegRaw.Fs( 1 ) ./ decFactor;
+    tEeg = downsample( newTs( chunkIdx ), decFactor ) - tInj;
+    eegTmp = eegemgfilt( newSigs( :, 1 : 2 ), [ 0.5 110 ], eegClean.Fs( 1 ) );
+    eegFs = eegClean.Fs( 1 ) ./ decFactor;
 
     % isolate baseline and compute z-score
-    tOff = masterTab.dex_ts_offline( thisExpIdx );
-    tOn = masterTab.dex_ts_online( thisExpIdx );
-
-    % eegZ = zeros( size( eegFilt ) );
     for eegIdx = 1 : 2
         eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-        tBaseZIdx = tEmg <= tOff;
+        tBaseZIdx = tEmg <= 0;
         mu = mean( eegFilt( tBaseZIdx ) );
         sigma = std( eegFilt( tBaseZIdx ) );
         % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
@@ -96,7 +112,7 @@ for expIdx = 1 : nExps
         'pad', 1 );
     win = [ 15 1.5 ];
     [ S, tStmp, f ] = mtspecgramc( eegZ, win, params );
-    tS = tStmp + tEeg( 1 );
+    tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
 
     info( expIdx ).expId = thisExp;
