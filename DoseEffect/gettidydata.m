@@ -1,4 +1,4 @@
-function gettidydata( mouseId, csvFile, tLims, saveFlag )
+function eTime = gettidydata( mouseId, csvFile, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
@@ -39,8 +39,8 @@ exps2procIdx = ...
 exps2proc = doseSortTab.exp_id( exps2procIdx );
 doses = doseSortTab.drug_dose( exps2procIdx );
 
-% load dex experiment
 t1 = tic;
+% load dex experiment
 nExps = length( exps2proc );
 for expIdx = 1 : nExps
     thisExp = exps2proc( expIdx );
@@ -56,17 +56,19 @@ for expIdx = 1 : nExps
     fprintf( " Processing emg..." )
     decFactor = 3;
     chunkIdx = emgRaw.ts >= tInj1 & emgRaw.ts <= tInj2;
-    tEmg = decimate( emgRaw.ts( chunkIdx ), decFactor );
+    tEmg = downsample( emgRaw.ts( chunkIdx ), decFactor );
     emgTmp = eegemgfilt( emgRaw.data, [ 10 900 ], emgRaw.Fs );
     emgTmp( ~chunkIdx ) = [ ];
     emgFilt = decimate( emgTmp, decFactor );
     fprintf( "done.\n" )
+    emgFs = emgRaw.Fs ./ decFactor;
 
     % Downsample and filter eeg
     fprintf( " Processing eeg..." )
     decFactor = 10;
-    tEeg = decimate( emgRaw.ts( chunkIdx ), decFactor );
+    tEeg = downsample( emgRaw.ts( chunkIdx ), decFactor );
     eegTmp = eegemgfilt( eegRaw.data, [ 0.5 100 ], eegRaw.Fs );
+    eegFs = eegRaw.Fs( 1 ) ./ decFactor;
 
     % isolate baseline and compute z-score
     tOff = masterTab.dex_ts_offline( thisExpIdx );
@@ -89,11 +91,12 @@ for expIdx = 1 : nExps
     fprintf( " Processing spec..." )
     params = struct(...
         'tapers', [ 3 5 ],...
-        'Fs', eegRaw.Fs( 1 ),...
+        'Fs', eegFs,...
         'fpass', [ 0.5 100 ],...
         'pad', 1 );
     win = [ 15 1.5 ];
-    [ S, t, f ] = mtspecgramc( eegZ, win, params );
+    [ S, tStmp, f ] = mtspecgramc( eegZ, win, params );
+    tS = tStmp + tEeg( 1 );
     fprintf( "done.\n" )
 
     info( expIdx ).expId = thisExp;
@@ -103,16 +106,18 @@ for expIdx = 1 : nExps
     info( expIdx ).injOff = tOff;
     info( expIdx ).injOn = tOn;
 
-    eeg( expIdx ).L = eegZ( :, 1 );
-    eeg( expIdx ).R = eegZ( :, 2 );
+    eeg( expIdx ).dataL = eegZ( :, 1 );
+    eeg( expIdx ).dataR = eegZ( :, 2 );
     eeg( expIdx ).t = tEeg;
+    eeg( expIdx ).Fs = eegFs;
 
-    emg( expIdx ).filt = emgFilt;
+    emg( expIdx ).data = emgFilt;
     emg( expIdx ).t = tEmg;
+    emg( expIdx ).Fs = emgFs;
 
-    spec( expIdx ).L = squeeze( S( :, :, 1 ) );
-    spec( expIdx ).R = squeeze( S( :, :, 2 ) );
-    spec( expIdx ).t = t;
+    spec( expIdx ).SL = squeeze( S( :, :, 1 ) );
+    spec( expIdx ).SR = squeeze( S( :, :, 2 ) );
+    spec( expIdx ).t = tS;
     spec( expIdx ).f = f;
 
 end
@@ -123,10 +128,11 @@ if saveFlag
     f2save = "TidyData.mat";
     save( fullfile( resDir, mouseId, f2save ), ...
         "info", "eeg", "spec", "emg", "-v7.3" )
-    fprintf( "done.\n\n" )
+    fprintf( "done.\n" )
 
 end
 
-fprintf( 'Done processing %s in %s.\n', mouseId, toc( t1 ) )
+eTime = toc( t1 );
+fprintf( 'Done processing %s in %s.\n\n', mouseId, humantime( eTime ) )
 
 
