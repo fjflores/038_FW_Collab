@@ -63,7 +63,7 @@ for doseIdx = 1 : nDoses
         dexIdxS = t > tLims( 1 ) & t < tLims( 2 );
         Sdex = spec( tabExpIdx ).SL( dexIdxS, : );        
         f = spec( tabExpIdx ).f;
-        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 30 ] );
+        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 18 ] );
         Pdelta = powerperband( Sdex, f, [ 1 5 ], 'total' );
         Pspindle = powerperband( Sdex, f, [ 12 18 ], 'total' );
         
