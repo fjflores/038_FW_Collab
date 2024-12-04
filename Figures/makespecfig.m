@@ -25,7 +25,7 @@ gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
-yLims = [ 0 50 ];
+yLims = [ 0 40 ];
 
 figure
 colormap magma
@@ -33,7 +33,7 @@ expList = masterTab.exp_id( expListIdx );
 doseList = masterTab.drug_dose( expListIdx );
 nExps = sum( expListIdx );
 plotIdx = 1 : 2 : 2 * nExps;
-colorLims = [ -40 -10 ];
+colorLims = [ -35 -5 ];
 load( fullfile( resDir, mouseId, "TidyData.mat" ) );
 for expIdx = 1 : nExps
     thisSpecL = spec( expIdx ).SL;
@@ -51,7 +51,7 @@ for expIdx = 1 : nExps
     clim( colorLims )
     xLims = get( gca, 'xlim' );
     ylim( yLims )
-    posX = xLims( 1 ) + 0.5;
+    posX = xLims( 1 ) + 2;
     posY = yLims( 2 ) - 5;
     if thisDose == 0
         tit = "saline";
@@ -65,16 +65,6 @@ for expIdx = 1 : nExps
         'FontWeight', 'bold',...
         'FontSize', 10 )
     ylabel( "Freq. (Hz)" )
-    % set( gca, 'YTick',  0 : 10 : 50  )
-    
-    % Plot EMG activation on top
-    % pos = get( hAx( plotIdx( i ) ), "Position" );
-    % hEmg = axes(...
-    %     "Position", pos, ...
-    %     "Ylim", [ 0 1 ], ...
-    %     "YAxisLocation", "right",...
-    %     "Color", "none" )
-    % plot( hEmg, emg( i ).t2plot, emg( i ).smooth, 'w' )
 
     hAx( plotIdx( expIdx ) + 1 ) = subtightplot(...
         nExps, 2, plotIdx( expIdx ) + 1, opts{ : } );
@@ -83,8 +73,8 @@ for expIdx = 1 : nExps
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
-    yLims = get( gca, 'ylim' );
-    posX = xLims( 1 ) + 1;
+    ylim( yLims );
+    posX = xLims( 1 ) + 2;
     posY = yLims( 2 ) - 5;
     text( posX, posY, tit,...
         'Color', 'w',...
@@ -97,7 +87,7 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick',  0 : 10 : 50  )
+    'YTick',  0 : 10 : 30  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 hAx( 1 ).Title.String = "Left hemisphere";
 hAx( 2 ).Title.String = "Right hemisphere";

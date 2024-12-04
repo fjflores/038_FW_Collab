@@ -11,7 +11,7 @@ batchtidydata( mList, csvFile, tLims, true )
 warning on
 
 %% Plot series of spectrograms
-% close all
+close all
 clc
 
 addpath(".\Figures")
@@ -38,7 +38,7 @@ for i = 1 : length( mice )
 
 end
 
-%% Plot spectrograms for the same dose across mice 
+%% Plot spectrograms for the same dose across mice
 clear all
 clc
 close all
@@ -47,7 +47,7 @@ addpath( ".\Figures" )
 % doses = [ 0 10 50 100 150 ];
 doses = 50;
 for i = 1 : length( doses )
-    thisDose = doses( i ); 
+    thisDose = doses( i );
     makespecdosefig( thisDose )
 
 end
@@ -62,7 +62,7 @@ doses = [ 0 10 50 100 150 ];
 aucFlag = false;
 figure
 for i = 1 : length( doses )
-    thisDose = doses( i ); 
+    thisDose = doses( i );
     subplot( 5, 1, i )
     plotdeltatc( thisDose, aucFlag )
     box off
@@ -89,10 +89,29 @@ warning off
 featTab = getavefeats( doses, [ 30 40 ] );
 warning on
 
-% figure
-% plot( doses, qeeg, 'ok' )
-% box off
-% xlim([ -5 155 ] )
+%% Plot dose v. features
+figure
+tits = { "rms (uV)", "sef (Hz)", "mf (Hz)", "df (Hz)", "P_{delta} (uV^2)", "P_{spindle} (uV^2)" };
+for i = 1 : 6
+    hAx( i ) = subplot( 2, 3, i );
+    scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
+    box off
+    xlim( [ -10 160 ] )
+
+    if i == 1
+        ylim( [ 0 300 ] )
+
+    elseif i == 5
+        ylim( [ 0 2.5 ] )
+
+    end
+    title( tits{ i } )
+
+end
+
+hAx( 4 ).XLabel.String = "dose (ug/kg)";
+hAx( 5 ).XLabel.String = "dose (ug/kg)";
+hAx( 6 ).XLabel.String = "dose (ug/kg)";
 % ylim( [ 5 25 ] )
 % xlabel( "dose (ug/kg)" )
 % ylabel( "Frequency (Hz)")

@@ -50,7 +50,7 @@ for doseIdx = 1 : nDoses
     ylim( yLims )
     ylabel( 'Freq. (Hz)' )
     xLims = get( gca, 'xlim' );
-    posX = xLims( 1 ) + 1;
+    posX = xLims( 1 ) + 2;
     posY = yLims( 2 ) - 5;
 
     if thisDose == 0
@@ -76,12 +76,12 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick',  0 : 10 : 40  )
+    'YTick',  0 : 10 : 30  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 
 set( hAx( end ),...
-    "XTick", [ -9.8 0 : 10 : 50 59.8 ],...
-    "XTickLabel", [ -10 : 10 : 60 ] )
+    "XTick", -10 : 10 : 60,...
+    "XTickLabel", -10 : 10 : 60 )
 xlabel( hAx( end - 1 : end ), "time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 % set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
