@@ -78,15 +78,15 @@ for i = 1 : length( doses )
 end
 
 %% Plot spectral edge after dex
-clear all
-clc
+ccc
 addpath( ".\Figures" )
+addpath( ".\DoseEffect\" )
 
 doses = [ 0 10 50 100 150 ];
 % dose = 100;
 % figure
 warning off
-featTab = plotqeeg( doses, "sef" );
+featTab = getavefeats( doses, [ 30 40 ] );
 warning on
 
 % figure

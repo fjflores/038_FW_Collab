@@ -1,4 +1,4 @@
-function featTab = plotqeeg( doses, kind, tLims )
+function featTab = getavefeats( doses, tLims )
 % PLOTQEEG plot a qeeg feature across all mice for the given doses.
 % 
 % Usage:
@@ -23,22 +23,11 @@ csvFileMaster = "abc_experiment_list.xlsm";
 masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
 featTab = table(...
-    'Size', [ 5, 5 ], ...
-    'VariableTypes', { 'double', 'string', 'double', 'double', 'double' }, ...
-    'VariableNames', {'expId', 'mouseId', 'dose', 'sef', 'Pdelta' } );
-
-% gap = [ 0.005 0.01 ];
-% margH = [ 0.1 0.05 ];
-% margV = [0.1 0.1];
-% opts = { gap, margH, margV };
-% yLims = [ 0 50 ];
-
-% colormap magma
-
-% tits = dictionary(...
-%     "mf", "Median Fequency", ...
-%     "sef", "Spectral Edge", ...
-%     "df", "Dominant Frequency" );
+    'Size', [ 5, 9 ], ...
+    'VariableTypes', { 'single', 'string', 'double', 'double', 'double',...
+    'double', 'double', 'double', 'double' },...
+    'VariableNames', { 'expId', 'mouseId', 'dose', 'rmsEmg', 'sef', 'mf',...
+    'df', 'Pdelta', 'Pspindle' } );
 
 nDoses = length( doses );
 cnt = 1;
@@ -57,41 +46,38 @@ for doseIdx = 1 : nDoses
         metDat = getmetadata( thisExp );
         resDir = fullfile( root, "Results", metDat.subject );
         f2load = "TidyData.mat";
-        load( fullfile( resDir, f2load ), "spec", "info" );
-        tabExpIdx = find( [ info.expId ] == thisExp );
-        S = spec( tabExpIdx ).SL;
-        t = ( spec( tabExpIdx ).t - info( tabExpIdx ).injDex ) / 60;
-        f = spec( tabExpIdx ).f;
-
-        % Get spectra after injection
-        dexIdxS = t > 0;
-        Sdex = S( dexIdxS, : );
-        t2plot = t( dexIdxS );
-
-        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 30 ] );
-        P = powerperband( Sdex, f, [ 0.5 5 ], 'total' );
-
-        switch kind
-            case "mf"
-                var2plot = mf;
-
-            case "sef"
-                var2plot = sef;
-
-            case "df"
-                var2plot = df;
-
-        end
+        load( fullfile( resDir, f2load ), "emg", "spec", "notes" );
+        tabExpIdx = find( [ notes.expId ] == thisExp );
         
+        % Get emg features
+        t = emg( tabExpIdx ).t;
+        dexIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
+        emgDex = emg( tabExpIdx ).data( dexIdxEmg );
+        win = [ 1 1 ];
+        emgChunks = makesegments( emgDex, emg( tabExpIdx ).Fs, win );
+        rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
+        clear t
 
+        % Get spectral features
+        t = spec( tabExpIdx ).t;
+        dexIdxS = t > tLims( 1 ) & t < tLims( 2 );
+        Sdex = spec( tabExpIdx ).SL( dexIdxS, : );        
+        f = spec( tabExpIdx ).f;
+        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 30 ] );
+        Pdelta = powerperband( Sdex, f, [ 1 5 ], 'total' );
+        Pspindle = powerperband( Sdex, f, [ 12 18 ], 'total' );
+        
+        % Fill table
         featTab.expId( cnt ) = thisExp;
         featTab.mouseId( cnt ) = string( metDat.subject );
         featTab.dose( cnt ) = thisDose;
-        featTab.sef( cnt ) = median( var2plot(...
-            t2plot > tLims( 1 ) & t2plot < tLims( 2 ) ) );
-        featTab.Pdelta( cnt ) = sum(...
-            P( t2plot > tLims( 1 ) & t2plot < tLims( 2 ) ) );
-        % plot( t2plot, var2plot, Color=[ 0.5 0.5 0.5 ] )
+        featTab.rmsEmg( cnt ) = median( rmsEmg );
+        featTab.sef( cnt ) = median( sef );
+        featTab.mf( cnt ) = median( mf );
+        featTab.df( cnt ) = median( df );
+        featTab.Pdelta( cnt ) = sum( Pdelta );
+        featTab.Pspindle( cnt ) = sum( Pspindle );
+        
         % box off
         % hold on
         cnt = cnt + 1;
