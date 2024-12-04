@@ -97,7 +97,7 @@ addpath( ".\DoseEffect\" )
 mList = { "M106" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
-saveFlag = false;
+saveFlag = true;
 warning off
 batchtidydata( mList, csvFile, tLims, saveFlag )
 warning on

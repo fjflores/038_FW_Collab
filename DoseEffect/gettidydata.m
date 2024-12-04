@@ -115,12 +115,12 @@ for expIdx = 1 : nExps
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
 
-    info( expIdx ).expId = thisExp;
-    info( expIdx ).dose = doses( expIdx );
-    info( expIdx ).type = masterTab.drug{ thisExpIdx };
-    info( expIdx ).injDex = masterTab.dex_ts_inj( thisExpIdx );
-    info( expIdx ).injOff = tOff;
-    info( expIdx ).injOn = tOn;
+    notes( expIdx ).expId = thisExp;
+    notes( expIdx ).dose = doses( expIdx );
+    notes( expIdx ).type = masterTab.drug{ thisExpIdx };
+    notes( expIdx ).injDex = masterTab.dex_ts_inj( thisExpIdx );
+    notes( expIdx ).injOff = tOff;
+    notes( expIdx ).injOn = tOn;
 
     eeg( expIdx ).dataL = eegZ( :, 1 );
     eeg( expIdx ).dataR = eegZ( :, 2 );
@@ -143,7 +143,7 @@ if saveFlag
     fprintf( " Saving tidy data..." )
     f2save = "TidyData.mat";
     save( fullfile( resDir, mouseId, f2save ), ...
-        "info", "eeg", "spec", "emg", "-v7.3" )
+        "notes", "eeg", "spec", "emg", "-v7.3" )
     fprintf( "done.\n" )
 
 end

@@ -33,15 +33,14 @@ expList = masterTab.exp_id( expListIdx );
 doseList = masterTab.drug_dose( expListIdx );
 nExps = sum( expListIdx );
 plotIdx = 1 : 2 : 2 * nExps;
-colorLims = [ 0 30 ];
+colorLims = [ -40 -10 ];
+load( fullfile( resDir, mouseId, "TidyData.mat" ) );
 for expIdx = 1 : nExps
-    [ spec, info ] = loadprocdata( expList( expIdx ), { "spec", "info" } );
-    thisSpecL = squeeze( spec.S( :, :, 1 ) );
-    thisSpecR = squeeze( spec.S( :, :, 2 ) );
-    tSpec = ( spec.t - ( spec.t( 1 )...
-        + tLims( 1 ) ) ) / 60;
-    fSpec = spec.f;
-    thisDose = doseList( expIdx );
+    thisSpecL = spec( expIdx ).SL;
+    thisSpecR = spec( expIdx ).SR;
+    tSpec = spec( expIdx ).t / 60;
+    fSpec = spec( expIdx ).f;
+    thisDose = notes( expIdx ).dose;
 
     % Spectrogram figure
     hAx( plotIdx( expIdx ) ) = subtightplot( nExps, 2, plotIdx( expIdx ),...
@@ -51,7 +50,7 @@ for expIdx = 1 : nExps
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
-    yLims = get( gca, 'ylim' );
+    ylim( yLims )
     posX = xLims( 1 ) + 0.5;
     posY = yLims( 2 ) - 5;
     if thisDose == 0
@@ -66,7 +65,7 @@ for expIdx = 1 : nExps
         'FontWeight', 'bold',...
         'FontSize', 10 )
     ylabel( "Freq. (Hz)" )
-    set( gca, 'YTick',  0 : 10 : 50  )
+    % set( gca, 'YTick',  0 : 10 : 50  )
     
     % Plot EMG activation on top
     % pos = get( hAx( plotIdx( i ) ), "Position" );
