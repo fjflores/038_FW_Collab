@@ -62,7 +62,7 @@ for doseIdx = 1 : nDoses
 
     if thisDose == 0
         tit = "Saline";
-        title( "Average spectrograms per dose")
+        title( "Average spectrogram per dose")
 
     else
         tit = sprintf( "Dose: %u %cg/kg", thisDose, 956 );
