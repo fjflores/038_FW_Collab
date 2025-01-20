@@ -101,6 +101,7 @@ for expIdx = 1 : nExps
         eegZ( :, eegIdx) = ( eegFilt - mu ) ./ sigma;
 
     end
+    
     fprintf( "done.\n" )
 
     % Get new spectrogram
@@ -135,6 +136,8 @@ for expIdx = 1 : nExps
     spec( expIdx ).SR = squeeze( S( :, :, 2 ) );
     spec( expIdx ).t = tS;
     spec( expIdx ).f = f;
+
+    clear eegZ
 
 end
 

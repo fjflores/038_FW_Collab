@@ -45,7 +45,7 @@ close all
 addpath( ".\Figures" )
 
 % doses = [ 0 10 50 100 150 ];
-doses = 50;
+doses = 30;
 for i = 1 : length( doses )
     thisDose = doses( i );
     makespecdosefig( thisDose )
@@ -57,13 +57,13 @@ clear all
 clc
 addpath( ".\Figures" )
 
-doses = [ 0 10 50 100 150 ];
-% dose = 100;
+% doses = [ 0 10 50 100 150 ];
+doses = 30;
 aucFlag = false;
 figure
 for i = 1 : length( doses )
     thisDose = doses( i );
-    subplot( 5, 1, i )
+    subplot( length( doses ), 1, i )
     plotdeltatc( thisDose, aucFlag )
     box off
     ylabel( 'Power (db)' )
@@ -149,6 +149,6 @@ clear all
 clc
 addpath( ".\Figures" )
 
-doses = [ 0 10 50 100 150 ];
+doses = [ 0 10 30 50 100 150 ];
 plotavedosespec( doses )
 
