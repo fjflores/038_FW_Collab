@@ -25,16 +25,23 @@ for doseIdx = 1 : nDoses
     for idxExp = 1 : nExps
         thisExp = expList( idxExp );
         metDat = getmetadata( thisExp );
-        resDir = fullfile( root, "Results", metDat.subject );
-        f2load = "TidyData.mat";
-        load( fullfile( resDir, f2load ), "spec", "notes" );
-        tabExpIdx = find( [ notes.expId ] == thisExp );
-        S( :, :, idxExp ) = spec( tabExpIdx ).SL;
-        Sdose( :, : ) = median( S, 3 );
 
-        if idxExp == 1
-            t = spec( tabExpIdx ).t / 60;
-            f = spec( tabExpIdx ).f;
+        if metDat.chValid( 1 ) == 0 % right now, fx is hard coded to only 
+            % avg SL (left parietal EEG)
+            continue
+        else
+            resDir = fullfile( root, "Results", metDat.subject );
+            f2load = "TidyData.mat";
+            load( fullfile( resDir, f2load ), "spec", "notes" );
+            tabExpIdx = find( [ notes.expId ] == thisExp );
+            S( :, :, idxExp ) = spec( tabExpIdx ).SL;
+            Sdose( :, : ) = median( S, 3 );
+
+            if idxExp == 1
+                t = spec( tabExpIdx ).t / 60;
+                f = spec( tabExpIdx ).f;
+
+            end
 
         end
 
@@ -82,6 +89,6 @@ ffcbar( gcf, hAx( end ), "Power (dB)" );
 set( hAx( end ),...
     "XTick", -10 : 10 : 60,...
     "XTickLabel", -10 : 10 : 60 )
-xlabel( hAx( end - 1 : end ), "time (min)" );
+xlabel( hAx( end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 % set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
