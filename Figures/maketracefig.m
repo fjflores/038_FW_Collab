@@ -1,11 +1,33 @@
-function maketracefig( mouseId )
+function maketracefig( eventTab )
 
 
-root = getrootdir( );
-resDir = fullfile( root, "Results", mouseId );
-f2load = "ExampleFigData.mat";
-load( fullfile( resDir, f2load ), "eeg", "info" );
+tab = readtable( eventTab, 'ReadRowNames', 1 );
+% mouseId = strcat( "M", string( tab{ "mouseID", : } ) );
+expId = tab{ "expID", : };
+eventsDex = tab{ 4 : 7, 1 };
+% root = getrootdir( );
+eegClean = loadprocdata( expId, { "eegClean" } );
+% Find required experiment
+dataEeg = eegClean.data( :, 1 );
+t = eegClean.ts;
+Fs = eegClean.Fs( 1 );
+% Get data chunks
+dexSegs = createdatamatc( dataEeg, eventsDex, Fs, [ 0 10 ], t );
 
+% get sleep
+expId = tab{ "sleep_expID", : };
+eventsSleep = tab{ "time_NREM", : };
+eegClean = loadprocdata( expId, { "eegClean" } );
+
+% resDir = fullfile( root, "Results", mouseId );
+% load( fullfile( resDir, "TidyData.mat" ), "eeg", "notes" );
+% Find required experiment
+dataEeg = eegClean.data( :, 1 );
+t = eegClean.ts;
+Fs = eegClean.Fs( 1 );
+sleepSegs = createdatamatc( dataEeg, eventsSleep, Fs, [ 0 10 ], t );
+
+mat2plot = [ dexSegs sleepSegs ];
 %% Set up data to plot
 cols = brewermap( 6, 'Set1' );
 offset = 400;
@@ -16,50 +38,43 @@ opts = { gap, margH, margV };
 yLims = [ -900 400 ];
 
 figure
-nExps = length( eeg );
-plotIdx = 1 : 2 : 2 * nExps;
+nExps = size( mat2plot, 2 );
 for i = 1 : nExps
-    thisBase = eeg( i ).base;
-    thisExp = eeg( i ).exp;
-
-    tBase = eeg( i ).base.t2plot - eeg( i ).base.t2plot( 1 );
-    tExp = eeg( i ).exp.t2plot - eeg( i ).exp.t2plot( 1 );
+    % t2plot = eeg( i ).exp.t2plot - eeg( i ).exp.t2plot( 1 );
 
     % EEG example figure
-    hAx( plotIdx( i ) ) = subtightplot( nExps, 2, plotIdx( i ),...
+    hAx( i ) = subtightplot( nExps, 1, i,...
         opts{ : } );
-    plot( tBase, thisBase.L, 'Color', cols( 1, : ) )
-    hold on
-    plot( tBase, thisBase.R - offset, 'Color', cols( 2, : ) )
+    plot( mat2plot( :, i ), 'Color', cols( 1, : ) )
     ylim( yLims )
     box off
     hold off
     xLims = get( gca, 'xlim' );
     posX = xLims( 1 ) + 0.1;
     posY = yLims( 2 ) - 100;
-    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+    % tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
     text( posX, posY, tit,...
         'Color', 'k',...
         'FontWeight', 'bold',...
         'FontSize', 10 )
 
-    subplot( nExps, 2, plotIdx( i ) + 1 )
-    hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
-        opts{ : } );
-    plot( tExp, thisExp.L, 'Color', cols( 1, : ) )
-    hold on
-    plot( tExp, thisExp.R - offset, 'Color', cols( 2, : ) )
-    ylim( yLims )
-    box off
-    hold off
-    xLims = get( gca, 'xlim' );
-    posX = xLims( 1 ) + 0.1;
-    posY = yLims( 2 ) - 100;
-    tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
-    text( posX, posY, tit,...
-        'Color', 'k',...
-        'FontWeight', 'bold',...
-        'FontSize', 10 )
+    % subplot( nExps, 2, plotIdx( i ) + 1 )
+    % hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
+    %     opts{ : } );
+    % plot( tExp, thisExp.L, 'Color', cols( 1, : ) )
+    % hold on
+    % plot( tExp, thisExp.R - offset, 'Color', cols( 2, : ) )
+    % ylim( yLims )
+    % box off
+    % hold off
+    % xLims = get( gca, 'xlim' );
+    % posX = xLims( 1 ) + 0.1;
+    % posY = yLims( 2 ) - 100;
+    % tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
+    % text( posX, posY, tit,...
+    %     'Color', 'k',...
+    %     'FontWeight', 'bold',...
+    %     'FontSize', 10 )
 
 
 end
