@@ -152,10 +152,7 @@ clc
 addpath( ".\Figures" )
 
 doses = [ 0 10 30 50 100 150 ];
-<<<<<<< HEAD
-=======
 % doses = [ 30 ];
->>>>>>> 011700fe72e9248855274c8e17ebf30f42190f06
 plotavedosespec( doses )
 
 
