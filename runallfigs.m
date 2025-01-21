@@ -45,7 +45,7 @@ close all
 addpath( ".\Figures" )
 
 % doses = [ 0 10 50 100 150 ];
-doses = 50;
+doses = 30;
 for i = 1 : length( doses )
     thisDose = doses( i );
     makespecdosefig( thisDose )
