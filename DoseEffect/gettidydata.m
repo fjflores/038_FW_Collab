@@ -76,7 +76,7 @@ for expIdx = 1 : nExps
     fprintf( " Processing emg..." )
     decFactor = 3;
     chunkIdx = newTs >= tEpochStart & newTs <= tEpochEnd;
-    tEmg = downsample( newTs( chunkIdx ), decFactor ) - tInj;
+    tEmg = downsample( newTs( chunkIdx ), decFactor );
     emgTmp = eegemgfilt( newSigs( :, 3 ), [ 10 900 ], emgRaw.Fs );
     emgTmp( ~chunkIdx ) = [ ];
     emgFilt = downsample( emgTmp, decFactor );
@@ -86,11 +86,12 @@ for expIdx = 1 : nExps
     % Downsample and filter eeg
     fprintf( " Processing eeg..." )
     decFactor = 10;
-    tEeg = downsample( newTs( chunkIdx ), decFactor ) - tInj;
+    tEeg = downsample( newTs( chunkIdx ), decFactor );
     eegTmp = eegemgfilt( newSigs( :, 1 : 2 ), [ 0.5 110 ], eegClean.Fs( 1 ) );
     eegFs = eegClean.Fs( 1 ) ./ decFactor;
 
     % isolate baseline and compute z-score
+    clear eegZ
     for eegIdx = 1 : 2
         eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
         tBaseZIdx = tEmg <= 0;
@@ -137,7 +138,7 @@ for expIdx = 1 : nExps
     spec( expIdx ).t = tS;
     spec( expIdx ).f = f;
 
-    clear eegZ
+    
 
 end
 
