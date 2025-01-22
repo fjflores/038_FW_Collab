@@ -47,7 +47,7 @@ clc
 addpath( ".\Figures" )
 
 % doses = [ 0 10 50 100 150 ];
-doses = 100;
+doses = 30;
 for i = 1 : length( doses )
     thisDose = doses( i );
     makespecdosefig( thisDose )
@@ -152,7 +152,6 @@ clc
 addpath( ".\Figures" )
 
 doses = [ 0 10 30 50 100 150 ];
-% doses = [ 30 ];
 plotavedosespec( doses )
 
 
