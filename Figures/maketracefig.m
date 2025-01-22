@@ -11,6 +11,8 @@ eegClean = loadprocdata( expId, { "eegClean" } );
 dataEeg = eegClean.data( :, 1 );
 t = eegClean.ts;
 Fs = eegClean.Fs( 1 );
+dataEeg = eegemgfilt( dataEeg,[ 0.1 80 ], Fs );
+
 % Get data chunks
 dexSegs = createdatamatc( dataEeg, eventsDex, Fs, [ 0 10 ], t );
 
@@ -36,27 +38,31 @@ margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
 yLims = [ -900 400 ];
+xLims = [ 0 10 ];
 
 figure
 nExps = size( mat2plot, 2 );
 for i = 1 : nExps
-    % t2plot = eeg( i ).exp.t2plot - eeg( i ).exp.t2plot( 1 );
+    t2plot = linspace( 0, 10, size( mat2plot, 1 ) );
+    disp( [ t2plot( 1 ) t2plot( end ) ] )
 
     % EEG example figure
     hAx( i ) = subtightplot( nExps, 1, i,...
         opts{ : } );
-    plot( mat2plot( :, i ), 'Color', cols( 1, : ) )
+    plot( t2plot, mat2plot( :, i ), 'Color', cols( 1, : ) )
     ylim( yLims )
+
     box off
     hold off
-    xLims = get( gca, 'xlim' );
     posX = xLims( 1 ) + 0.1;
     posY = yLims( 2 ) - 100;
+        xlim( xLims )
+    % axis tight
     % tit = sprintf( '%s %u ug/kg', info( i ).type, info( i ).dose );
-    text( posX, posY, tit,...
-        'Color', 'k',...
-        'FontWeight', 'bold',...
-        'FontSize', 10 )
+    % text( posX, posY, tit,...
+    %     'Color', 'k',...
+    %     'FontWeight', 'bold',...
+    %     'FontSize', 10 )
 
     % subplot( nExps, 2, plotIdx( i ) + 1 )
     % hAx( plotIdx( i ) + 1 ) = subtightplot( nExps, 2, plotIdx( i ) + 1,...
@@ -83,16 +89,16 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick', [ -800 -400 0 400 ] )
+    'YTick', [ -400 0 400 ] )
 hAx( 1 ).YLabel.String = "Amp. (\muV)";
-hAx( 1 ).Title.String = "Baseline";
-hAx( 2 ).Title.String = "Injection";
-set( hAx( 2 : end ),...
-    "YTickLabel", [] )
+% hAx( 1 ).Title.String = "Baseline";
+% hAx( 2 ).Title.String = "Injection";
+% set( hAx( 2 : end ),...
+%     "YTickLabel", [] )
 set( hAx( end ),...
-    "XTickLabel", [ 0, 2, 4, 6, 8, 10 ] )
+    "XTick", [ 0, 2, 4, 6, 8, 10 ], "XTickLabel", [ 0, 2, 4, 6, 8, 10 ] )
 hAx( end ).XLabel.String = "time (s)";
-legend( "Left", "Right" )
+% legend( "Left", "Right" )
 set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
 set( findobj( "Type", "legend" ), "Position", [ 0.91 0.16 0.07 0.05 ] )
 
