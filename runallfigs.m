@@ -20,11 +20,13 @@ tLims = [ 600 3600 ];
 makespecfig( mouseId, "dex", tLims )
 
 %% Plot series of traces
-close all
+% close all
+clc
 
 addpath(".\Figures")
-mouseId = "M103";
-maketracefig( mouseId )
+eventTab = fullfile( getrootdir,...
+    "\Pres\2025-01-30 DARPA PI Meeting\Assets\Spec_wTraces_example.csv" );
+maketracefig( eventTab )
 
 %% Plot delta power across mice
 clear all
