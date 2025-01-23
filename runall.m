@@ -94,7 +94,7 @@ ccc
 addpath( ".\DoseEffect\" )
 
 % mList = { "M102", "M103", "M105", "M106", "M107", "M108", "M111", "M112", "M113" };
-mList = { "M106" };
+mList = { "M112", "M113" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 saveFlag = true;

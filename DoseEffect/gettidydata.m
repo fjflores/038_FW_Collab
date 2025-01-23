@@ -46,7 +46,8 @@ for expIdx = 1 : nExps
     thisExp = exps2proc( expIdx );
     thisExpIdx = masterTab.exp_id == thisExp;
     fprintf( 'Loading %s exp %u...', mouseId, thisExp )
-    [ eegClean, emgRaw ] = loadprocdata( thisExp, { "eegClean", "emgRaw" } );
+    [ eegClean, emgRaw ] = loadprocdata(...
+        thisExp, { "eegClean", "emgRaw" } );
     fprintf( 'done.\n' )
     
     % get rid of offline to injection period.
@@ -62,10 +63,11 @@ for expIdx = 1 : nExps
     postData = sigs( postIdx, : );
     preTs = tsOrig( preIdx );
     postTs = tsOrig( postIdx );
-    postWoArt = replaceartifact( postData, postTs, [ postTs( 1 ) tOn ], 'zeros' );
+    postWoArt = replaceartifact(...
+        postData, postTs, [ postTs( 1 ) tOn ], 'zeros' );
     newSigs = cat( 1, preData, postWoArt );
-    % newTs = cat( 1, , postTs );
-    newTs = linspace( preTs( 1 ) + ( tInj - tOff ), postTs( end ), size( newSigs, 1 ) );
+    newTs = linspace(...
+        preTs( 1 ) + ( tInj - tOff ), postTs( end ), size( newSigs, 1 ) );
     fprintf( "done.\n" )
 
     % Define epoch to extract
@@ -91,10 +93,9 @@ for expIdx = 1 : nExps
     eegFs = eegClean.Fs( 1 ) ./ decFactor;
 
     % isolate baseline and compute z-score
-    clear eegZ
     for eegIdx = 1 : 2
         eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-        tBaseZIdx = tEmg <= 0;
+        tBaseZIdx = tEeg <= tOff;
         mu = mean( eegFilt( tBaseZIdx ) );
         sigma = std( eegFilt( tBaseZIdx ) );
         % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
@@ -138,11 +139,11 @@ for expIdx = 1 : nExps
     spec( expIdx ).t = tS;
     spec( expIdx ).f = f;
 
-    
+    clear eegZ
 
 end
 
-%% Save data for plotting to figures folder
+% Save data for plotting to figures folder
 if saveFlag
     fprintf( " Saving tidy data..." )
     f2save = "TidyData.mat";

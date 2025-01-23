@@ -11,12 +11,13 @@ batchtidydata( mList, csvFile, tLims, true )
 warning on
 
 %% Plot series of spectrograms
-close all
+% close all
 clc
 
 addpath(".\Figures")
-mouseId = "M112";
+mouseId = "M113";
 tLims = [ 600 3600 ];
+
 makespecfig( mouseId, "dex", tLims )
 
 %% Plot series of traces
