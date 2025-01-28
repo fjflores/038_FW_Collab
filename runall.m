@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 76;
+expList = 81;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 14;
+expId = 81;
 
 % expData = loadmixdata( expID );
 

@@ -3,9 +3,9 @@
 
 % ccc
 
-expID = 33;
-dexTime = "1:15:50";
-atiTime = "5:48:40";
+expID = 81;
+dexTime = "4:53:55";
+atiTime = "5:54:10";
 
 % Get actual REC timestamp.
 metDat = getmetadata( expID );

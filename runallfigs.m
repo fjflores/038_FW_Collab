@@ -2,8 +2,8 @@
 ccc
 addpath(".\DoseEffect")
 
-% mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108", "M109", "M111", "M112", "M113" };
-mList = { "M105", "M106", "M113", "M111" };
+mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108", "M109", "M111", "M112", "M113" };
+% mList = { "M109" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off
@@ -15,10 +15,12 @@ warning on
 clc
 
 addpath(".\Figures")
-mouseId = "M113";
+mouseID = "M109";
 tLims = [ 600 3600 ];
 
-makespecfig( mouseId, "dex", tLims )
+figure( 'Name', sprintf( '%s', mouseID ) )
+makespecfig( mouseID, "dex", tLims )
+
 
 %% Plot series of traces
 % close all
