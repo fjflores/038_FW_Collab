@@ -2,8 +2,10 @@
 ccc
 addpath(".\DoseEffect")
 
-mList = { "M101", "M102", "M103", "M105", "M106", "M107", "M108", "M109", "M111", "M112", "M113" };
-% mList = { "M109" };
+mList = { "M101", "M102", "M103",...
+    "M105", "M106", "M107", "M108",...
+    "M109", "M111", "M112", "M113" };
+mList = { "M112" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
 warning off
@@ -15,7 +17,7 @@ warning on
 clc
 
 addpath(".\Figures")
-mouseID = "M109";
+mouseID = "M108";
 tLims = [ 600 3600 ];
 
 figure( 'Name', sprintf( '%s', mouseID ) )
