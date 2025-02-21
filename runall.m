@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 89;
+expId = 94;
 
 % expData = loadmixdata( expID );
 
@@ -47,10 +47,15 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
 tsTab = table2array( metTab( :, { 'dex_ts_offline', 'dex_ts_online',...
     'ati_ts_offline', 'ati_ts_online', 'dex_ts_inj', 'ati_ts_inj' } ) );
-xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
-xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
-xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
-xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
+% xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
+% xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
+% xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
+% xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
+% for i = 1 : 6
+%     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
+%     % xline( hAx( i ), [ 4739 6599 10619 ], 'g', 'LineWidth', 1 ) % exp94
+%     xline( hAx( i ), [ 7129 9229 12889 ], 'g', 'LineWidth', 1 ) % exp96
+% end
 
 
 %% Batch process and save DLC and video data.

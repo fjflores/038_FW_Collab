@@ -230,6 +230,7 @@ for plotIdx = 1 : nPlots
         case { 2, 4 }
             hAx( plotIdx ) = subtightplot( nPlots, 1, plotIdx, opts{ : } );
             imagesc( t2plot{ plotIdx }, f, pow2db( datPlot{ plotIdx }' ) )
+            % plotspecgram( datPlot{ plotIdx }, t2plot{ plotIdx }, f, "loglog" );
             axis xy
             ylabel( 'Freq. (Hz)' )
             xticks( [ ] )

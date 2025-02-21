@@ -32,7 +32,7 @@ for expIdx = 1 : length( exps )
 end
 
 
-%% Make plot.
+%% Make plot(s).
 
 xLims = [ -30 130 ]; % Set time window.
 
@@ -52,6 +52,7 @@ for figIdx = 1 : ceil( nDoses / nSubplots )
         hAx( thisAxes( 1 : 2 ) ) = subtightplot( nSubplots * 3, 1,...
             thisAxes( 1 : 2 ), opts{ : } );
         imagesc( specT{ doseIdx }, f, pow2db( specDat{ doseIdx }' ) )
+        % plotspecgram( specDat{ doseIdx }, specT{ doseIdx }, f, 'loglog' );
         axis xy
         ylabel( 'Freq. (Hz)' )
         hold on
