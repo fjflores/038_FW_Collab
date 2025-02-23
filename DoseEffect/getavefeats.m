@@ -1,17 +1,15 @@
 function featTab = getavefeats( doses, tLims )
-% PLOTQEEG plot a qeeg feature across all mice for the given doses.
+% GETAVEFEATS gets average features from spectrograms and EMG.
 % 
 % Usage:
-% qeeg = plotqeeg( doses, kind )
+% featTab = getavefeats( doses, tLims )
 % 
 % Input:
 % doses: vector with dose or doses to be plotted and extracted.
-% kind: string whith qeeg feature to plot/extract. "mf" for median freq, 
-% "sef" for spectral edge, and "df" for dominant frequency.
 % tLims: time limits to take qeeg median.
 % 
 % Output:
-% qeeg: requested spectral feature
+% featTab: requested spectral feature.
 
 if nargin < 3
     tLims = [ 30 40 ];
@@ -63,8 +61,8 @@ for doseIdx = 1 : nDoses
         dexIdxS = t > tLims( 1 ) & t < tLims( 2 );
         Sdex = spec( tabExpIdx ).SL( dexIdxS, : );        
         f = spec( tabExpIdx ).f;
-        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 18 ] );
-        Pdelta = powerperband( Sdex, f, [ 1 5 ], 'total' );
+        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 10 ] );
+        Pdelta = powerperband( Sdex, f, [ 0.5 3 ], 'total' );
         Pspindle = powerperband( Sdex, f, [ 12 18 ], 'total' );
         
         % Fill table
