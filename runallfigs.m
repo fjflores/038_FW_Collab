@@ -87,34 +87,6 @@ for i = 1 : length( doses )
 
 end
 
-%% Test spectral features for single time
-ccc
-addpath( ".\Figures" )
-addpath( ".\DoseEffect\" )
-
-% doses = [ 0 10 50 100 150 ];
-doses = [ 0 50 ];
-drug = "dex";
-thisEpoch = [ -5 0 ];
-warning off
-featTab = getavefeats( doses, thisEpoch, drug );
-warning on
-
-%% Get spectral features over time
-ccc
-addpath( ".\Figures" )
-addpath( ".\DoseEffect\" )
-
-% doses = [ 0 10 30 50 100 150 ];
-doses = [ 0 10 30 50 100 150 ];
-% tLims = [ -5 5 30 ];
-tLims = [ -5 5 60 ];
-drug = "dex";
-timeFeats = savetimefeats( doses, tLims, drug );
-root = getrootdir( );
-save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
-    "timeFeats" )
-
 %% Plot dose v. features
 close all
 load( fullfile(...

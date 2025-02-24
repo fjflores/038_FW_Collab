@@ -106,3 +106,19 @@ saveFlag = true;
 warning off
 batchtidydata( mList, csvFile, tLims, saveFlag )
 warning on
+
+%% Get spectral features over time
+ccc
+addpath( ".\Figures" )
+addpath( ".\DoseEffect\" )
+
+% doses = [ 0 10 30 50 100 150 ];
+doses = [ 0 10 30 50 100 150 ];
+% tLims = [ -5 5 30 ];
+tLims = [ -5 5 60 ];
+drug = "dex";
+timeFeats = savetimefeats( doses, tLims, drug );
+root = getrootdir( );
+save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
+    "timeFeats" )
+
