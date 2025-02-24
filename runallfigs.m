@@ -87,64 +87,45 @@ for i = 1 : length( doses )
 
 end
 
-%% Test spectral features for single time
-ccc
-addpath( ".\Figures" )
-addpath( ".\DoseEffect\" )
-
-% doses = [ 0 10 50 100 150 ];
-doses = [ 0 50 ];
-drug = "dex";
-thisEpoch = [ -5 0 ];
-warning off
-featTab = getavefeats( doses, thisEpoch, drug );
-warning on
-
-%% Get spectral features over time
-ccc
-addpath( ".\Figures" )
-addpath( ".\DoseEffect\" )
-
-% doses = [ 0 10 30 50 100 150 ];
-doses = [ 0 10 30 50 100 150 ];
-% tLims = [ -5 5 30 ];
-tLims = [ -5 5 60 ];
-drug = "dex";
-timeFeats = savetimefeats( doses, tLims, drug );
-root = getrootdir( );
-save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
-    "timeFeats" )
-
 %% Plot dose v. features
 close all
-load( fullfile(...
-    getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
-    'timeFeats')
+
+if ~exist( "timeFeats", "var" )
+    load( fullfile(...
+        getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
+        'timeFeats')
+
+end
+
 for epochIdx = 1 : length( timeFeats )
     featTab = timeFeats( epochIdx ).featTab;
     epoch = timeFeats( epochIdx ).epoch;
-    figure( 'Name', sprintf( '%i to %i minutes', epoch( : ) ) )
-    tits = { "rms (uV)", "sef (Hz)", "mf (Hz)", "df (Hz)", "P_{delta} (uV^2)", "P_{spindle} (uV^2)" };
+    figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
+    tits = {...
+        "rms (uV)", "sef (Hz)", "mf (Hz)",...
+        "df (Hz)", "P \delta (uV^2)", "P \sigma (uV^2)" };
     for i = 1 : 6
         hAx( i ) = subplot( 2, 3, i );
+        % hLines = plot( featTab{ :, 3 }, featTab{ :, i + 3 }, "Color", [ 0.5 0.5 0.5 ] );
         scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
         box off
         xlim( [ -10 160 ] )
-        % 
+        hold on
+        %
         % if i == 1
         %     ylim( [ 0 300 ] )
-        % 
+        %
         % elseif i == 5
         %     ylim( [ 0 0.3 ] )
-        % 
+        %
         % elseif i == 6
         %     ylim( [ 0 0.1 ] )
-        % 
+        %
         % end
         title( tits{ i } )
 
     end
-    
+
     xLabString = sprintf( "Dose (%cg/kg)", 956 );
     hAx( 4 ).XLabel.String = xLabString;
     hAx( 5 ).XLabel.String = xLabString;
