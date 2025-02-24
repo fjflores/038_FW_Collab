@@ -112,12 +112,15 @@ ccc
 addpath( ".\Figures" )
 addpath( ".\DoseEffect\" )
 
-% doses = [ 0 10 30 50 100 150 ];
 doses = [ 0 10 30 50 100 150 ];
-% tLims = [ -5 5 30 ];
-tLims = [ -5 5 60 ];
+% doses = [ 0 30 ];
+% tLims = [ -5 5 5 ];
+tLims = [ -5 5 55 ];
 drug = "dex";
+tic
 timeFeats = savetimefeats( doses, tLims, drug );
+humantime( toc )
+
 root = getrootdir( );
 save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
     "timeFeats" )
