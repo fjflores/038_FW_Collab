@@ -54,4 +54,5 @@ xlabel( 'Time since injection (min)')
 xline( 0, ':' )
 ylabel( sprintf( 'Temperature (%cC)', 176 ) )
 legend( expLabs )
+text( 60, 28.5, sprintf( 'Note: ambient temperature ~21%c', 176 ) )
 
