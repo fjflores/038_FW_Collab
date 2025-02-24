@@ -91,7 +91,7 @@ end
 close all
 
 norm = false; % Choose to normalize to baseline or not.
-saveFigs = true; % Choose to save pngs or not.
+saveFigs = false; % Choose to save pngs or not.
 
 if ~exist( "timeFeats", "var" )
     load( fullfile(...
@@ -103,10 +103,11 @@ end
 if norm
     % Normalize to [ -5 0 ] baseline.
     timeFeatsNorm = timeFeats;
+    col2Norm = [ 4 8 9 ];
     for epIdx = 1 : length( timeFeats )
-        timeFeatsNorm( epIdx ).featTab( :, 4 : 9 ) = ...
-            timeFeats( epIdx ).featTab( :, 4 : 9 )...
-            ./ timeFeats( 1 ).featTab( :, 4 : 9 );
+        timeFeatsNorm( epIdx ).featTab( :, col2Norm ) = ...
+            timeFeats( epIdx ).featTab( :, col2Norm )...
+            ./ timeFeats( 1 ).featTab( :, col2Norm );
 
     end
     timeFeats2plot = timeFeatsNorm;
@@ -137,37 +138,35 @@ for epochIdx = 1 : length( timeFeats )
             switch i
             case 1
                 ylim( [ 0 4 ] )
-            case 2
-                ylim( [ 0 1.2 ] )
-            case 3
-                ylim( [ 0 2.5 ] )
-            case 4
-                ylim( [ 0 7 ] )
+                yline( 1, ':' )
             case 5
                 ylim( [ 0 20 ] )
+                yline( 1, ':' )
             case 6
                 ylim( [ 0 3.1 ] )
+                yline( 1, ':' )
             end
-
-            yline( 1, ':' )
 
         else
             switch i
                 case 1
                     ylim( [ 0 220 ] )
-                case 2
-                    ylim( [ 0 16 ] )
-                case 3
-                    ylim( [ 0 7 ] )
-                case 4
-                    ylim( [ 0 8 ] )
                 case 5
                     ylim( [ 0 2.5 ] )
                 case 6
                     ylim( [ 0 0.11 ] )
             end
 
-        end        
+        end
+
+        switch i
+            case 2
+                ylim( [ 0 16 ] )
+            case 3
+                ylim( [ 0 7 ] )
+            case 4
+                ylim( [ 0 8 ] )
+        end
 
         title( tits{ i } )
         
