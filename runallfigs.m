@@ -117,32 +117,35 @@ save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
 
 %% Plot dose v. features
 close all
+load( fullfile(...
+    getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
+    'timeFeats')
 for epochIdx = 1 : length( timeFeats )
     featTab = timeFeats( epochIdx ).featTab;
-    figure
+    epoch = timeFeats( epochIdx ).epoch;
+    figure( 'Name', sprintf( '%i to %i minutes', epoch( : ) ) )
     tits = { "rms (uV)", "sef (Hz)", "mf (Hz)", "df (Hz)", "P_{delta} (uV^2)", "P_{spindle} (uV^2)" };
     for i = 1 : 6
         hAx( i ) = subplot( 2, 3, i );
         scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
         box off
         xlim( [ -10 160 ] )
-
-        if i == 1
-            ylim( [ 0 300 ] )
-
-        elseif i == 5
-            ylim( [ 0 0.3 ] )
-
-        elseif i == 6
-            ylim( [ 0 0.1 ] )
-
-        end
+        % 
+        % if i == 1
+        %     ylim( [ 0 300 ] )
+        % 
+        % elseif i == 5
+        %     ylim( [ 0 0.3 ] )
+        % 
+        % elseif i == 6
+        %     ylim( [ 0 0.1 ] )
+        % 
+        % end
         title( tits{ i } )
 
     end
     
-    warning
-    xLabString = sprintf( "dose %cg\\kg", 965 );
+    xLabString = sprintf( "Dose (%cg/kg)", 956 );
     hAx( 4 ).XLabel.String = xLabString;
     hAx( 5 ).XLabel.String = xLabString;
     hAx( 6 ).XLabel.String = xLabString;
