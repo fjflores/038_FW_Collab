@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 89;
+expList = 98;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -12,7 +12,7 @@ params = struct(...
     'tapers', [ 3 5 ],...
     'pad', 0,...
     'err', [ 2 0.05 ],...
-    'fpass', [ 1 / specWin( 1 ) 100 ],...
+    'fpass', [ 1 / specWin( 1 ) 300 ],...
     'filtEeg', [ 1 40 ],...
     'filtEmg', [ 200 700 ] );
 smoothEmg = false;
@@ -30,16 +30,16 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 94;
+expId = 98;
 
 % expData = loadmixdata( expID );
 
 figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
-    'SetAmpEeg', [ -700 500 ],...
-    'SetFreqSpec', [ 0.5 80 ],...
-    'SetCAxis', [ 0 40 ],...
+    'SetAmpEeg', [ -700 700 ],...
+    'SetFreqSpec', [ 0.5 15 ],...
+    'SetCAxis', [ 0 35 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
 
@@ -51,11 +51,13 @@ tsTab = table2array( metTab( :, { 'dex_ts_offline', 'dex_ts_online',...
 % xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
-% for i = 1 : 6
-%     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
+for i = 1 : 6
+    xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
 %     % xline( hAx( i ), [ 4739 6599 10619 ], 'g', 'LineWidth', 1 ) % exp94
 %     xline( hAx( i ), [ 7129 9229 12889 ], 'g', 'LineWidth', 1 ) % exp96
-% end
+    xline( hAx( i ), [ 5454 7254 10854 ], 'g', 'LineWidth', 1 ) % exp98
+
+end
 
 
 %% Batch process and save DLC and video data.
