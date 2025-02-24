@@ -90,6 +90,9 @@ end
 %% Plot dose v. features
 close all
 
+norm = false; % Choose to normalize to baseline or not.
+saveFigs = true; % Choose to save pngs or not.
+
 if ~exist( "timeFeats", "var" )
     load( fullfile(...
         getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
@@ -97,9 +100,27 @@ if ~exist( "timeFeats", "var" )
 
 end
 
+if norm
+    % Normalize to [ -5 0 ] baseline.
+    timeFeatsNorm = timeFeats;
+    for epIdx = 1 : length( timeFeats )
+        timeFeatsNorm( epIdx ).featTab( :, 4 : 9 ) = ...
+            timeFeats( epIdx ).featTab( :, 4 : 9 )...
+            ./ timeFeats( 1 ).featTab( :, 4 : 9 );
+
+    end
+    timeFeats2plot = timeFeatsNorm;
+    normMsg = 'norm_';
+
+else 
+    timeFeats2plot = timeFeats;
+    normMsg = '';
+
+end
+
 for epochIdx = 1 : length( timeFeats )
-    featTab = timeFeats( epochIdx ).featTab;
-    epoch = timeFeats( epochIdx ).epoch;
+    featTab = timeFeats2plot( epochIdx ).featTab;
+    epoch = timeFeats2plot( epochIdx ).epoch;
     figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
     tits = {...
         "rms (uV)", "sef (Hz)", "mf (Hz)",...
@@ -111,19 +132,45 @@ for epochIdx = 1 : length( timeFeats )
         box off
         xlim( [ -10 160 ] )
         hold on
-        %
-        % if i == 1
-        %     ylim( [ 0 300 ] )
-        %
-        % elseif i == 5
-        %     ylim( [ 0 0.3 ] )
-        %
-        % elseif i == 6
-        %     ylim( [ 0 0.1 ] )
-        %
-        % end
-        title( tits{ i } )
+        
+        if norm
+            switch i
+            case 1
+                ylim( [ 0 4 ] )
+            case 2
+                ylim( [ 0 1.2 ] )
+            case 3
+                ylim( [ 0 2.5 ] )
+            case 4
+                ylim( [ 0 7 ] )
+            case 5
+                ylim( [ 0 20 ] )
+            case 6
+                ylim( [ 0 3.1 ] )
+            end
 
+            yline( 1, ':' )
+
+        else
+            switch i
+                case 1
+                    ylim( [ 0 220 ] )
+                case 2
+                    ylim( [ 0 16 ] )
+                case 3
+                    ylim( [ 0 7 ] )
+                case 4
+                    ylim( [ 0 8 ] )
+                case 5
+                    ylim( [ 0 2.5 ] )
+                case 6
+                    ylim( [ 0 0.11 ] )
+            end
+
+        end        
+
+        title( tits{ i } )
+        
     end
 
     xLabString = sprintf( "Dose (%cg/kg)", 956 );
@@ -131,11 +178,12 @@ for epochIdx = 1 : length( timeFeats )
     hAx( 5 ).XLabel.String = xLabString;
     hAx( 6 ).XLabel.String = xLabString;
 
+    if saveFigs
+        saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
+            sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
+    end
 end
-% ylim( [ 5 25 ] )
-% xlabel( "dose (ug/kg)" )
-% ylabel( "Frequency (Hz)")
-% title( { "Median spectral edge", "30-40 min after dex" } )
+
 
 %% Fit an exponential decay model to the data
 x = repmat( doses, size( qeeg, 1 ), 1 );
