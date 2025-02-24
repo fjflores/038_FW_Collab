@@ -2,14 +2,15 @@
 ccc
 addpath(".\DoseEffect")
 
-mList = { "M101", "M102", "M103",...
-    "M105", "M106", "M107", "M108",...
-    "M109", "M111", "M112", "M113" };
+% mList = {...
+%     "M101", "M102", "M103",...
+%     "M105", "M106", "M107", "M108",...
+%     "M109", "M111", "M112", "M113" };
 mList = { "M112" };
 csvFile = "abc_experiment_list.xlsm";
-tLims = [ 600 3600 ];
+epochLims = [ 600 3600 ];
 warning off
-batchtidydata( mList, csvFile, tLims, true )
+batchtidydata( mList, csvFile, epochLims, true )
 warning on
 
 %% Plot series of spectrograms
@@ -18,10 +19,10 @@ clc
 
 addpath(".\Figures")
 mouseID = "M108";
-tLims = [ 600 3600 ];
+epochLims = [ 600 3600 ];
 
 figure( 'Name', sprintf( '%s', mouseID ) )
-makespecfig( mouseID, "dex", tLims )
+makespecfig( mouseID, "dex", epochLims )
 
 
 %% Plot series of traces
@@ -86,41 +87,67 @@ for i = 1 : length( doses )
 
 end
 
-%% Plot spectral edge after dex
+%% Test spectral features for single time
 ccc
 addpath( ".\Figures" )
 addpath( ".\DoseEffect\" )
 
-doses = [ 0 10 50 100 150 ];
-% dose = 100;
-% figure
+% doses = [ 0 10 50 100 150 ];
+doses = [ 0 50 ];
+drug = "dex";
+thisEpoch = [ -5 0 ];
 warning off
-featTab = getavefeats( doses, [ 30 40 ] );
+featTab = getavefeats( doses, thisEpoch, drug );
 warning on
 
+%% Get spectral features over time
+ccc
+addpath( ".\Figures" )
+addpath( ".\DoseEffect\" )
+
+% doses = [ 0 10 30 50 100 150 ];
+doses = [ 0 10 30 50 100 150 ];
+% tLims = [ -5 5 30 ];
+tLims = [ -5 5 60 ];
+drug = "dex";
+timeFeats = savetimefeats( doses, tLims, drug );
+root = getrootdir( );
+save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
+    "timeFeats" )
+
 %% Plot dose v. features
-figure
-tits = { "rms (uV)", "sef (Hz)", "mf (Hz)", "df (Hz)", "P_{delta} (uV^2)", "P_{spindle} (uV^2)" };
-for i = 1 : 6
-    hAx( i ) = subplot( 2, 3, i );
-    scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
-    box off
-    xlim( [ -10 160 ] )
+close all
+for epochIdx = 1 : length( timeFeats )
+    featTab = timeFeats( epochIdx ).featTab;
+    figure
+    tits = { "rms (uV)", "sef (Hz)", "mf (Hz)", "df (Hz)", "P_{delta} (uV^2)", "P_{spindle} (uV^2)" };
+    for i = 1 : 6
+        hAx( i ) = subplot( 2, 3, i );
+        scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
+        box off
+        xlim( [ -10 160 ] )
 
-    if i == 1
-        ylim( [ 0 300 ] )
+        if i == 1
+            ylim( [ 0 300 ] )
 
-    elseif i == 5
-        ylim( [ 0 2.5 ] )
+        elseif i == 5
+            ylim( [ 0 0.3 ] )
+
+        elseif i == 6
+            ylim( [ 0 0.1 ] )
+
+        end
+        title( tits{ i } )
 
     end
-    title( tits{ i } )
+    
+    warning
+    xLabString = sprintf( "dose %cg\\kg", 965 );
+    hAx( 4 ).XLabel.String = xLabString;
+    hAx( 5 ).XLabel.String = xLabString;
+    hAx( 6 ).XLabel.String = xLabString;
 
 end
-
-hAx( 4 ).XLabel.String = "dose (ug/kg)";
-hAx( 5 ).XLabel.String = "dose (ug/kg)";
-hAx( 6 ).XLabel.String = "dose (ug/kg)";
 % ylim( [ 5 25 ] )
 % xlabel( "dose (ug/kg)" )
 % ylabel( "Frequency (Hz)")

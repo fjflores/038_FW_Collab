@@ -1,4 +1,4 @@
-function featTab = getavefeats( doses, tLims )
+function featTab = getavefeats( doses, tLims, drug )
 % GETAVEFEATS gets average features from spectrograms and EMG.
 % 
 % Usage:
@@ -6,20 +6,23 @@ function featTab = getavefeats( doses, tLims )
 % 
 % Input:
 % doses: vector with dose or doses to be plotted and extracted.
-% tLims: time limits to take qeeg median.
+% tLims: time limits to take qeeg median in minutes.
 % 
 % Output:
 % featTab: requested spectral feature.
 
-if nargin < 3
-    tLims = [ 30 40 ];
+% Defensive programming
+% epochLims = [ -5 : 5 : 55; 0 : 5 : 60 ];
 
-end
+tLims = tLims * 60;
+drug = string( drug );
 
+% Get info
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
+% Allocate empty tables
 featTab = table(...
     'Size', [ 5, 9 ], ...
     'VariableTypes', { 'single', 'string', 'double', 'double', 'double',...
@@ -33,7 +36,7 @@ for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     fprintf( "Processing dose %u %cg\\kg...\n", thisDose, 965 )
     expListIdx = masterTab.analyze == 1 & ...
-        masterTab.drug == "dex" & ...
+        masterTab.drug == drug & ...
         masterTab.drug_dose == thisDose;
     expList = masterTab.exp_id( expListIdx );
     nExps = length( expList );
@@ -44,26 +47,29 @@ for doseIdx = 1 : nDoses
         metDat = getmetadata( thisExp );
         resDir = fullfile( root, "Results", metDat.subject );
         f2load = "TidyData.mat";
-        load( fullfile( resDir, f2load ), "emg", "spec", "notes" );
-        tabExpIdx = find( [ notes.expId ] == thisExp );
+        thisData = load( fullfile( resDir, f2load ), "emg", "spec", "notes" );
+        tabExpIdx = find( [ thisData.notes.expId ] == thisExp );
         
         % Get emg features
-        t = emg( tabExpIdx ).t;
+        tInj = thisData.notes( tabExpIdx ).injDex;
+        t = thisData.emg( tabExpIdx ).t - tInj;
         dexIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
-        emgDex = emg( tabExpIdx ).data( dexIdxEmg );
+        emgDex = thisData.emg( tabExpIdx ).data( dexIdxEmg );
         win = [ 1 1 ];
-        emgChunks = makesegments( emgDex, emg( tabExpIdx ).Fs, win );
+        emgChunks = makesegments(...
+            emgDex, thisData.emg( tabExpIdx ).Fs, win );
         rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
         clear t
 
         % Get spectral features
-        t = spec( tabExpIdx ).t;
+        t = thisData.spec( tabExpIdx ).t - tInj;
         dexIdxS = t > tLims( 1 ) & t < tLims( 2 );
-        Sdex = spec( tabExpIdx ).SL( dexIdxS, : );        
-        f = spec( tabExpIdx ).f;
-        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 10 ] );
+        Sdex = thisData.spec( tabExpIdx ).SL( dexIdxS, : );        
+        f = thisData.spec( tabExpIdx ).f;
+        [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 15 ] );
         Pdelta = powerperband( Sdex, f, [ 0.5 3 ], 'total' );
         Pspindle = powerperband( Sdex, f, [ 12 18 ], 'total' );
+        clear t
         
         % Fill table
         featTab.expId( cnt ) = thisExp;
@@ -73,13 +79,13 @@ for doseIdx = 1 : nDoses
         featTab.sef( cnt ) = median( sef );
         featTab.mf( cnt ) = median( mf );
         featTab.df( cnt ) = median( df );
-        featTab.Pdelta( cnt ) = sum( Pdelta );
-        featTab.Pspindle( cnt ) = sum( Pspindle );
+        featTab.Pdelta( cnt ) = median( Pdelta );
+        featTab.Pspindle( cnt ) = median( Pspindle );
         
         % box off
         % hold on
         cnt = cnt + 1;
-        disprog( expIdx, nExps, 20 )
+        disprog( expIdx, nExps, 10 )
 
     end
 
