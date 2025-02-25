@@ -1,13 +1,22 @@
 %% Makes plot comparing mouse surface temps for different drug combos.
 
-% ccc
+ccc
 % clear all
 
-expList = [ 94 96 98 ];
-injTime = [ 11 35; 14 54; 12 22 ];
-expLabs = { sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
-    sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
-    sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ) };
+thisM = 'FW14';
+switch thisM
+    case 'FW14'
+        expList = [ 94 96 98 ];
+        injTime = [ 11 35; 14 54; 12 22 ];
+        expLabs = { sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ) };
+
+    case 'FW16'
+        expList = [ 99 ];
+        injTime = [ 12 24 ];
+        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ) };
+end
 
 figure
 hold on
@@ -15,7 +24,7 @@ for expIdx = 1 : length( expList )
     thisExp = expList( expIdx );
     fName = sprintf( 'exp%i_temps.xlsx', thisExp );
     inj = datetime( 1, 1, 1, injTime( expIdx, 1 ), injTime( expIdx, 2 ), 0 );
-    exp = readtable( fullfile( getrootdir, 'Data', 'FW14', fName ) );
+    exp = readtable( fullfile( getrootdir, 'Data', thisM, fName ) );
 
     ts = regexp( exp.tsClock, "(\d+):(\d{2})", "tokens" );
     for tsIdx = 1 : length( ts )
@@ -51,7 +60,8 @@ end
 
 title( 'Mouse Temperature' )
 xlabel( 'Time since injection (min)')
-xline( 0, ':' )
+xlim( [ 0 180 ] )
+ylim( [ 21 31 ] )
 ylabel( sprintf( 'Temperature (%cC)', 176 ) )
 legend( expLabs )
 text( 60, 28.5, sprintf( 'Note: ambient temperature ~21%c', 176 ) )
