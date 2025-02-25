@@ -136,7 +136,7 @@ root = getrootdir( );
 load( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
     "timeFeats" )
 % tic
-mdls = fitfeats( timeFeats, [ 4 : 9 ] );
+mdls = fitfeats( timeFeats, [ 4 : 11 ] );
 % fprintf( "%s\n", humantime( toc ) )
 
 save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...

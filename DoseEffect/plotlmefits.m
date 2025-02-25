@@ -51,6 +51,6 @@ for mdlIdx = 1 : length( mdls )
     ylabel( feat2plot );
     title('Model Fit');
     % legend('Original Data', 'Fitted Values', 'Confidence Intervals');
-    grid on;
+    % grid on;
 
 end

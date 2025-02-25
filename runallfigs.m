@@ -122,6 +122,11 @@ if ~exist( "timeFeats", "var" )
 
 end
 
+load( fullfile(...
+    getrootdir(), 'Results', 'Dose_Effect', 'Feature_fits.mat' ),...
+    'mdls' )
+featList = timeFeats( 1 ).featTab.Properties.VariableNames( 4 : end );
+
 if dbFromP
     PUnits = 'db';
     PCols = [ 10 11 ];
@@ -133,6 +138,7 @@ else
 end
 
 featCols = [ 4 : 7 PCols ];
+feats2plot = featList( featCols - 3 );
     
 if norm
     % Normalize to [ -5 0 ] baseline.
@@ -172,9 +178,13 @@ for epochIdx = 1 : length( timeFeats2plot )
     for featIdx = 1 : 6
         thisFeat = featCols( featIdx );
         hAx( featIdx ) = subplot( 2, 3, featIdx );
+        hold on
         scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
+        plotlmefits( mdls( epochIdx ), feats2plot{ featIdx } )
+        ylabel( '' )
         box off
         xlim( [ -10 160 ] )
+        xticks( [ 0 : 50 : 150 ] )
         hold on
 
         if norm
@@ -232,13 +242,14 @@ for epochIdx = 1 : length( timeFeats2plot )
         end
 
         title( tits{ featIdx } )
+        xLabString = sprintf( "Dose (%cg/kg)", 956 );
+        if epIdx > 3
+            xlabel( xLabString );
+        else
+            xlabel( '' );
+        end
 
     end
-
-    xLabString = sprintf( "Dose (%cg/kg)", 956 );
-    hAx( 4 ).XLabel.String = xLabString;
-    hAx( 5 ).XLabel.String = xLabString;
-    hAx( 6 ).XLabel.String = xLabString;
 
     if saveFigs
         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
@@ -260,9 +271,13 @@ for featIdx = 1 : 6
         featTab = timeFeats2plot( epIdx ).featTab;
         epoch = timeFeats2plot( epIdx ).epoch;
         hAx( epIdx ) = subplot( 2, length( timeFeats2plot ) / 2, epIdx );
+        hold on
         scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
+        plotlmefits( mdls( epIdx ), feats2plot{ featIdx } )
+        ylabel( '' )
         box off
         xlim( [ -10 160 ] )
+        xticks( [ 0 : 50 : 150 ] )
         hold on
 
         if norm
@@ -319,6 +334,8 @@ for featIdx = 1 : 6
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
         if epIdx > length( timeFeats2plot ) / 2
             xlabel( xLabString );
+        else
+            xlabel( '' );
         end
 
     end
