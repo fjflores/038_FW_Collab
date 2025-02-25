@@ -40,9 +40,9 @@ clc
 addpath(".\Figures")
 modo = 'median';
 mice = { "M102", "M103", "M105" };
-for i = 1 : length( mice )
+for featIdx = 1 : length( mice )
     figure
-    makedeltafig( mice{ i } );
+    makedeltafig( mice{ featIdx } );
 
 end
 
@@ -56,8 +56,8 @@ addpath( ".\Figures" )
 
 % doses = [ 0 10 50 100 150 ];
 doses = 30;
-for i = 1 : length( doses )
-    thisDose = doses( i );
+for featIdx = 1 : length( doses )
+    thisDose = doses( featIdx );
     makespecdosefig( thisDose )
 
 end
@@ -71,16 +71,16 @@ addpath( ".\Figures" )
 doses = 30;
 aucFlag = false;
 figure
-for i = 1 : length( doses )
-    thisDose = doses( i );
-    subplot( length( doses ), 1, i )
+for featIdx = 1 : length( doses )
+    thisDose = doses( featIdx );
+    subplot( length( doses ), 1, featIdx )
     plotdeltatc( thisDose, aucFlag )
     box off
     ylabel( 'Power (db)' )
     title( sprintf( "Dose: %u ug/kg", thisDose ) )
     ylim( [ 0 0.4 ] )
 
-    if i == length( doses )
+    if featIdx == length( doses )
         xlabel( "time (min)" )
 
     end
@@ -88,9 +88,11 @@ for i = 1 : length( doses )
 end
 
 %% Plot dose v. features
+
 close all
 
 norm = false; % Choose to normalize to baseline or not.
+dbFromP = false; % Choose to convert power to db.
 saveFigs = false; % Choose to save pngs or not.
 
 if ~exist( "timeFeats", "var" )
@@ -100,10 +102,29 @@ if ~exist( "timeFeats", "var" )
 
 end
 
+if dbFromP
+    for epIdx = 1 : length( timeFeats )
+        timeFeats( epIdx ).featTab{ :, 'PdeltaDB' } = pow2db(...
+            timeFeats( epIdx ).featTab{ :, 'Pdelta' } );
+        timeFeats( epIdx ).featTab{ :, 'PspindleDB' } = pow2db(...
+            timeFeats( epIdx ).featTab{ :, 'Pspindle' } );
+    end
+
+    PUnits = 'db';
+    PCols = [ 10 11 ];
+
+else
+    PUnits = 'uV^2';
+    PCols = [ 8 9 ];
+
+end
+
+featCols = [ 4 : 7 PCols ];
+    
 if norm
     % Normalize to [ -5 0 ] baseline.
     timeFeatsNorm = timeFeats;
-    col2Norm = [ 4 8 9 ];
+    col2Norm = [ 4 PCols ];
     for epIdx = 1 : length( timeFeats )
         timeFeatsNorm( epIdx ).featTab( :, col2Norm ) = ...
             timeFeats( epIdx ).featTab( :, col2Norm )...
@@ -121,23 +142,25 @@ end
 
 tits = {...
         "rms (uV)", "sef (Hz)", "mf (Hz)",...
-        "df (Hz)", "P \delta (uV^2)", "P \sigma (uV^2)" };
+        "df (Hz)",...
+        sprintf( "P %c (%s)", 948, PUnits ),...
+        sprintf( "P %c (%s)", 963, PUnits ) };
 
 % % Plot all features for each epoch.
 % for epochIdx = 1 : length( timeFeats2plot )
 %     featTab = timeFeats2plot( epochIdx ).featTab;
 %     epoch = timeFeats2plot( epochIdx ).epoch;
 %     figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
-%     for i = 1 : 6
-%         hAx( i ) = subplot( 2, 3, i );
-%         % hLines = plot( featTab{ :, 3 }, featTab{ :, i + 3 }, "Color", [ 0.5 0.5 0.5 ] );
-%         scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
+%     for featIdx = 1 : 6
+%         thisFeat = featCols( featIdx );
+%         hAx( featIdx ) = subplot( 2, 3, featIdx );
+%         scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
 %         box off
 %         xlim( [ -10 160 ] )
 %         hold on
 % 
 %         if norm
-%             switch i
+%             switch featIdx
 %                 case 1
 %                     ylim( [ 0 4 ] )
 %                     yline( 1, ':' )
@@ -147,21 +170,31 @@ tits = {...
 %                 case 6
 %                     ylim( [ 0 3.1 ] )
 %                     yline( 1, ':' )
-%                 end
+%             end
 % 
 %         else
-%             switch i
+%             switch featIdx
 %                 case 1
 %                     ylim( [ 0 220 ] )
 %                 case 5
-%                     ylim( [ 0 2.5 ] )
+%                     if dbFromP                    
+%                         ylim( [ -15 5 ] )
+%                     else
+%                         ylim( [ 0 2.5 ] )
+%                     end
+% 
 %                 case 6
-%                     ylim( [ 0 0.11 ] )
+%                     if dbFromP
+%                         ylim( [ -22 -8 ] )
+%                     else
+%                         ylim( [ 0 0.11 ] )
+%                     end
+% 
 %             end
 % 
 %         end
 % 
-%         switch i
+%         switch featIdx
 %             case 2
 %                 ylim( [ 0 16 ] )
 %             case 3
@@ -170,7 +203,7 @@ tits = {...
 %                 ylim( [ 0 8 ] )
 %         end
 % 
-%         title( tits{ i } )
+%         title( tits{ featIdx } )
 % 
 %     end
 % 
@@ -183,16 +216,18 @@ tits = {...
 %         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
 %             sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
 %     end
+% 
 % end
 
 % Plot each feature for all epochs.
 for featIdx = 1 : 6    
-    figure( 'Name', tits{ featIdx } )    
+    thisFeat = featCols( featIdx );
+    figure( 'Name', tits{ featIdx } )  
     for epIdx = 1 : length( timeFeats2plot )
         featTab = timeFeats2plot( epIdx ).featTab;
         epoch = timeFeats2plot( epIdx ).epoch;
         hAx( epIdx ) = subplot( 2, length( timeFeats2plot ) / 2, epIdx );
-        scatter( featTab.dose, featTab{ :, featIdx + 3 }, 20, 'k', 'filled' )
+        scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
         box off
         xlim( [ -10 160 ] )
         hold on
@@ -215,9 +250,17 @@ for featIdx = 1 : 6
                 case 1
                     ylim( [ 0 220 ] )
                 case 5
-                    ylim( [ 0 2.5 ] )
+                    if dbFromP                    
+                        ylim( [ -15 5 ] )
+                    else
+                        ylim( [ 0 2.5 ] )
+                    end
                 case 6
-                    ylim( [ 0 0.11 ] )
+                    if dbFromP
+                        ylim( [ -22 -8 ] )
+                    else
+                        ylim( [ 0 0.11 ] )
+                    end
             end
 
         end
@@ -243,6 +286,7 @@ for featIdx = 1 : 6
     %     saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
     %         sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
     % end
+
 end
 
 
