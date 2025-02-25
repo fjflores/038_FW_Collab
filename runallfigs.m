@@ -105,13 +105,14 @@ for i = 1 : length( feats2plot )
 
 end
 
-%% Plot dose v. features
+
+%% Load data and set options for dose v. feature figures.
 
 ccc
 % close all
 
 norm = false; % Choose to normalize to baseline or not.
-dbFromP = false; % Choose to convert power to db.
+dbFromP = true; % Choose to convert power to db.
 saveFigs = false; % Choose to save pngs or not.
 
 if ~exist( "timeFeats", "var" )
@@ -122,18 +123,11 @@ if ~exist( "timeFeats", "var" )
 end
 
 if dbFromP
-    for epIdx = 1 : length( timeFeats )
-        timeFeats( epIdx ).featTab{ :, 'PdeltaDB' } = pow2db(...
-            timeFeats( epIdx ).featTab{ :, 'Pdelta' } );
-        timeFeats( epIdx ).featTab{ :, 'PspindleDB' } = pow2db(...
-            timeFeats( epIdx ).featTab{ :, 'Pspindle' } );
-    end
-
     PUnits = 'db';
     PCols = [ 10 11 ];
 
 else
-    PUnits = 'uV^2';
+    PUnits = sprintf( '%cV^2', 956 );
     PCols = [ 8 9 ];
 
 end
@@ -160,88 +154,108 @@ else
 end
 
 tits = {...
-        "rms (uV)", "sef (Hz)", "mf (Hz)",...
+        sprintf( "rms (%cV)", 956 ), "sef (Hz)", "mf (Hz)",...
         "df (Hz)",...
         sprintf( "P %c (%s)", 948, PUnits ),...
         sprintf( "P %c (%s)", 963, PUnits ) };
 
-% % Plot all features for each epoch.
-% for epochIdx = 1 : length( timeFeats2plot )
-%     featTab = timeFeats2plot( epochIdx ).featTab;
-%     epoch = timeFeats2plot( epochIdx ).epoch;
-%     figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
-%     for featIdx = 1 : 6
-%         thisFeat = featCols( featIdx );
-%         hAx( featIdx ) = subplot( 2, 3, featIdx );
-%         scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
-%         box off
-%         xlim( [ -10 160 ] )
-%         hold on
-% 
-%         if norm
-%             switch featIdx
-%                 case 1
-%                     ylim( [ 0 4 ] )
-%                     yline( 1, ':' )
-%                 case 5
-%                     ylim( [ 0 20 ] )
-%                     yline( 1, ':' )
-%                 case 6
-%                     ylim( [ 0 3.1 ] )
-%                     yline( 1, ':' )
-%             end
-% 
-%         else
-%             switch featIdx
-%                 case 1
-%                     ylim( [ 0 220 ] )
-%                 case 5
-%                     if dbFromP                    
-%                         ylim( [ -15 5 ] )
-%                     else
-%                         ylim( [ 0 2.5 ] )
-%                     end
-% 
-%                 case 6
-%                     if dbFromP
-%                         ylim( [ -22 -8 ] )
-%                     else
-%                         ylim( [ 0 0.11 ] )
-%                     end
-% 
-%             end
-% 
-%         end
-% 
-%         switch featIdx
-%             case 2
-%                 ylim( [ 0 16 ] )
-%             case 3
-%                 ylim( [ 0 7 ] )
-%             case 4
-%                 ylim( [ 0 8 ] )
-%         end
-% 
-%         title( tits{ featIdx } )
-% 
-%     end
-% 
-%     xLabString = sprintf( "Dose (%cg/kg)", 956 );
-%     hAx( 4 ).XLabel.String = xLabString;
-%     hAx( 5 ).XLabel.String = xLabString;
-%     hAx( 6 ).XLabel.String = xLabString;
-% 
-%     if saveFigs
-%         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
-%             sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
-%     end
-% 
-% end
 
-% Plot each feature for all epochs.
-for featIdx = 1 : 6    
+%% Plot all features for each epoch.
+
+% 1) Run 'Load data and set options for dose v. feature figures.' section.
+
+% 2) Plot.
+for epochIdx = 1 : length( timeFeats2plot )
+    featTab = timeFeats2plot( epochIdx ).featTab;
+    epoch = timeFeats2plot( epochIdx ).epoch;
+    figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
+    for featIdx = 1 : 6
+        thisFeat = featCols( featIdx );
+        hAx( featIdx ) = subplot( 2, 3, featIdx );
+        scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
+        box off
+        xlim( [ -10 160 ] )
+        hold on
+
+        if norm
+            switch featIdx
+                case 1
+                    ylim( [ 0 4 ] )
+                    yline( 1, ':' )
+                case 5
+                    if dbFromP
+                        ylim( [ -5 2 ] )
+                    else
+                        ylim( [ 0 20 ] )
+                    end
+                    yline( 1, ':' )
+
+                case 6
+                    if dbFromP
+                        ylim( [ 0.6 1.4 ] )
+                    else
+                        ylim( [ 0 3.1 ] )
+                    end
+                    yline( 1, ':' )
+
+            end
+
+        else
+            switch featIdx
+                case 1
+                    ylim( [ 0 220 ] )
+                case 5
+                    if dbFromP                    
+                        ylim( [ -15 5 ] )
+                    else
+                        ylim( [ 0 2.5 ] )
+                    end
+
+                case 6
+                    if dbFromP
+                        ylim( [ -22 -8 ] )
+                    else
+                        ylim( [ 0 0.11 ] )
+                    end
+
+            end
+
+        end
+
+        switch featIdx
+            case 2
+                ylim( [ 0 16 ] )
+            case 3
+                ylim( [ 0 7 ] )
+            case 4
+                ylim( [ 0 8 ] )
+        end
+
+        title( tits{ featIdx } )
+
+    end
+
+    xLabString = sprintf( "Dose (%cg/kg)", 956 );
+    hAx( 4 ).XLabel.String = xLabString;
+    hAx( 5 ).XLabel.String = xLabString;
+    hAx( 6 ).XLabel.String = xLabString;
+
+    if saveFigs
+        saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
+            sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
+    end
+
+end
+
+
+%% Plot each feature for all epochs.
+
+% 1) Run 'Load data and set options for dose v. feature figures.' section.
+
+% 2) Plot.
+for featIdx = 1 : 6
     thisFeat = featCols( featIdx );
-    figure( 'Name', tits{ featIdx } )  
+    figure( 'Name', tits{ featIdx } )
     for epIdx = 1 : length( timeFeats2plot )
         featTab = timeFeats2plot( epIdx ).featTab;
         epoch = timeFeats2plot( epIdx ).epoch;
@@ -257,10 +271,18 @@ for featIdx = 1 : 6
                     ylim( [ 0 4 ] )
                     yline( 1, ':' )
                 case 5
-                    ylim( [ 0 20 ] )
+                    if dbFromP
+                        ylim( [ -5 2 ] )
+                    else
+                        ylim( [ 0 20 ] )
+                    end
                     yline( 1, ':' )
                 case 6
-                    ylim( [ 0 3.1 ] )
+                    if dbFromP
+                        ylim( [ 0.6 1.4 ] )
+                    else
+                        ylim( [ 0 3.1 ] )
+                    end
                     yline( 1, ':' )
             end
 
@@ -269,7 +291,7 @@ for featIdx = 1 : 6
                 case 1
                     ylim( [ 0 220 ] )
                 case 5
-                    if dbFromP                    
+                    if dbFromP
                         ylim( [ -15 5 ] )
                     else
                         ylim( [ 0 2.5 ] )

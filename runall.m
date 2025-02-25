@@ -141,3 +141,21 @@ mdls = fitfeats( timeFeats, [ 4 : 9 ] );
 
 save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
     "mdls" )
+
+%% Add db power columns to timeFeats.
+
+ccc
+
+root = getrootdir( );
+featsFile = fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" );
+load( featsFile, "timeFeats" )
+
+for epIdx = 1 : length( timeFeats )
+        timeFeats( epIdx ).featTab{ :, 'PdeltaDB' } = pow2db(...
+            timeFeats( epIdx ).featTab{ :, 'Pdelta' } );
+        timeFeats( epIdx ).featTab{ :, 'PspindleDB' } = pow2db(...
+            timeFeats( epIdx ).featTab{ :, 'Pspindle' } );
+
+end
+
+save( featsFile, 'timeFeats', '-append')
