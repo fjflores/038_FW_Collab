@@ -127,3 +127,16 @@ root = getrootdir( );
 save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
     "timeFeats" )
 
+%% Fit linear mixed-effects model to time features
+ccc
+addpath( ".\Figures" )
+addpath( ".\DoseEffect\" )
+root = getrootdir( );
+load( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
+    "timeFeats" )
+% tic
+mdls = fitfeats( timeFeats, [ 4 : 9 ] );
+% fprintf( "%s\n", humantime( toc ) )
+
+save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
+    "mdls" )
