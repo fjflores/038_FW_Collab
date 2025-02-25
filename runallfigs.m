@@ -89,7 +89,8 @@ end
 
 %% Plot dose v. features
 
-close all
+ccc
+% close all
 
 norm = false; % Choose to normalize to baseline or not.
 dbFromP = false; % Choose to convert power to db.
