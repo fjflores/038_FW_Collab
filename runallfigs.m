@@ -87,6 +87,24 @@ for featIdx = 1 : length( doses )
 
 end
 
+%% Plot all fits on average features over time
+clear all
+clc
+
+addpath( ".\DoseEffect\" )
+root = getrootdir( );
+load( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
+    "timeFeats" )
+load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
+    "mdls" )
+feats2plot = timeFeats( 1 ).featTab.Properties.VariableNames( 4 : end );
+
+for i = 1 : length( feats2plot )
+    subplot( 2, 3, i )
+    plotlmefits( mdls, feats2plot{ i } )
+
+end
+
 %% Plot dose v. features
 
 ccc
