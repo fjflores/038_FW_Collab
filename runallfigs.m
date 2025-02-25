@@ -137,36 +137,99 @@ else
 
 end
 
-for epochIdx = 1 : length( timeFeats )
-    featTab = timeFeats2plot( epochIdx ).featTab;
-    epoch = timeFeats2plot( epochIdx ).epoch;
-    figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
-    tits = {...
+tits = {...
         "rms (uV)", "sef (Hz)", "mf (Hz)",...
         "df (Hz)", "P \delta (uV^2)", "P \sigma (uV^2)" };
-    for i = 1 : 6
-        hAx( i ) = subplot( 2, 3, i );
-        % hLines = plot( featTab{ :, 3 }, featTab{ :, i + 3 }, "Color", [ 0.5 0.5 0.5 ] );
-        scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
+
+% % Plot all features for each epoch.
+% for epochIdx = 1 : length( timeFeats2plot )
+%     featTab = timeFeats2plot( epochIdx ).featTab;
+%     epoch = timeFeats2plot( epochIdx ).epoch;
+%     figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
+%     for i = 1 : 6
+%         hAx( i ) = subplot( 2, 3, i );
+%         % hLines = plot( featTab{ :, 3 }, featTab{ :, i + 3 }, "Color", [ 0.5 0.5 0.5 ] );
+%         scatter( featTab.dose, featTab{ :, i + 3 }, 20, 'k', 'filled' )
+%         box off
+%         xlim( [ -10 160 ] )
+%         hold on
+% 
+%         if norm
+%             switch i
+%                 case 1
+%                     ylim( [ 0 4 ] )
+%                     yline( 1, ':' )
+%                 case 5
+%                     ylim( [ 0 20 ] )
+%                     yline( 1, ':' )
+%                 case 6
+%                     ylim( [ 0 3.1 ] )
+%                     yline( 1, ':' )
+%                 end
+% 
+%         else
+%             switch i
+%                 case 1
+%                     ylim( [ 0 220 ] )
+%                 case 5
+%                     ylim( [ 0 2.5 ] )
+%                 case 6
+%                     ylim( [ 0 0.11 ] )
+%             end
+% 
+%         end
+% 
+%         switch i
+%             case 2
+%                 ylim( [ 0 16 ] )
+%             case 3
+%                 ylim( [ 0 7 ] )
+%             case 4
+%                 ylim( [ 0 8 ] )
+%         end
+% 
+%         title( tits{ i } )
+% 
+%     end
+% 
+%     xLabString = sprintf( "Dose (%cg/kg)", 956 );
+%     hAx( 4 ).XLabel.String = xLabString;
+%     hAx( 5 ).XLabel.String = xLabString;
+%     hAx( 6 ).XLabel.String = xLabString;
+% 
+%     if saveFigs
+%         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
+%             sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
+%     end
+% end
+
+% Plot each feature for all epochs.
+for featIdx = 1 : 6    
+    figure( 'Name', tits{ featIdx } )    
+    for epIdx = 1 : length( timeFeats2plot )
+        featTab = timeFeats2plot( epIdx ).featTab;
+        epoch = timeFeats2plot( epIdx ).epoch;
+        hAx( epIdx ) = subplot( 2, length( timeFeats2plot ) / 2, epIdx );
+        scatter( featTab.dose, featTab{ :, featIdx + 3 }, 20, 'k', 'filled' )
         box off
         xlim( [ -10 160 ] )
         hold on
-        
+
         if norm
-            switch i
-            case 1
-                ylim( [ 0 4 ] )
-                yline( 1, ':' )
-            case 5
-                ylim( [ 0 20 ] )
-                yline( 1, ':' )
-            case 6
-                ylim( [ 0 3.1 ] )
-                yline( 1, ':' )
+            switch featIdx
+                case 1
+                    ylim( [ 0 4 ] )
+                    yline( 1, ':' )
+                case 5
+                    ylim( [ 0 20 ] )
+                    yline( 1, ':' )
+                case 6
+                    ylim( [ 0 3.1 ] )
+                    yline( 1, ':' )
             end
 
         else
-            switch i
+            switch featIdx
                 case 1
                     ylim( [ 0 220 ] )
                 case 5
@@ -177,7 +240,7 @@ for epochIdx = 1 : length( timeFeats )
 
         end
 
-        switch i
+        switch featIdx
             case 2
                 ylim( [ 0 16 ] )
             case 3
@@ -186,19 +249,18 @@ for epochIdx = 1 : length( timeFeats )
                 ylim( [ 0 8 ] )
         end
 
-        title( tits{ i } )
-        
+        title( sprintf( '%i to %i min', epoch( : ) ) )
+        xLabString = sprintf( "Dose (%cg/kg)", 956 );
+        if epIdx > length( timeFeats2plot ) / 2
+            xlabel( xLabString );
+        end
+
     end
 
-    xLabString = sprintf( "Dose (%cg/kg)", 956 );
-    hAx( 4 ).XLabel.String = xLabString;
-    hAx( 5 ).XLabel.String = xLabString;
-    hAx( 6 ).XLabel.String = xLabString;
-
-    if saveFigs
-        saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
-            sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
-    end
+    % if saveFigs
+    %     saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
+    %         sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
+    % end
 end
 
 

@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 98;
+expList = 99;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 98;
+expId = 99;
 
 % expData = loadmixdata( expID );
 
@@ -38,8 +38,8 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 15 ],...
-    'SetCAxis', [ 0 35 ],...
+    'SetFreqSpec', [ 0.5 150 ],...
+    'SetCAxis', [ -10 30 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
 
@@ -55,7 +55,8 @@ for i = 1 : 6
     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
 %     % xline( hAx( i ), [ 4739 6599 10619 ], 'g', 'LineWidth', 1 ) % exp94
 %     xline( hAx( i ), [ 7129 9229 12889 ], 'g', 'LineWidth', 1 ) % exp96
-    xline( hAx( i ), [ 5454 7254 10854 ], 'g', 'LineWidth', 1 ) % exp98
+    % xline( hAx( i ), [ 5454 7254 10854 ], 'g', 'LineWidth', 1 ) % exp98
+    xline( hAx( i ), [ 4679 6479 10079 ], 'g', 'LineWidth', 1 ) % exp99
 
 end
 
