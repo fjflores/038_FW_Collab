@@ -92,13 +92,24 @@ clear all
 clc
 
 addpath( ".\DoseEffect\" )
+
+dbFromP = true; % Choose to convert power to db.
+
 root = getrootdir( );
 load( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
     "timeFeats" )
 load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
     "mdls" )
-feats2plot = timeFeats( 1 ).featTab.Properties.VariableNames( 4 : end );
 
+if dbFromP
+    PCols = [ 10 11 ];
+else
+    PCols = [ 8 9 ];
+end
+featCols = [ 4 : 7 PCols ];
+feats2plot = timeFeats( 1 ).featTab.Properties.VariableNames( featCols );
+
+figure
 for i = 1 : length( feats2plot )
     subplot( 2, 3, i )
     plotlmefits( mdls, feats2plot{ i } )
@@ -142,6 +153,8 @@ feats2plot = featList( featCols - 3 );
     
 if norm
     % Normalize to [ -5 0 ] baseline.
+    warning( [ 'Plotting linear model fits on top of scatters does ',...
+        'not currently work with normalized data.' ] );
     timeFeatsNorm = timeFeats;
     col2Norm = [ 4 PCols ];
     for epIdx = 1 : length( timeFeats )
@@ -243,7 +256,7 @@ for epochIdx = 1 : length( timeFeats2plot )
 
         title( tits{ featIdx } )
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
-        if epIdx > 3
+        if epochIdx > 3
             xlabel( xLabString );
         else
             xlabel( '' );
