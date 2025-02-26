@@ -1,7 +1,7 @@
 function plotlmefits( mdls, feat2plot )
 
-map = sky;
-colors = map( 20 : 20 : end, : );
+% map = sky;
+% colors = map( 20 : 20 : end, : );
 
 % Get fitted values and residuals
 for mdlIdx = 1 : length( mdls )
@@ -40,16 +40,17 @@ for mdlIdx = 1 : length( mdls )
     % scatter( pred, resp, 'filled', 'MarkerFaceColor', [ 0.8, 0.8, 0.8 ] );
     % scatter( timeFeats( 1 ).featTab.dose, timeFeats( 1 ).featTab.rmsEmg,...
     %     'filled', 'MarkerFaceColor', [ 0.8, 0.8, 0.8 ] )
-    plot( pred, resp, 'LineWidth', 2, "Color", colors( mdlIdx, : ) );
+    % plot( pred, resp, 'LineWidth', 2, "Color", colors( mdlIdx, : ) );
+    plot( pred, resp, 'LineWidth', 2, "Color", 'k' );
     % fill( [pred; flipud( pred )], [ lowerCI; flipud( upperCI ) ],...
     %     colors( mdlIdx, : ), 'FaceAlpha', 0.2, 'EdgeColor', 'none');
     % hold off;
-    xlim( [ -10 160 ] )
+    % xlim( [ -10 160 ] )
 
     % Add labels and title
-    xlabel('Dose (ug/kg)');
-    ylabel( feat2plot );
-    title('Model Fit');
+    % xlabel('Dose (ug/kg)');
+    % ylabel( feat2plot );
+    % title('Model Fit');
     % legend('Original Data', 'Fitted Values', 'Confidence Intervals');
     % grid on;
 

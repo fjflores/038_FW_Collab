@@ -122,6 +122,8 @@ end
 ccc
 % close all
 
+addpath( './DoseEffect/' )
+
 norm = false; % Choose to normalize to baseline or not.
 dbFromP = true; % Choose to convert power to db.
 saveFigs = false; % Choose to save pngs or not.
@@ -285,7 +287,8 @@ for featIdx = 1 : 6
         epoch = timeFeats2plot( epIdx ).epoch;
         hAx( epIdx ) = subplot( 2, length( timeFeats2plot ) / 2, epIdx );
         hold on
-        scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
+        scatter( featTab.dose, featTab{ :, thisFeat },...
+            20, [ 0.5 0.5 0.5 ], 'filled' )
         plotlmefits( mdls( epIdx ), feats2plot{ featIdx } )
         ylabel( '' )
         box off
