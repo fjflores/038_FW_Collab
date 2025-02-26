@@ -15,8 +15,18 @@ for epochIdx = 1 : nEpochs
         tabClean = thisTab( rows2keep, : );
         mdlFormula = sprintf(...
             '%s ~ dose + ( 1 + dose | mouseId )', col2check );
-        mdls( epochIdx ).( col2check ) = fitlme( tabClean,...
-            mdlFormula );
+
+        switch col2check
+            case { "rmsEmg", "df", "mf", "sef" }
+                mdls( epochIdx ).( col2check ) = fitglme( tabClean,...
+                    mdlFormula, 'Distribution', 'Gamma', 'Link', 'log');
+
+            case { "Pdelta", "Pspindle" }
+                mdls( epochIdx ).( col2check ) = fitglme( tabClean,...
+                    mdlFormula, 'Distribution', 'Normal', 'Link', 'identity' );
+
+        end
+
 
     end
     disprog( epochIdx, nEpochs, 10 )
