@@ -3,19 +3,21 @@
 ccc
 % clear all
 
-thisM = 'FW14';
+thisM = 'FW16';
 switch thisM
     case 'FW14'
-        expList = [ 94 96 98 ];
-        injTime = [ 11 35; 14 54; 12 22 ];
-        expLabs = { sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
+        expList = [ 100 96 98 94 ];
+        injTime = [ 12 38; 14 54; 12 22; 11 35 ];
+        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...            
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ) };
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ),...
+            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ) };
 
     case 'FW16'
-        expList = [ 99 ];
-        injTime = [ 12 24 ];
-        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ) };
+        expList = [ 99 101 ];
+        injTime = [ 12 24; 15 54 ];
+        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
+            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ) };
 end
 
 figure
@@ -61,7 +63,7 @@ end
 title( 'Mouse Temperature' )
 xlabel( 'Time since injection (min)')
 xlim( [ 0 180 ] )
-ylim( [ 21 31 ] )
+ylim( [ 21 32 ] )
 ylabel( sprintf( 'Temperature (%cC)', 176 ) )
 legend( expLabs )
 text( 60, 28.5, sprintf( 'Note: ambient temperature ~21%c', 176 ) )
