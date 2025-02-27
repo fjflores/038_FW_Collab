@@ -249,9 +249,9 @@ for epochIdx = 1 : length( timeFeats2plot )
 
         switch featIdx
             case 2
-                ylim( [ 0 16 ] )
+                ylim( [ 7 16 ] )
             case 3
-                ylim( [ 0 7 ] )
+                ylim( [ 1 7 ] )
             case 4
                 ylim( [ 0 8 ] )
         end
@@ -339,9 +339,9 @@ for featIdx = 1 : 6
 
         switch featIdx
             case 2
-                ylim( [ 0 16 ] )
+                ylim( [ 7 16 ] )
             case 3
-                ylim( [ 0 7 ] )
+                ylim( [ 1 7 ] )
             case 4
                 ylim( [ 0 8 ] )
         end
@@ -354,12 +354,18 @@ for featIdx = 1 : 6
             xlabel( '' );
         end
 
+        if epIdx == 1 || epIdx == 7
+            ylabel( tits{ featIdx } );
+        end
+
     end
 
     % if saveFigs
     %     saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
     %         sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
     % end
+
+    set( hAx, 'FontSize', 12 )
 
 end
 
