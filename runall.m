@@ -118,15 +118,15 @@ addpath( ".\DoseEffect\" )
 doses = [ 0 10 30 50 100 150 ];
 % doses = [ 0 30 ];
 % tLims = [ -5 5 5 ];
-tLims = [ -5 5 55 ];
+tLims = [ -5 5 5 ];
 drug = "dex";
 tic
 timeFeats = savetimefeats( doses, tLims, drug );
 humantime( toc )
 
 root = getrootdir( );
-save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
-    "timeFeats" )
+% save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
+%     "timeFeats" )
 
 %% Fit linear mixed-effects model to time features
 ccc

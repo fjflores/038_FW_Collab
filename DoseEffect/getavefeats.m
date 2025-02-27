@@ -6,7 +6,8 @@ function featTab = getavefeats( doses, tLims, drug )
 %
 % Input:
 % doses: vector with dose or doses to be plotted and extracted.
-% tLims: time limits to take qeeg median in minutes.
+% tLims: two-element vector with time limits to take qeeg median in minutes.
+% drug: string drug name to use. "dex" or "ket".
 %
 % Output:
 % featTab: requested spectral feature.
@@ -56,7 +57,7 @@ for doseIdx = 1 : nDoses
             t = thisData.emg( tabExpIdx ).t - tInj;
             dexIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
             emgDex = thisData.emg( tabExpIdx ).data( dexIdxEmg );
-            win = [ 1 1 ];
+            win = [ 15 1.5 ];
             emgChunks = makesegments(...
                 emgDex, thisData.emg( tabExpIdx ).Fs, win );
             rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
@@ -107,40 +108,6 @@ for doseIdx = 1 : nDoses
 
     end
 
-    % ylabel( 'Freq. (Hz)' )
-    % xLims = get( gca, 'xlim' );
-    % yLims = get( gca, 'ylim' );
-    % posX = xLims( 1 ) + 1;
-    % posY = yLims( 1 ) + 4;
-    %
-    % if thisDose == 0
-    %     leg = "Saline";
-    %     title( tits( kind ) )
-    %
-    % else
-    %     leg = sprintf( "%u %cg/kg", thisDose, 956 );
-    %
-    % end
-    % text( posX, posY, leg,...
-    %     'Color', 'k',...
-    %     'FontWeight', 'bold',...
-    %     'FontSize', 10 )
-    % ylabel( 'Freq. (Hz)' )
 
 end
 
-% Remove zeros from qEEG.
-% qeeg( qeeg == 0 ) = NaN;
-%
-%
-% set( hAx,...
-%     'FontSize', 12,...
-%     'TickDir', 'out',...
-%     'XTickLabel', [],...
-%     'YTick',  0 : 10 : 40  )
-%
-% set( hAx( end ),...
-%     "XTick", [ -10 : 10 : 60 ],...
-%     "XTickLabel", [ -10 : 10 : 60 ] )
-% xlabel( hAx( 1 ), "time (min)" );
-% set( hAx, 'FontSize', 12, 'TickDir', 'out' )
