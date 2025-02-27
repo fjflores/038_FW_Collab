@@ -88,7 +88,7 @@ for featIdx = 1 : length( doses )
 end
 
 %% Plot all fits on average features over time
-clear all
+% clear all
 clc
 
 addpath( ".\DoseEffect\" )
