@@ -14,9 +14,10 @@ switch thisM
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ) };
 
     case 'FW16'
-        expList = [ 99 101 ];
-        injTime = [ 12 24; 15 54 ];
+        expList = [ 99 102 101 ];
+        injTime = [ 12 24; 13 30; 15 54 ];
         expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ) };
 end
 

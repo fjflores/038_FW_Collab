@@ -22,6 +22,7 @@ expTab = readtable( fullfile( tabPath,...
     "abc_experiment_list.xlsm" )  );
 expIdx = expTab.exp_id == expID;
 analyzeMask = expTab.analyze( expIdx );
+FWCollab = expTab.FW_collab( expIdx );
 subject = expTab.mouse_id( expIdx );
 dexDose = expTab.drug_dose( expIdx );
 expDate = expTab.date( expIdx );
@@ -52,6 +53,7 @@ expMetaData.bonsaiSuff = bonsaiSuff{ 1 };
 expMetaData.vidFileList = vidFileList;
 expMetaData.ephysFileList = ephysFileList;
 expMetaData.chValid = chValid;
+expMetaData.FWCollab = FWCollab;
 
 
 end

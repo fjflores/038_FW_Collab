@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 101;
+expList = 102;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 101;
+expId = 92;
 
 % expData = loadmixdata( expID );
 
@@ -38,7 +38,7 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 60 ],...
+    'SetFreqSpec', [ 0.5 20 ],...
     'SetCAxis', [ 0 35 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
@@ -47,18 +47,23 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
 tsTab = table2array( metTab( :, { 'dex_ts_offline', 'dex_ts_online',...
     'ati_ts_offline', 'ati_ts_online', 'dex_ts_inj', 'ati_ts_inj' } ) );
+metDat = getmetadata( expId );
+
+fwTab = readtable(...
+    fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
+
 % xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 % xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 for i = 1 : 6
     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
-%     % xline( hAx( i ), [ 4739 6599 10619 ], 'g', 'LineWidth', 1 ) % exp94
-%     xline( hAx( i ), [ 7129 9229 12889 ], 'g', 'LineWidth', 1 ) % exp96
-    % xline( hAx( i ), [ 5454 7254 10854 ], 'g', 'LineWidth', 1 ) % exp98
-    % xline( hAx( i ), [ 4679 6479 10079 ], 'g', 'LineWidth', 1 ) % exp99
-     % xline( hAx( i ), [ 5525 7325 10925 ], 'g', 'LineWidth', 1 ) % exp100
-     xline( hAx( i ), [ 5033 6833 10433 ], 'g', 'LineWidth', 1 ) %exp101
+
+    if metDat.FWCollab == 1
+        xline( hAx( i ),...
+            str2double( fwTab{ ( fwTab.exp_id == expId ), 8 : 10 } ),...
+            'g', 'LineWidth', 1 ) % FW exps only
+    end
 
 end
 
