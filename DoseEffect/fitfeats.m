@@ -1,7 +1,8 @@
 function mdls = fitfeats( timeFeats, colsIdxs )
 
-ops = statset( 'fitglme' );
-opts.MaxIter = 1000;
+opts = statset( 'fitglme' );
+opts.MaxIter = 200;
+opts.TolFun = 1e-8;
 
 nEpochs = length( timeFeats );
 for epochIdx = 1 : nEpochs
@@ -24,7 +25,7 @@ for epochIdx = 1 : nEpochs
                 mdls( epochIdx ).( col2check ) = fitglme( tabClean,...
                     mdlFormula,...
                     'Distribution', 'Gamma',...
-                    'Link', 'log',...
+                    'Link', 'log', ...
                     'OptimizerOptions', opts );
 
             case { "Pdelta", "Pspindle", "PdeltaDB", "PspindleDB" }

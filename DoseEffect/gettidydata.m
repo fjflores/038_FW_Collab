@@ -112,9 +112,9 @@ for expIdx = 1 : nExps
         'tapers', [ 3 5 ],...
         'Fs', eegFs,...
         'fpass', [ 0.5 100 ],...
-        'pad', 1 );
-    win = [ 15 1.5 ];
-    [ S, tStmp, f ] = mtspecgramc( eegZ, win, params );
+        'pad', 1,...
+        'win', [ 15 1.5 ] );
+    [ S, tStmp, f ] = mtspecgramc( eegZ, params.win, params );
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
 
@@ -124,6 +124,7 @@ for expIdx = 1 : nExps
     notes( expIdx ).injDex = masterTab.dex_ts_inj( thisExpIdx );
     notes( expIdx ).injOff = tOff;
     notes( expIdx ).injOn = tOn;
+    notes( expIdx ).injOn = params;
 
     eeg( expIdx ).dataL = eegZ( :, 1 );
     eeg( expIdx ).dataR = eegZ( :, 2 );
