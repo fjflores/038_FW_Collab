@@ -1,14 +1,27 @@
-function plotlmefits( mdls, feat2plot )
+function plotlmefits( mdls, feat2plot, ciFlag )
 
-% map = sky;
-% colors = map( 20 : 20 : end, : );
+map = magma;
+colors = flipud( map( 20 : 20 : end, : ) );
+
+% Generate predictor values for plotting
+dose = [ 0 : 10 : 150 ]';
+mouseId = repmat( "M000", size( dose, 1 ), 1 );
+predTab = table( dose, mouseId );
 
 % Get fitted values and residuals
 for mdlIdx = 1 : length( mdls )
-    fittedValues = fitted( mdls( mdlIdx ).( feat2plot ),...
-        "Conditional", false );
-    flipFlag = fittedValues( 1 ) > fittedValues( end );
-    resi = residuals( mdls( mdlIdx ).rmsEmg );
+    % fittedVals = fitted( mdls( mdlIdx ).( feat2plot ),...
+    %     "Conditional", false );
+    % Compute predicted response and raw confidence intervals
+    fittedVals = predict( ...
+        mdls( mdlIdx ).( feat2plot ), ...
+        predTab, ...
+        'Alpha', 0.05, ...
+        'Conditional', false );
+    flipFlag = fittedVals( 1 ) > fittedVals( end );
+    resi = residuals( ...
+        mdls( mdlIdx ).( feat2plot ), ...
+        'Conditional', false );
 
     % Get predicitons for a mock table
     % firstColumn = repmat("M000", 16, 1); % 16 rows of "M000"
@@ -16,42 +29,27 @@ for mdlIdx = 1 : length( mdls )
     % mockTab = table(firstColumn, secondColumn, 'VariableNames', { 'mouseId', 'dose' } );
     % predVals = predict( mdls( 1 ).rmsEmg, mockTab )
 
+    if ciFlag
+        % Calculate standard errors of the fitted values
+        standardErrors = std( resi ) * sqrt( 1 + ( 1 / length( resi ) ) ); % Adjust as needed
 
-    % Calculate standard errors of the fitted values
-    standardErrors = std( resi ) * sqrt( 1 + ( 1 / length( resi ) ) ); % Adjust as needed
+        % Calculate studentized confidence intervals
+        tValue = tinv( 0.975, mdls( mdlIdx ).( feat2plot ).DFE ); % 95% confidence interval
+        lowerCI = fittedVals - tValue * standardErrors;
+        upperCI = fittedVals + tValue * standardErrors;
 
-    % Calculate studentized confidence intervals
-    tValue = tinv( 0.975, mdls( 1 ).rmsEmg.DFE ); % 95% confidence interval
-    lowerCI = unique( fittedValues - tValue * standardErrors );
-    upperCI = unique( fittedValues + tValue * standardErrors );
+    end
 
     % Plot the original data and fitted values with confidence intervals
     % figure;
     hold on;
-    % colororder( sky )
-    % nanIdx = isnan( timeFeats( 1 ).featTab.rmsEmg );
-    dMat = mdls( mdlIdx ).( feat2plot ).designMatrix;
-    pred = unique( dMat( :, 2 ) );
-    resp = unique( fittedValues );
-    if flipFlag
-        resp = flipud( resp );
+    
+    if ciFlag
+        fill( [ dose; flipud( dose ) ] , [ lowerCI; flipud( upperCI ) ],...
+            colors( mdlIdx, : ), 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
     end
-    % scatter( pred, resp, 'filled', 'MarkerFaceColor', [ 0.8, 0.8, 0.8 ] );
-    % scatter( timeFeats( 1 ).featTab.dose, timeFeats( 1 ).featTab.rmsEmg,...
-    %     'filled', 'MarkerFaceColor', [ 0.8, 0.8, 0.8 ] )
-    % plot( pred, resp, 'LineWidth', 2, "Color", colors( mdlIdx, : ) );
-    plot( pred, resp, 'LineWidth', 2, "Color", 'k' );
-    % fill( [pred; flipud( pred )], [ lowerCI; flipud( upperCI ) ],...
-    %     colors( mdlIdx, : ), 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-    % hold off;
-    % xlim( [ -10 160 ] )
 
-    % Add labels and title
-    % xlabel('Dose (ug/kg)');
-    % ylabel( feat2plot );
-    % title('Model Fit');
-    % legend('Original Data', 'Fitted Values', 'Confidence Intervals');
-    % grid on;
+    plot( dose, fittedVals, 'LineWidth', 2, 'Color', colors( mdlIdx, : ) );
 
 end

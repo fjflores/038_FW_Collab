@@ -1,24 +1,40 @@
-function timeFeats = savetimefeats( doses, tLims, drug )
+function allFeats = savetimefeats( doses, tLims, drug )
 
 
-warning off
 epochs = [...
     tLims( 1 ) : tLims( 2 ) : tLims( 3 ) - tLims( 2 );...
     tLims( 1 ) + tLims( 2 ) : tLims( 2 ) : tLims( 3 ) ];
 timeFeats = struct( 'featTab', [], 'epoch', [] );  
 nEpochs = size( epochs, 2 );
-% tic;
+tic;
 
 for epochIdx = 1 : nEpochs
     thisEpoch = epochs( :, epochIdx );
-    fprintf( "Processing %g -- %g mins segment...\n",...
-        thisEpoch( 1 ), thisEpoch( 2 ) );
-    timeFeats ( epochIdx ).featTab = getavefeats( doses, thisEpoch, drug );
-    timeFeats ( epochIdx ).epoch = thisEpoch;
-    % disprog( epochIdx, nEpochs, 10 )
+    epochString = sprintf( "%g -- %g", thisEpoch( 1 ), thisEpoch( 2 ) );
+    fprintf( "Processing %s mins segment...\n",...
+        epochString );
+    featTab = getavefeats( doses, thisEpoch, drug );
+    epochCol = repmat( epochString, height( featTab ), 1 );
+    epochOrd = repmat( epochIdx - 1, height( featTab ), 1 );
+    featTab = addvars( featTab, epochCol, epochOrd,...
+        'NewVariableNames', { 'epoch', 'epochOrdinal' } );
+    % timeFeats ( epochIdx ).featTab = getavefeats( doses, thisEpoch, drug );
+    % timeFeats ( epochIdx ).epoch = thisEpoch;
     fprintf( ' done...\n\n' )
+
+    if epochIdx == 1
+        numRows = height( featTab );
+        varTypes = varfun( @class, featTab, 'OutputFormat', 'cell' );
+        allFeats = table(...
+            'Size', [ 0, width( featTab ) ],...
+            'VariableTypes', varTypes,...
+            'VariableNames', featTab.Properties.VariableNames );
+
+    end
+
+    allFeats = vertcat( allFeats, featTab );
 
 end
 
-% fprintf( "All done in %s\n", humantime( toc ) )
-warning on
+allFeats.epochOrdinal = ordinal( allFeats.epochOrdinal );
+fprintf( "All done in %s\n", humantime( toc ) )

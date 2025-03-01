@@ -21,6 +21,7 @@ end
 expTab = readtable( fullfile( tabPath,...
     "abc_experiment_list.xlsm" )  );
 expIdx = expTab.exp_id == expID;
+sex = expTab.sex{ expIdx };
 analyzeMask = expTab.analyze( expIdx );
 subject = expTab.mouse_id( expIdx );
 dexDose = expTab.drug_dose( expIdx );
@@ -42,6 +43,7 @@ chValid = expTab{ expIdx,...
 
 expMetaData.analyzeMask = analyzeMask;
 expMetaData.subject = subject{ 1 };
+expMetaData.sex = sex;
 expMetaData.dexDose = dexDose;
 expMetaData.date = expDate{ 1 };
 expMetaData.expNumber = expNumber{ 1 };

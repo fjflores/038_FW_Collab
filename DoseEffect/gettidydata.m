@@ -81,7 +81,15 @@ for expIdx = 1 : nExps
     tEmg = downsample( newTs( chunkIdx ), decFactor );
     emgTmp = eegemgfilt( newSigs( :, 3 ), [ 10 900 ], emgRaw.Fs );
     emgTmp( ~chunkIdx ) = [ ];
-    emgFilt = downsample( emgTmp, decFactor );
+    analyzeEmgFlag = logical( masterTab{ thisExpIdx, { 'analyze_EMG' } } );
+    if analyzeEmgFlag
+        emgFilt = downsample( emgTmp, decFactor );
+
+    else
+        fprintf( 'bad emg channel...')
+        emgFilt = nan( ceil( sum( chunkIdx ) ./ decFactor ), 1 );
+
+    end
     fprintf( "done.\n" )
     emgFs = emgRaw.Fs ./ decFactor;
 
@@ -93,14 +101,23 @@ for expIdx = 1 : nExps
     eegFs = eegClean.Fs( 1 ) ./ decFactor;
 
     % isolate baseline and compute z-score
+    analyzeEegFlag = logical(...
+        masterTab{ thisExpIdx, { 'analyze_EEG_L', 'analyze_EEG_R' } } );
     for eegIdx = 1 : 2
-        eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-        tBaseZIdx = tEeg <= tOff;
-        mu = mean( eegFilt( tBaseZIdx ) );
-        sigma = std( eegFilt( tBaseZIdx ) );
-        % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
-        %     eegIdx, )
-        eegZ( :, eegIdx) = ( eegFilt - mu ) ./ sigma;
+        if analyzeEegFlag( eegIdx )
+            eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
+            tBaseZIdx = tEeg <= tOff;
+            mu = mean( eegFilt( tBaseZIdx ) );
+            sigma = std( eegFilt( tBaseZIdx ) );
+            % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
+            %     eegIdx, )
+            eegZ( :, eegIdx) = ( eegFilt - mu ) ./ sigma;
+
+        else
+            fprintf( 'one bad eeg channel...')
+            eegZ( :, eegIdx ) = nan( ceil( sum( chunkIdx ) ./ decFactor ), 1 );
+
+        end
 
     end
     
@@ -120,25 +137,33 @@ for expIdx = 1 : nExps
 
     notes( expIdx ).expId = thisExp;
     notes( expIdx ).dose = doses( expIdx );
-    notes( expIdx ).type = masterTab.drug{ thisExpIdx };
+    notes( expIdx ).drug = masterTab.drug{ thisExpIdx };
     notes( expIdx ).injDex = masterTab.dex_ts_inj( thisExpIdx );
     notes( expIdx ).injOff = tOff;
     notes( expIdx ).injOn = tOn;
-    notes( expIdx ).injOn = params;
+    notes( expIdx ).params = params;
+    notes( expIdx ).sex = masterTab.sex{ thisExpIdx };
 
     eeg( expIdx ).dataL = eegZ( :, 1 );
     eeg( expIdx ).dataR = eegZ( :, 2 );
     eeg( expIdx ).t = tEeg;
     eeg( expIdx ).Fs = eegFs;
+    eeg( expIdx ).eegLocs = {...
+        masterTab.EEG_L_location{ thisExpIdx },...
+        masterTab.EEG_R_location{ thisExpIdx } };
+    eeg( expIdx ).valid = analyzeEegFlag;
 
     emg( expIdx ).data = emgFilt;
     emg( expIdx ).t = tEmg;
     emg( expIdx ).Fs = emgFs;
+    emg( expIdx ).valid = analyzeEmgFlag;
 
     spec( expIdx ).SL = squeeze( S( :, :, 1 ) );
     spec( expIdx ).SR = squeeze( S( :, :, 2 ) );
     spec( expIdx ).t = tS;
     spec( expIdx ).f = f;
+    spec( expIdx ).params = params;
+    spec( expIdx ).valid = analyzeEegFlag;
 
     clear eegZ
 
@@ -150,7 +175,7 @@ if saveFlag
     f2save = "TidyData.mat";
     save( fullfile( resDir, mouseId, f2save ), ...
         "notes", "eeg", "spec", "emg", "-v7.3" )
-    fprintf( "done.\n" )
+    fprintf( "done.\n\n" )
 
 end
 

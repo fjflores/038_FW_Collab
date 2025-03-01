@@ -22,11 +22,11 @@ masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
 % Allocate empty tables
 featTab = table(...
-    'Size', [ 5, 9 ], ...
-    'VariableTypes', { 'single', 'string', 'double', 'double', 'double',...
+    'Size', [ 5, 10 ], ...
+    'VariableTypes', { 'single', 'string', 'categorical', 'double', 'double', 'double',...
     'double', 'double', 'double', 'double' },...
-    'VariableNames', { 'expId', 'mouseId', 'dose', 'rmsEmg', 'sef', 'mf',...
-    'df', 'Pdelta', 'Pspindle' } );
+    'VariableNames', { 'expId', 'mouseId', 'sex', 'dose', 'rmsEmg', 'sef', ...
+    'mf', 'df', 'Pdelta', 'Pspindle' } );
 
 nDoses = length( doses );
 cnt = 1;
@@ -64,7 +64,6 @@ for doseIdx = 1 : nDoses
             clear t
 
         else
-            % disp( "skipping emg" )
             rmsEmg = NaN;
 
         end
@@ -81,7 +80,6 @@ for doseIdx = 1 : nDoses
             clear t
 
         else
-            % disp( "skipping eeg" )
             mf = NaN;
             sef = NaN;
             df = NaN;
@@ -93,6 +91,7 @@ for doseIdx = 1 : nDoses
         % Fill table
         featTab.expId( cnt ) = thisExp;
         featTab.mouseId( cnt ) = string( metDat.subject );
+        featTab.sex( cnt ) = string( metDat.sex );
         featTab.dose( cnt ) = thisDose;
         featTab.rmsEmg( cnt ) = median( rmsEmg );
         featTab.sef( cnt ) = median( sef );
@@ -101,8 +100,6 @@ for doseIdx = 1 : nDoses
         featTab.Pdelta( cnt ) = Pdelta;
         featTab.Pspindle( cnt ) = Psigma;
 
-        % box off
-        % hold on
         cnt = cnt + 1;
         disprog( expIdx, nExps, 10 )
 

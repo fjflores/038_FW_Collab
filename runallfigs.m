@@ -103,19 +103,21 @@ load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
 
 if dbFromP
     PCols = [ 10 11 ];
+
 else
     PCols = [ 8 9 ];
+
 end
 featCols = [ 4 : 7 PCols ];
 feats2plot = timeFeats( 1 ).featTab.Properties.VariableNames( featCols );
 
 figure
 for i = 1 : length( feats2plot )
-    subplot( 2, 3, i )
-    plotlmefits( mdls, feats2plot{ i } )
+    hAx( i ) = subplot( 2, 3, i );
+    plotlmefits( mdls, feats2plot{ i }, true )
 
 end
-
+% set( hAx, "XScale", "log" )
 
 %% Load data and set options for dose v. feature figures.
 
@@ -289,7 +291,7 @@ for featIdx = 1 : 6
         hold on
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
-        plotlmefits( mdls( epIdx ), feats2plot{ featIdx } )
+        plotlmefits( mdls( epIdx ), feats2plot{ featIdx }, true )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )

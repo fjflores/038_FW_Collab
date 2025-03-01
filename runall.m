@@ -103,32 +103,30 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\DoseEffect\" )
 
-% mList = { "M102", "M103", "M105", "M106", "M107", "M108", "M111", "M112", "M113" };
-mList = { "M112", "M113" };
+mList = { "M102", "M103", "M105", "M106", "M107", "M108", "M111", "M113" };
+% mList = { "M112" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 3600 ];
-saveFlag = true;
+saveFlag = true;  
 warning off
 batchtidydata( mList, csvFile, tLims, saveFlag )
 warning on
 
 %% Get spectral features over time
 ccc
-addpath( ".\Figures" )
+% addpath( ".\Figures" )
 addpath( ".\DoseEffect\" )
 
 doses = [ 0 10 30 50 100 150 ];
+tLims = [ -5 5 55 ];
 % doses = [ 0 30 ];
 % tLims = [ -5 5 5 ];
-tLims = [ -5 5 5 ];
 drug = "dex";
-tic
-timeFeats = savetimefeats( doses, tLims, drug );
-humantime( toc )
+allFeats = savetimefeats( doses, tLims, drug );
 
 root = getrootdir( );
-% save( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
-%     "timeFeats" )
+save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
+    "allFeats" )
 
 %% Fit linear mixed-effects model to time features
 ccc
