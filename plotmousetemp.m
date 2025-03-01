@@ -4,20 +4,31 @@ ccc
 % clear all
 
 thisM = 'FW16';
+
+fwTab = readtable(...
+    fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
+mTab = fwTab( strcmp( fwTab.mouse_id, thisM ), : );
+
 switch thisM
     case 'FW14'
-        expList = [ 100 96 98 94 ];
-        injTime = [ 12 38; 14 54; 12 22; 11 35 ];
+        expList = [ 100 96 98 94 103 ];
+
+        % fwTab{ ( fwTab.exp_id == expId ),      }
+        
+        injTime = [ 12 38; 14 54; 12 22; 11 35; 12 59 ];
         expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...            
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ) };
+            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
+            sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ) };
 
     case 'FW16'
-        expList = [ 99 101 ];
-        injTime = [ 12 24; 15 54 ];
+        expList = [ 99 102 101 104 ];
+        injTime = [ 12 24; 13 30; 15 54; 16 47 ];
         expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
-            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ) };
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
+            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
+            sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ) };
 end
 
 figure
