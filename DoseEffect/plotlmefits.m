@@ -1,4 +1,32 @@
-function plotlmefits( mdls, feat2plot, ciFlag )
+function plotlmefits( mdls, feat2plot, varargin )
+
+
+% Set options default values
+ciFlag = false;
+color = 'k';
+map = magma;
+
+% Parse  name-value pairs
+names = lower( varargin( 1 : 2 : end ) );
+values = varargin( 2 : 2 : end );
+for k = 1 : numel( names )
+    switch lower( names{ k } )
+        case "color"
+            color = values{ k };
+            
+        case "plotci"
+            ciFlag = values{ k };
+
+        case "colormap"
+            map = values{ k };
+            
+        otherwise
+            error( '''%s'' is not a valid Name for Name, Value pairs.',...
+                names{ k } )
+            
+    end
+    
+end
 
 map = magma;
 colors = flipud( map( 20 : 20 : end, : ) );
@@ -18,7 +46,7 @@ for mdlIdx = 1 : length( mdls )
         predTab, ...
         'Alpha', 0.05, ...
         'Conditional', false );
-    flipFlag = fittedVals( 1 ) > fittedVals( end );
+    % flipFlag = fittedVals( 1 ) > fittedVals( end );
     resi = residuals( ...
         mdls( mdlIdx ).( feat2plot ), ...
         'Conditional', false );

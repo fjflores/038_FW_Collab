@@ -36,5 +36,5 @@ for epochIdx = 1 : nEpochs
 
 end
 
-allFeats.epochOrdinal = ordinal( allFeats.epochOrdinal );
+% allFeats.epochOrdinal = ordinal( allFeats.epochOrdinal );
 fprintf( "All done in %s\n", humantime( toc ) )

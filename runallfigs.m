@@ -114,7 +114,7 @@ feats2plot = timeFeats( 1 ).featTab.Properties.VariableNames( featCols );
 figure
 for i = 1 : length( feats2plot )
     hAx( i ) = subplot( 2, 3, i );
-    plotlmefits( mdls, feats2plot{ i }, true )
+    plotlmefits( mdls, feats2plot{ i }, 'plotCI', true )
 
 end
 % set( hAx, "XScale", "log" )

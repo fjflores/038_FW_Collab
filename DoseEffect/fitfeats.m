@@ -1,12 +1,14 @@
-function mdls = fitfeats( timeFeats, colsIdxs )
+function mdls = fitfeats( allFeats, colsIdxs )
 
 opts = statset( 'fitglme' );
 opts.MaxIter = 200;
 opts.TolFun = 1e-8;
 
-nEpochs = length( timeFeats );
+epochList = unique( allFeats( :, 'epoch' ) );
+nEpochs = height( epochList );
 for epochIdx = 1 : nEpochs
-    thisTab = timeFeats( epochIdx ).featTab;
+    thisEpoch = epochList( epochIdx ) - 1;
+    thisTab = allFeats( allFeats.epochOrdinal == 0, : );
 
     if epochIdx == 1
         colNames = thisTab.Properties.VariableNames;

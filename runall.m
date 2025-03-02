@@ -123,7 +123,7 @@ ccc
 addpath( ".\DoseEffect\" )
 
 doses = [ 0 10 30 50 100 150 ];
-tLims = [ -5 5 55 ];
+tLims = [ -5 5 65 ];
 % doses = [ 0 30 ];
 % tLims = [ -5 5 5 ];
 drug = "dex";
