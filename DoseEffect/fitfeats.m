@@ -4,11 +4,12 @@ opts = statset( 'fitglme' );
 opts.MaxIter = 200;
 opts.TolFun = 1e-8;
 
-epochList = unique( allFeats( :, 'epoch' ) );
+epochList = unique( allFeats{ :, 'epochOrdinal' } );
+epochList( end ) = [ ]; 
 nEpochs = height( epochList );
 for epochIdx = 1 : nEpochs
-    thisEpoch = epochList( epochIdx ) - 1;
-    thisTab = allFeats( allFeats.epochOrdinal == 0, : );
+    thisEpoch = epochList( epochIdx );
+    thisTab = allFeats( allFeats.epochOrdinal == thisEpoch, : );
 
     if epochIdx == 1
         colNames = thisTab.Properties.VariableNames;

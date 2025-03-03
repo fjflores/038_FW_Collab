@@ -3,8 +3,9 @@ function plotlmefits( mdls, feat2plot, varargin )
 
 % Set options default values
 ciFlag = false;
-color = 'k';
-map = magma;
+% colors = 'k';
+tmp = magma;
+colors = tmp ( 20 : 20 : end, : );
 
 % Parse  name-value pairs
 names = lower( varargin( 1 : 2 : end ) );
@@ -12,13 +13,13 @@ values = varargin( 2 : 2 : end );
 for k = 1 : numel( names )
     switch lower( names{ k } )
         case "color"
-            color = values{ k };
+            colors = values{ k };
             
         case "plotci"
             ciFlag = values{ k };
 
         case "colormap"
-            map = values{ k };
+            colors = values{ k };
             
         otherwise
             error( '''%s'' is not a valid Name for Name, Value pairs.',...
