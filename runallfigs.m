@@ -121,6 +121,8 @@ end
 % set( hAx, "XScale", "log" )
 
 %% Load data and set options for dose v. feature figures.
+% Run this section before running either of the two following feature
+% plotting sections.
 
 ccc
 % close all
@@ -129,7 +131,7 @@ addpath( './DoseEffect/' )
 
 norm = false; % Choose to normalize to baseline or not.
 dbFromP = true; % Choose to convert power to db.
-saveFigs = false; % Choose to save pngs or not.
+saveFigs = true; % Choose to save pngs or not.
 
 if ~exist( "allFeats", "var" )
     load( fullfile(...
@@ -198,19 +200,20 @@ tits = {...
 for epIdx = 1 : length( epochList )
     thisEpOrd = epochList( epIdx );
     featTab = allFeats2plot( allFeats2plot.epochOrdinal == thisEpOrd, : );
-    epoch = allFeats2plot{ allFeats2plot.epochOrdinal == thisEpOrd, 'epoch' };
-    epoch = epoch{ 1 };
-    figure( 'Name', sprintf( '%s mins', epoch ) )
+    tmp1 = allFeats2plot{ allFeats2plot.epochOrdinal == thisEpOrd, 'epoch' };
+    tmp2 = tmp1{ 1 };
+    tmp3 = regexp( tmp2, '(\S*\d+) -- (\d+)', 'tokens' );
+    epoch = str2double( tmp3{ 1 } );
+    figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ),...
+        'Units', 'normalize', 'Position', [ 0.3536 0.1639 0.4609 0.6481 ] )
     for featIdx = 1 : 6
         thisFeat = featCols( featIdx );
         hAx( featIdx ) = subplot( 2, 3, featIdx );
         hold on
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
-        if epIdx < length( epochList ) % No model for last epoch (atipam).
-            plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
-                'PlotCI', false, 'Color', 'k' )
-        end
+        plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
+            'PlotCI', false, 'Color', 'k' )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
@@ -281,6 +284,8 @@ for epIdx = 1 : length( epochList )
 
     end
 
+    set( hAx, 'FontSize', 12 )
+
     if saveFigs
         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
             sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
@@ -289,27 +294,28 @@ for epIdx = 1 : length( epochList )
 end
 
 
-%% Plot each feature for all epochs.
+%% Plot each feature across all epochs.
 
 % 1) Run 'Load data and set options for dose v. feature figures.' section.
 
 % 2) Plot.
 for featIdx = 1 : 6
     thisFeat = featCols( featIdx );
-    figure( 'Name', tits{ featIdx } )
+    figure( 'Name', tits{ featIdx },...
+        'Units', 'normalize', 'Position', [ 0.2151 0.2074 0.6531 0.6185 ] )
     for epIdx = 1 : length( epochList )
         thisEpOrd = epochList( epIdx );
         featTab = allFeats2plot( allFeats2plot.epochOrdinal == thisEpOrd, : );
-        epoch = allFeats2plot{ allFeats2plot.epochOrdinal == thisEpOrd, 'epoch' };
-        epoch = epoch{ 1 };
+        tmp1 = allFeats2plot{ allFeats2plot.epochOrdinal == thisEpOrd, 'epoch' };
+        tmp2 = tmp1{ 1 };
+        tmp3 = regexp( tmp2, '(\S*\d+) -- (\d+)', 'tokens' );
+        epoch = str2double( tmp3{ 1 } );
         hAx( epIdx ) = subplot( 2, length( epochList ) / 2, epIdx );
         hold on
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
-        if epIdx < length( epochList ) % No model for last epoch (atipam).
-            plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
-                'PlotCI', false, 'Color', 'k' )
-        end
+        plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
+            'PlotCI', false, 'Color', 'k' )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
@@ -366,7 +372,7 @@ for featIdx = 1 : 6
                 ylim( [ 0 8 ] )
         end
 
-        title( sprintf( '%s mins', epoch ) )
+        title( sprintf( '%i to %i mins', epoch( : ) ) )
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
         if epIdx > length( epochList ) / 2
             xlabel( xLabString );
@@ -380,12 +386,12 @@ for featIdx = 1 : 6
 
     end
 
-    % if saveFigs
-    %     saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
-    %         sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
-    % end
-
     set( hAx, 'FontSize', 12 )
+
+    if saveFigs
+        saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
+            sprintf( '%s.png', allFeats2plot.Properties.VariableNames{ thisFeat } ) ) )
+    end
 
 end
 
