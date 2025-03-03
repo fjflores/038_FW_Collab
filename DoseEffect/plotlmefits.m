@@ -45,22 +45,10 @@ for mdlIdx = 1 : length( mdls )
     resi = residuals( ...
         mdls( mdlIdx ).( feat2plot ), ...
         'Conditional', false );
-
-    % Get predicitons for a mock table
-    % firstColumn = repmat("M000", 16, 1); % 16 rows of "M000"
-    % secondColumn = ( 0: 10: 150 )'; % Column vector
-    % mockTab = table(firstColumn, secondColumn, 'VariableNames', { 'mouseId', 'dose' } );
-    % predVals = predict( mdls( 1 ).rmsEmg, mockTab )
-
+    
+    % Plot confidence intervals if desired
     hold on;
     if ciFlag
-        % Calculate standard errors of the fitted values
-        % standardErrors = std( resi ) * sqrt( 1 + ( 1 / length( resi ) ) ); % Adjust as needed
-        %
-        % % Calculate studentized confidence intervals
-        % tValue = tinv( 0.975, mdls( mdlIdx ).( feat2plot ).DFE ); % 95% confidence interval
-        % lowerCI = fittedVals - tValue * standardErrors;
-        % upperCI = fittedVals + tValue * standardErrors;
         mse = mean( (...
             mdls( mdlIdx ).( feat2plot ).Variables{ :, feat2plot } - ...
             predict( mdls( mdlIdx ).( feat2plot ), 'Conditional', false ) ) .^ 2 );
@@ -86,8 +74,8 @@ for mdlIdx = 1 : length( mdls )
         end
 
     end
-
-    % Plot the original data and fitted values with confidence intervals.
+    
+    % Plot fits for sure.
     if length( col2plot ) == 1
         plot( dose, fittedVals,...
             'LineWidth', 2, 'Color', col2plot );

@@ -121,6 +121,8 @@ end
 % set( hAx, "XScale", "log" )
 
 %% Load data and set options for dose v. feature figures.
+% Run this section before running either of the two following feature
+% plotting sections.
 
 ccc
 % close all
@@ -129,50 +131,56 @@ addpath( './DoseEffect/' )
 
 norm = false; % Choose to normalize to baseline or not.
 dbFromP = true; % Choose to convert power to db.
-saveFigs = false; % Choose to save pngs or not.
+saveFigs = true; % Choose to save pngs or not.
 
-if ~exist( "timeFeats", "var" )
+if ~exist( "allFeats", "var" )
     load( fullfile(...
-        getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
-        'timeFeats')
+        getrootdir(), 'Results', 'Dose_Effect', 'Long_Feat_Table.mat' ),...
+        'allFeats')
 
 end
 
 load( fullfile(...
     getrootdir(), 'Results', 'Dose_Effect', 'Feature_fits.mat' ),...
     'mdls' )
-featList = timeFeats( 1 ).featTab.Properties.VariableNames( 4 : end );
+featList = allFeats.Properties.VariableNames( 5 : 12 );
 
 if dbFromP
     PUnits = 'db';
-    PCols = [ 10 11 ];
+    PCols = [ 11 12 ];
 
 else
     PUnits = sprintf( '%cV^2', 956 );
-    PCols = [ 8 9 ];
+    PCols = [ 9 10 ];
 
 end
 
-featCols = [ 4 : 7 PCols ];
-feats2plot = featList( featCols - 3 );
+featCols = [ 5 : 8 PCols ];
+feats2plot = featList( featCols - 4 );
+epochList = unique( allFeats.epochOrdinal );
     
 if norm
     % Normalize to [ -5 0 ] baseline.
     warning( [ 'Plotting linear model fits on top of scatters does ',...
         'not currently work with normalized data.' ] );
-    timeFeatsNorm = timeFeats;
-    col2Norm = [ 4 PCols ];
-    for epIdx = 1 : length( timeFeats )
-        timeFeatsNorm( epIdx ).featTab( :, col2Norm ) = ...
-            timeFeats( epIdx ).featTab( :, col2Norm )...
-            ./ timeFeats( 1 ).featTab( :, col2Norm );
+    allFeatsNorm = allFeats;
+    col2Norm = [ 5 PCols ];
+
+    expList = unique( allFeats.expId );
+    for expIdx = 1 : length( expList )
+        thisExp = expList( expIdx );
+        allFeatsNorm( allFeatsNorm.expId == thisExp, col2Norm ) =...
+        allFeats( allFeats.expId == thisExp, col2Norm )...
+            ./ allFeats( allFeats.expId == thisExp &...
+            allFeats.epochOrdinal == 0, col2Norm );
 
     end
-    timeFeats2plot = timeFeatsNorm;
+
+    allFeats2plot = allFeatsNorm;
     normMsg = 'norm_';
 
 else 
-    timeFeats2plot = timeFeats;
+    allFeats2plot = allFeats;
     normMsg = '';
 
 end
@@ -189,16 +197,23 @@ tits = {...
 % 1) Run 'Load data and set options for dose v. feature figures.' section.
 
 % 2) Plot.
-for epochIdx = 1 : length( timeFeats2plot )
-    featTab = timeFeats2plot( epochIdx ).featTab;
-    epoch = timeFeats2plot( epochIdx ).epoch;
-    figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ) )
+for epIdx = 1 : length( epochList )
+    thisEpOrd = epochList( epIdx );
+    featTab = allFeats2plot( allFeats2plot.epochOrdinal == thisEpOrd, : );
+    tmp1 = allFeats2plot{ allFeats2plot.epochOrdinal == thisEpOrd, 'epoch' };
+    tmp2 = tmp1{ 1 };
+    tmp3 = regexp( tmp2, '(\S*\d+) -- (\d+)', 'tokens' );
+    epoch = str2double( tmp3{ 1 } );
+    figure( 'Name', sprintf( '%i to %i mins', epoch( : ) ),...
+        'Units', 'normalize', 'Position', [ 0.3536 0.1639 0.4609 0.6481 ] )
     for featIdx = 1 : 6
         thisFeat = featCols( featIdx );
         hAx( featIdx ) = subplot( 2, 3, featIdx );
         hold on
-        scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
-        plotlmefits( mdls( epochIdx ), feats2plot{ featIdx } )
+        scatter( featTab.dose, featTab{ :, thisFeat },...
+            20, [ 0.5 0.5 0.5 ], 'filled' )
+        plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
+            'PlotCI', false, 'Color', 'k' )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
@@ -261,13 +276,15 @@ for epochIdx = 1 : length( timeFeats2plot )
 
         title( tits{ featIdx } )
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
-        if epochIdx > 3
+        if epIdx > 3
             xlabel( xLabString );
         else
             xlabel( '' );
         end
 
     end
+
+    set( hAx, 'FontSize', 12 )
 
     if saveFigs
         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
@@ -277,22 +294,28 @@ for epochIdx = 1 : length( timeFeats2plot )
 end
 
 
-%% Plot each feature for all epochs.
+%% Plot each feature across all epochs.
 
 % 1) Run 'Load data and set options for dose v. feature figures.' section.
 
 % 2) Plot.
 for featIdx = 1 : 6
     thisFeat = featCols( featIdx );
-    figure( 'Name', tits{ featIdx } )
-    for epIdx = 1 : length( timeFeats2plot )
-        featTab = timeFeats2plot( epIdx ).featTab;
-        epoch = timeFeats2plot( epIdx ).epoch;
-        hAx( epIdx ) = subplot( 2, length( timeFeats2plot ) / 2, epIdx );
+    figure( 'Name', tits{ featIdx },...
+        'Units', 'normalize', 'Position', [ 0.2151 0.2074 0.6531 0.6185 ] )
+    for epIdx = 1 : length( epochList )
+        thisEpOrd = epochList( epIdx );
+        featTab = allFeats2plot( allFeats2plot.epochOrdinal == thisEpOrd, : );
+        tmp1 = allFeats2plot{ allFeats2plot.epochOrdinal == thisEpOrd, 'epoch' };
+        tmp2 = tmp1{ 1 };
+        tmp3 = regexp( tmp2, '(\S*\d+) -- (\d+)', 'tokens' );
+        epoch = str2double( tmp3{ 1 } );
+        hAx( epIdx ) = subplot( 2, length( epochList ) / 2, epIdx );
         hold on
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
-        plotlmefits( mdls( epIdx ), feats2plot{ featIdx }, true )
+        plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
+            'PlotCI', false, 'Color', 'k' )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
@@ -349,26 +372,26 @@ for featIdx = 1 : 6
                 ylim( [ 0 8 ] )
         end
 
-        title( sprintf( '%i to %i min', epoch( : ) ) )
+        title( sprintf( '%i to %i mins', epoch( : ) ) )
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
-        if epIdx > length( timeFeats2plot ) / 2
+        if epIdx > length( epochList ) / 2
             xlabel( xLabString );
         else
             xlabel( '' );
         end
 
-        if epIdx == 1 || epIdx == 7
+        if epIdx == 1 || epIdx == ( length( epochList ) / 2 ) + 1
             ylabel( tits{ featIdx } );
         end
 
     end
 
-    % if saveFigs
-    %     saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
-    %         sprintf( '%s%i_to_%i_mins.png', normMsg, epoch( : ) ) ) )
-    % end
-
     set( hAx, 'FontSize', 12 )
+
+    if saveFigs
+        saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
+            sprintf( '%s.png', allFeats2plot.Properties.VariableNames{ thisFeat } ) ) )
+    end
 
 end
 
