@@ -69,7 +69,7 @@ for mdlIdx = 1 : length( mdls )
     
     if ciFlag
         fill( [ dose; flipud( dose ) ] , [ lowerCI; flipud( upperCI ) ],...
-            colors( mdlIdx, : ), 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+            cMap( mdlIdx, : ), 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
     end
     
