@@ -145,6 +145,8 @@ load( fullfile(...
     'mdls' )
 featList = allFeats.Properties.VariableNames( 5 : 12 );
 
+yLims = [ 0 240; 7 16; 0.5 7.5; 0 8; 0 2.5; 0 0.11; -19 4; -22 -9 ];
+
 if dbFromP
     PUnits = 'db';
     PCols = [ 11 12 ];
@@ -152,7 +154,6 @@ if dbFromP
 else
     PUnits = sprintf( '%cV^2', 956 );
     PCols = [ 9 10 ];
-
 end
 
 featCols = [ 5 : 8 PCols ];
@@ -164,7 +165,7 @@ if norm
     warning( [ 'Plotting linear model fits on top of scatters does ',...
         'not currently work with normalized data.' ] );
     allFeatsNorm = allFeats;
-    col2Norm = [ 5 PCols ];
+    col2Norm = [ 5 9 : 12 ];
 
     expList = unique( allFeats.expId );
     for expIdx = 1 : length( expList )
@@ -176,6 +177,7 @@ if norm
 
     end
 
+    yLims( col2Norm - 4, : ) = [ 0 4.5; 0 20; 0 3.1; -1 2.5; 0.5 1.5 ];
     allFeats2plot = allFeatsNorm;
     normMsg = 'norm_';
 
@@ -185,6 +187,7 @@ else
 
 end
 
+plotLMEOpts = { 'PlotCI', true, 'Color', [ 0.1 0.6 0.7 ] };
 tits = {...
         sprintf( "rms (%cV)", 956 ), "sef (Hz)", "mf (Hz)",...
         "df (Hz)",...
@@ -213,67 +216,18 @@ for epIdx = 1 : length( epochList )
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
         plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
-            'PlotCI', false, 'Color', 'k' )
+            plotLMEOpts{ : } )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
         xticks( [ 0 : 50 : 150 ] )
         hold on
 
-        if norm
-            switch featIdx
-                case 1
-                    ylim( [ 0 4 ] )
-                    yline( 1, ':' )
-                case 5
-                    if dbFromP
-                        ylim( [ -5 2 ] )
-                    else
-                        ylim( [ 0 20 ] )
-                    end
-                    yline( 1, ':' )
-
-                case 6
-                    if dbFromP
-                        ylim( [ 0.6 1.4 ] )
-                    else
-                        ylim( [ 0 3.1 ] )
-                    end
-                    yline( 1, ':' )
-
-            end
-
-        else
-            switch featIdx
-                case 1
-                    ylim( [ 0 220 ] )
-                case 5
-                    if dbFromP                    
-                        ylim( [ -15 5 ] )
-                    else
-                        ylim( [ 0 2.5 ] )
-                    end
-
-                case 6
-                    if dbFromP
-                        ylim( [ -22 -8 ] )
-                    else
-                        ylim( [ 0 0.11 ] )
-                    end
-
-            end
-
+        if norm & ismember( featIdx, [ 1 5 6 ] )
+            yline( 1, ':' );
         end
 
-        switch featIdx
-            case 2
-                ylim( [ 7 16 ] )
-            case 3
-                ylim( [ 1 7 ] )
-            case 4
-                ylim( [ 0 8 ] )
-        end
-
+        ylim( yLims( thisFeat - 4, : ) )
         title( tits{ featIdx } )
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
         if epIdx > 3
@@ -315,63 +269,18 @@ for featIdx = 1 : 6
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
         plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
-            'PlotCI', false, 'Color', 'k' )
+            plotLMEOpts{ : } )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
         xticks( [ 0 : 50 : 150 ] )
         hold on
 
-        if norm
-            switch featIdx
-                case 1
-                    ylim( [ 0 4 ] )
-                    yline( 1, ':' )
-                case 5
-                    if dbFromP
-                        ylim( [ -5 2 ] )
-                    else
-                        ylim( [ 0 20 ] )
-                    end
-                    yline( 1, ':' )
-                case 6
-                    if dbFromP
-                        ylim( [ 0.6 1.4 ] )
-                    else
-                        ylim( [ 0 3.1 ] )
-                    end
-                    yline( 1, ':' )
-            end
-
-        else
-            switch featIdx
-                case 1
-                    ylim( [ 0 220 ] )
-                case 5
-                    if dbFromP
-                        ylim( [ -15 5 ] )
-                    else
-                        ylim( [ 0 2.5 ] )
-                    end
-                case 6
-                    if dbFromP
-                        ylim( [ -22 -8 ] )
-                    else
-                        ylim( [ 0 0.11 ] )
-                    end
-            end
-
+        if norm & ismember( featIdx, [ 1 5 6 ] )
+            yline( 1, ':' );
         end
-
-        switch featIdx
-            case 2
-                ylim( [ 7 16 ] )
-            case 3
-                ylim( [ 1 7 ] )
-            case 4
-                ylim( [ 0 8 ] )
-        end
-
+            
+        ylim( yLims( thisFeat - 4, : ) )
         title( sprintf( '%i to %i mins', epoch( : ) ) )
         xLabString = sprintf( "Dose (%cg/kg)", 956 );
         if epIdx > length( epochList ) / 2
@@ -390,7 +299,8 @@ for featIdx = 1 : 6
 
     if saveFigs
         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
-            sprintf( '%s.png', allFeats2plot.Properties.VariableNames{ thisFeat } ) ) )
+            sprintf( '%s.png',...
+            allFeats2plot.Properties.VariableNames{ thisFeat } ) ) )
     end
 
 end

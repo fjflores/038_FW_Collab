@@ -55,7 +55,7 @@ for mdlIdx = 1 : length( mdls )
         dfe = mdls( mdlIdx ).( feat2plot ).DFE;
         [ upperCI, lowerCI ] = getcis( dose, fittedVals, mse, dfe );
 
-        if length( col2plot ) == 1
+        if size( col2plot, 1 ) == 1
             fill( ...
                 [ dose; flipud( dose ) ], ...
                 [ lowerCI; flipud( upperCI ) ],...
@@ -76,7 +76,7 @@ for mdlIdx = 1 : length( mdls )
     end
     
     % Plot fits for sure.
-    if length( col2plot ) == 1
+    if size( col2plot, 1 ) == 1
         plot( dose, fittedVals,...
             'LineWidth', 2, 'Color', col2plot );
 
