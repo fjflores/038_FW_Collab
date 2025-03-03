@@ -89,32 +89,33 @@ end
 
 %% Plot all fits on average features over time
 % clear all
+close all
 clc
 
 addpath( ".\DoseEffect\" )
 
-dbFromP = true; % Choose to convert power to db.
+dbFromP = false; % Choose to convert power to db.
 
 root = getrootdir( );
-load( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
-    "timeFeats" )
-load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
-    "mdls" )
+% load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
+%     "allFeats" )
+% load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
+%     "mdls" )
 
 if dbFromP
-    PCols = [ 10 11 ];
+    PCols = [ 11 12 ];
 
 else
-    PCols = [ 8 9 ];
+    PCols = [ 9 10 ];
 
 end
-featCols = [ 4 : 7 PCols ];
-feats2plot = timeFeats( 1 ).featTab.Properties.VariableNames( featCols );
+featCols = [ 5 : 8 PCols ];
+feats2plot = allFeats.Properties.VariableNames( featCols );
 
 figure
 for i = 1 : length( feats2plot )
     hAx( i ) = subplot( 2, 3, i );
-    plotlmefits( mdls, feats2plot{ i }, true )
+    plotlmefits( mdls, feats2plot{ i }, 'plotCI', false, 'Color', 'k' )
 
 end
 % set( hAx, "XScale", "log" )

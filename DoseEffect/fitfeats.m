@@ -1,12 +1,25 @@
-function mdls = fitfeats( timeFeats, colsIdxs )
+function mdls = fitfeats( allFeats, colsIdxs, dropLast )
 
 opts = statset( 'fitglme' );
 opts.MaxIter = 200;
 opts.TolFun = 1e-8;
 
-nEpochs = length( timeFeats );
+if nargin < 3
+    dropLast = false;
+
+end
+
+epochList = unique( allFeats{ :, 'epochOrdinal' } );
+if dropLast
+    disp( "Dropping last epoch." )
+    epochList( end ) = [ ]; 
+
+end
+
+nEpochs = height( epochList );
 for epochIdx = 1 : nEpochs
-    thisTab = timeFeats( epochIdx ).featTab;
+    thisEpoch = epochList( epochIdx );
+    thisTab = allFeats( allFeats.epochOrdinal == thisEpoch, : );
 
     if epochIdx == 1
         colNames = thisTab.Properties.VariableNames;
@@ -27,6 +40,7 @@ for epochIdx = 1 : nEpochs
                     'Distribution', 'Gamma',...
                     'Link', 'log', ...
                     'OptimizerOptions', opts );
+                mdls( epochIdx ).epoch = tabClean{ 1, "epoch" };
 
             case { "Pdelta", "Pspindle", "PdeltaDB", "PspindleDB" }
                 mdls( epochIdx ).( col2check ) = fitglme( tabClean,...
@@ -34,6 +48,7 @@ for epochIdx = 1 : nEpochs
                     'Distribution', 'Normal',...
                     'Link', 'identity',...
                     'OptimizerOptions', opts );
+                mdls( epochIdx ).epoch = tabClean{ 1, "epoch" };
 
         end
 

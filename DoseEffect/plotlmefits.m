@@ -1,7 +1,30 @@
-function plotlmefits( mdls, feat2plot, ciFlag )
+function plotlmefits( mdls, feat2plot, varargin )
 
-map = magma;
-colors = flipud( map( 20 : 20 : end, : ) );
+
+% Set options default values
+ciFlag = false;
+col2plot = 'k';
+tmp = magma;
+cMap = tmp ( 15 : 20 : end, : );
+
+% Parse  name-value pairs
+names = lower( varargin( 1 : 2 : end ) );
+values = varargin( 2 : 2 : end );
+for k = 1 : numel( names )
+    switch lower( names{ k } )
+        case "color"
+            col2plot = values{ k };
+            
+        case "plotci"
+            ciFlag = values{ k };
+            
+        otherwise
+            error( '''%s'' is not a valid Name for Name, Value pairs.',...
+                names{ k } )
+            
+    end
+    
+end
 
 % Generate predictor values for plotting
 dose = [ 0 : 10 : 150 ]';
@@ -18,7 +41,7 @@ for mdlIdx = 1 : length( mdls )
         predTab, ...
         'Alpha', 0.05, ...
         'Conditional', false );
-    flipFlag = fittedVals( 1 ) > fittedVals( end );
+    % flipFlag = fittedVals( 1 ) > fittedVals( end );
     resi = residuals( ...
         mdls( mdlIdx ).( feat2plot ), ...
         'Conditional', false );
@@ -49,7 +72,15 @@ for mdlIdx = 1 : length( mdls )
             colors( mdlIdx, : ), 'FaceAlpha', 0.2, 'EdgeColor', 'none');
 
     end
+    
+    if length( col2plot ) == 1
+        plot( dose, fittedVals,...
+            'LineWidth', 2, 'Color', col2plot );
 
-    plot( dose, fittedVals, 'LineWidth', 2, 'Color', colors( mdlIdx, : ) );
+    else
+        plot( dose, fittedVals,...
+            'LineWidth', 2, 'Color', cMap( mdlIdx, : ) );
+
+    end
 
 end

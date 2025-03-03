@@ -108,10 +108,11 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\DoseEffect\" )
 
-mList = { "M102", "M103", "M105", "M106", "M107", "M108", "M111", "M113" };
-% mList = { "M112" };
+% mList = { "M101", "M102", "M103", "M105", "M106",...
+%     "M107", "M108", "M109", "M111", "M113" };
+mList = { "M109" };
 csvFile = "abc_experiment_list.xlsm";
-tLims = [ 600 3600 ];
+tLims = [ 600 4200 ];
 saveFlag = true;  
 warning off
 batchtidydata( mList, csvFile, tLims, saveFlag )
@@ -123,11 +124,13 @@ ccc
 addpath( ".\DoseEffect\" )
 
 doses = [ 0 10 30 50 100 150 ];
-tLims = [ -5 5 55 ];
-% doses = [ 0 30 ];
-% tLims = [ -5 5 5 ];
+tLims = [ -5 5 65 ];
+% doses = [ 0 10 30 50 100 150 ];
+% tLims = [ 55 5 65 ];
 drug = "dex";
+warning off
 allFeats = savetimefeats( doses, tLims, drug );
+warning on
 
 root = getrootdir( );
 save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
@@ -138,14 +141,17 @@ ccc
 addpath( ".\Figures" )
 addpath( ".\DoseEffect\" )
 root = getrootdir( );
-load( fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" ),...
-    "timeFeats" )
-% tic
-mdls = fitfeats( timeFeats, [ 4 : 11 ] );
-% fprintf( "%s\n", humantime( toc ) )
+load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
+    "allFeats" )
+cols2use = 5 : 10;
+dropLast = true;
 
-save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
-    "mdls" )
+warning off
+mdls = fitfeats( allFeats, cols2use, dropLast );
+warning on
+
+% save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
+%     "mdls" )
 
 %% Add db power columns to timeFeats.
 
