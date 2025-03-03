@@ -143,9 +143,11 @@ addpath( ".\DoseEffect\" )
 root = getrootdir( );
 load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
     "allFeats" )
+cols2use = 5 : 10;
+dropLast = true;
 
 warning off
-mdls = fitfeats( allFeats, 5 : 11 );
+mdls = fitfeats( allFeats, cols2use, dropLast );
 warning on
 
 % save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...

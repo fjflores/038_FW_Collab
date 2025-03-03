@@ -97,10 +97,10 @@ addpath( ".\DoseEffect\" )
 dbFromP = false; % Choose to convert power to db.
 
 root = getrootdir( );
-load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
-    "allFeats" )
-load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
-    "mdls" )
+% load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
+%     "allFeats" )
+% load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
+%     "mdls" )
 
 if dbFromP
     PCols = [ 11 12 ];
@@ -109,13 +109,13 @@ else
     PCols = [ 9 10 ];
 
 end
-featCols = [ 5 : 7 PCols ];
+featCols = [ 5 : 8 PCols ];
 feats2plot = allFeats.Properties.VariableNames( featCols );
 
 figure
 for i = 1 : length( feats2plot )
     hAx( i ) = subplot( 2, 3, i );
-    plotlmefits( mdls, feats2plot{ i }, 'plotCI', false, 'Color', 'map' )
+    plotlmefits( mdls, feats2plot{ i }, 'plotCI', false, 'Color', 'k' )
 
 end
 % set( hAx, "XScale", "log" )
