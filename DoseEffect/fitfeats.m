@@ -1,11 +1,17 @@
-function mdls = fitfeats( allFeats, colsIdxs )
+function mdls = fitfeats( allFeats, colsIdxs, dropLast )
 
 opts = statset( 'fitglme' );
 opts.MaxIter = 200;
 opts.TolFun = 1e-8;
+dropLast = false;
 
 epochList = unique( allFeats{ :, 'epochOrdinal' } );
-epochList( end ) = [ ]; 
+if dropLast
+    disp( "Dropping last epoch." )
+    epochList( end ) = [ ]; 
+
+end
+
 nEpochs = height( epochList );
 for epochIdx = 1 : nEpochs
     thisEpoch = epochList( epochIdx );

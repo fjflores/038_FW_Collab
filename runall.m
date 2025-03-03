@@ -145,11 +145,11 @@ load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
     "allFeats" )
 
 warning off
-mdls = fitfeats( allFeats, 4 : 10 );
+mdls = fitfeats( allFeats, 5 : 11 );
 warning on
 
-save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
-    "mdls" )
+% save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
+%     "mdls" )
 
 %% Add db power columns to timeFeats.
 
