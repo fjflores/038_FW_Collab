@@ -130,12 +130,15 @@ norm = false; % Choose to normalize to baseline or not.
 dbFromP = true; % Choose to convert power to db.
 saveFigs = false; % Choose to save pngs or not.
 
-if ~exist( "timeFeats", "var" )
+% if ~exist( "timeFeats", "var" )
+    % load( fullfile(...
+    %     getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
+    %     'timeFeats')
     load( fullfile(...
-        getrootdir(), 'Results', 'Dose_Effect', 'Time_Ave_Feats.mat' ),...
-        'timeFeats')
+        getrootdir(), 'Results', 'Dose_Effect', 'Long_Feat_Table.mat' ),...
+        'allFeats')
 
-end
+% end
 
 load( fullfile(...
     getrootdir(), 'Results', 'Dose_Effect', 'Feature_fits.mat' ),...
@@ -197,7 +200,7 @@ for epochIdx = 1 : length( timeFeats2plot )
         hAx( featIdx ) = subplot( 2, 3, featIdx );
         hold on
         scatter( featTab.dose, featTab{ :, thisFeat }, 20, 'k', 'filled' )
-        plotlmefits( mdls( epochIdx ), feats2plot{ featIdx } )
+        plotlmefits( mdls( epochIdx ), feats2plot{ featIdx }, true )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
