@@ -9,9 +9,9 @@ end
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
-expListIdx = fTab.analyze == 1 & fTab.dex_dose_ugperkg == dose;
+expListIdx = fTab.analyze == 1 & fTab.drug_dose == dose;
 expList = fTab.exp_id( expListIdx );
-
+band = [ 0.5 3 ];
 % gap = [ 0.005 0.01 ];
 % margH = [ 0.1 0.05 ];
 % margV = [0.1 0.1];
@@ -25,14 +25,13 @@ for idxExp = 1 : nExps
     thisExp = expList( idxExp );
     metDat = getmetadata( thisExp );
     resDir = fullfile( root, "Results", metDat.subject );
-    f2load = "ExampleFigData.mat";
-    load( fullfile( resDir, f2load ), "spec", "info" );
+    f2load = "TidyData.mat";
+    load( fullfile( resDir, f2load ), "spec", "notes" );
     tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = tsTab.dose == dose;
-    S = spec( tabExpIdx ).L;
-    t = ( spec( tabExpIdx ).t2plot - ...
-        ( spec( tabExpIdx ).t2plot( 1 ) + 600 ) ) / 60;
-    f = spec( tabExpIdx ).f2plot;
+    S = spec( tabExpIdx ).SL;
+    t = spec( tabExpIdx ).t - notes( expIdx ).injDex;
+    f = spec( tabExpIdx ).f;
 
     % Get spectra after injection
     dexIdxS = t > 0.5;
@@ -40,12 +39,12 @@ for idxExp = 1 : nExps
     tP = t( dexIdxS );
     
     if aucFlag
-        tmp = powerperband( Sdex, f, [ 0.5 5 ], 'total' );
+        tmp = powerperband( Sdex, f, band, 'total' );
         P = cumsum( tmp );
         % tP = tP( 2 : end );
 
     else
-        P = powerperband( Sdex, f, [ 0.5 5 ], 'median' );
+        P = powerperband( Sdex, f, band, 'median' );
 
     end
     plot( tP, P, Color=[ 0.5 0.5 0.5 ] )
