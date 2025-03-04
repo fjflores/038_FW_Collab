@@ -143,28 +143,26 @@ addpath( ".\DoseEffect\" )
 root = getrootdir( );
 load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
     "allFeats" )
-cols2use = 5 : 12;
-dropLast = false;
 
 warning off
-mdls = fitfeats( allFeats, cols2use, dropLast );
+mdls = fitfeats( allFeats, 5 : 11 );
 warning on
 
 % save( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...
 %     "mdls" )
 
-%% Add db power columns to allFeats.
-
+%% Add db power columns to timeFeats.
 ccc
-
 root = getrootdir( );
-featsFile = fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" );
-load( featsFile, "allFeats" )
+featsFile = fullfile( root, "Results\Dose_Effect", "Time_Ave_Feats.mat" );
+load( featsFile, "timeFeats" )
 
-allFeats.PdeltaDB = pow2db( allFeats.Pdelta );
-allFeats.PspindleDB = pow2db( allFeats.Pspindle );
-allFeats = movevars( allFeats, 'epochOrdinal', 'after', 'PspindleDB' );
-allFeats = movevars( allFeats, 'epoch', 'after', 'PspindleDB' );
+for epIdx = 1 : length( timeFeats )
+        timeFeats( epIdx ).featTab{ :, 'PdeltaDB' } = pow2db(...
+            timeFeats( epIdx ).featTab{ :, 'Pdelta' } );
+        timeFeats( epIdx ).featTab{ :, 'PspindleDB' } = pow2db(...
+            timeFeats( epIdx ).featTab{ :, 'Pspindle' } );
 
-save( featsFile, 'allFeats', '-append')
+end
 
+save( featsFile, 'timeFeats', '-append' )

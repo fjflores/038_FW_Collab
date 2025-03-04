@@ -20,34 +20,40 @@ band = [ 0.5 3 ];
 
 colormap magma
 nExps = length( expList );
-csvFileSpec = "example_traces.csv";
+% csvFileSpec = "example_traces.csv";
 for idxExp = 1 : nExps
     thisExp = expList( idxExp );
     metDat = getmetadata( thisExp );
     resDir = fullfile( root, "Results", metDat.subject );
     f2load = "TidyData.mat";
-    load( fullfile( resDir, f2load ), "spec", "notes" );
-    tsTab = readtable( fullfile( resDir, csvFileSpec ) );
-    tabExpIdx = tsTab.dose == dose;
-    S = spec( tabExpIdx ).SL;
-    t = spec( tabExpIdx ).t - notes( expIdx ).injDex;
-    f = spec( tabExpIdx ).f;
+    thisData = load( fullfile( resDir, f2load ), "spec", "notes" );
+    structIdx = [ thisData.notes.expId ] == thisExp;
 
-    % Get spectra after injection
-    dexIdxS = t > 0.5;
-    Sdex = S( dexIdxS, : );
-    tP = t( dexIdxS );
-    
-    if aucFlag
-        tmp = powerperband( Sdex, f, band, 'total' );
-        P = cumsum( tmp );
-        % tP = tP( 2 : end );
+    valid = thisData.spec( structIdx ).valid( 1 );
+    if valid
+        tDex = thisData.notes( structIdx ).injDex;
+        S = thisData.spec( structIdx ).SL;
+        t = thisData.spec( structIdx ).t - tDex;
+        f = thisData.spec( structIdx ).f;
 
-    else
-        P = powerperband( Sdex, f, band, 'median' );
+        % Get spectra after injection
+        dexIdxS = t > 0.5;
+        Sdex = S( dexIdxS, : );
+        tP = t( dexIdxS );
+
+        if aucFlag
+            P = powerperband( Sdex, f, band, 'total' );
+            % P = cumsum( tmp );
+            % tP = tP( 2 : end );
+
+        else
+            P = powerperband( Sdex, f, band, 'median' );
+
+        end
+        plot( tP, P, Color=[ 0.5 0.5 0.5 ] )
+        hold on
 
     end
-    plot( tP, P, Color=[ 0.5 0.5 0.5 ] )
-    hold on
+    disprog( idxExp, nExps, 10 )
 
 end

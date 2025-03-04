@@ -67,9 +67,9 @@ clear all
 clc
 addpath( ".\Figures" )
 
-% doses = [ 0 10 50 100 150 ];
-doses = 30;
-aucFlag = false;
+doses = [ 0 10 30 50 100 150 ];
+% doses = 30;
+aucFlag = true;
 figure
 for featIdx = 1 : length( doses )
     thisDose = doses( featIdx );
