@@ -19,15 +19,18 @@ for doseIdx = 1 : nDoses
     expListIdx = masterTab.analyze == 1 &...
         masterTab.drug_dose == thisDose;
     expList = masterTab.exp_id( expListIdx );
-    fprintf( "Processing dose %u %cg\\kg...\n", thisDose, 965 )
+    fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
     
     nExps = length( expList );
+    nInvalid = 0;
     for idxExp = 1 : nExps
         thisExp = expList( idxExp );
+        tsInj = masterTab{ masterTab.exp_id == thisExp, 'dex_ts_inj' };
         metDat = getmetadata( thisExp );
 
         if metDat.chValid( 1 ) == 0 % right now, fx is hard coded to only 
-            % avg SL (left parietal EEG)
+            % avg SL (left parietal EEG), so skip if not valid
+            nInvalid = nInvalid + 1;
             continue
         else
             resDir = fullfile( root, "Results", metDat.subject );
@@ -38,7 +41,7 @@ for doseIdx = 1 : nDoses
             Sdose( :, : ) = median( S, 3 );
 
             if idxExp == 1
-                t = spec( tabExpIdx ).t / 60;
+                t = ( spec( tabExpIdx ).t - tsInj ) / 60;
                 f = spec( tabExpIdx ).f;
 
             end
@@ -57,7 +60,7 @@ for doseIdx = 1 : nDoses
     ylim( yLims )
     ylabel( 'Freq. (Hz)' )
     xLims = get( gca, 'xlim' );
-    posX = xLims( 1 ) + 2;
+    posX = xLims( 1 ) + 1.5;
     posY = yLims( 2 ) - 5;
 
     if thisDose == 0
@@ -71,7 +74,11 @@ for doseIdx = 1 : nDoses
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
-        'FontSize', 10 )
+        'FontSize', 12 )
+    text( xLims( 2 ) - 4, posY, sprintf( 'n = %i', nExps - nInvalid ),...
+        'Color', 'w',...
+        'FontWeight', 'bold',...
+        'FontSize', 12 )
     ylabel( 'Freq. (Hz)' )
 
     clear S Sdose spec info
@@ -82,12 +89,12 @@ end
 set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
-    'XTickLabel', [],...
+    'XTick', [],...
     'YTick',  0 : 10 : 30  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 
 set( hAx( end ),...
-    "XTick", -10 : 10 : 60,...
+    "XTick", -10 : 10 : 70,...
     "XTickLabel", -10 : 10 : 60 )
 xlabel( hAx( end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )

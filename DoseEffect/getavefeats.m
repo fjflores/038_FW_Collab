@@ -32,7 +32,7 @@ nDoses = length( doses );
 cnt = 1;
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
-    fprintf( "Processing dose %u %cg\\kg...\n", thisDose, 965 )
+    fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
     expListIdx = masterTab.analyze == 1 & ...
         masterTab.drug == drug & ...
         masterTab.drug_dose == thisDose;

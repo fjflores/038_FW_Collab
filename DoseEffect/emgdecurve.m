@@ -27,7 +27,7 @@ for doseIdx = 1 : nDoses
         masterTab.drug_dose == thisDose & ...
         masterTab.analyze_EMG == 1;
     expList = masterTab.exp_id( expListIdx );
-    fprintf( "Processing dose %u %cg\\kg...\n", thisDose, 965 )
+    fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
     
     nExps = length( expList );
     for idxExp = 1 : nExps

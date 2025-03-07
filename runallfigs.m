@@ -253,6 +253,8 @@ end
 % 1) Run 'Load data and set options for dose v. feature figures.' section.
 
 % 2) Plot.
+
+% epochList = [ 0 2 7 12 ];
 for featIdx = 1 : 6
     thisFeat = featCols( featIdx );
     figure( 'Name', tits{ featIdx },...
@@ -265,11 +267,14 @@ for featIdx = 1 : 6
         tmp3 = regexp( tmp2, '(\S*\d+) -- (\d+)', 'tokens' );
         epoch = str2double( tmp3{ 1 } );
         hAx( epIdx ) = subplot( 2, length( epochList ) / 2, epIdx );
+        % hAx( epIdx ) = subplot( 1, length( epochList ), epIdx );
         hold on
         scatter( featTab.dose, featTab{ :, thisFeat },...
             20, [ 0.5 0.5 0.5 ], 'filled' )
         plotlmefits( mdls( epIdx ), feats2plot{ featIdx },...
             plotLMEOpts{ : } )
+        % plotlmefits( mdls( thisEpOrd + 1 ), feats2plot{ featIdx },...
+        %     plotLMEOpts{ : } )
         ylabel( '' )
         box off
         xlim( [ -10 160 ] )
@@ -296,6 +301,7 @@ for featIdx = 1 : 6
     end
 
     set( hAx, 'FontSize', 12 )
+    linkaxes( hAx( : ), 'xy' )
 
     if saveFigs
         saveas( gcf, fullfile( getrootdir(), 'Results', 'Dose_Effect',...
@@ -370,7 +376,7 @@ nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     thisExp = exampleTab.expID( exampleTab.dose == thisDose );
-
+    tsInj = masterTab{ masterTab.exp_id == thisExp, 'dex_ts_inj' };
     metDat = getmetadata( thisExp );
 
     resDir = fullfile( root, "Results", metDat.subject );
@@ -379,7 +385,7 @@ for doseIdx = 1 : nDoses
     tabExpIdx = find( [ notes.expId ] == thisExp );
     Sdose( :, : ) = spec( tabExpIdx ).SL;
 
-    t = spec( tabExpIdx ).t / 60;
+    t = ( spec( tabExpIdx ).t - tsInj ) / 60;
     f = spec( tabExpIdx ).f;
 
     hAx( doseIdx ) = subtightplot( nDoses, 1, doseIdx, opts{ : } );
@@ -390,7 +396,7 @@ for doseIdx = 1 : nDoses
     ylim( yLims )
     ylabel( 'Freq. (Hz)' )
     xLims = get( gca, 'xlim' );
-    posX = xLims( 1 ) + 2;
+    posX = xLims( 1 ) + 1.5;
     posY = yLims( 2 ) - 5;
 
     if thisDose == 0
@@ -404,7 +410,7 @@ for doseIdx = 1 : nDoses
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
-        'FontSize', 10 )
+        'FontSize', 12 )
     ylabel( 'Freq. (Hz)' )
 
     clear S Sdose spec info
@@ -414,12 +420,12 @@ end
 set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
-    'XTickLabel', [],...
+    'XTick', [],...
     'YTick',  0 : 10 : 30  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 
 set( hAx( end ),...
-    "XTick", -10 : 10 : 60,...
+    "XTick", -10 : 10 : 70,...
     "XTickLabel", -10 : 10 : 60 )
 xlabel( hAx( end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )

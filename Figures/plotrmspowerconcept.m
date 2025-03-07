@@ -16,7 +16,7 @@ emgIdx = find( tEmgRaw > ( dexInj - 600 ) & tEmgRaw < ( dexInj + 3300 ) );
 tEmg = tEmgRaw( emgIdx );
 
 % Calculate quantitative EEG features.
-% [ mf, sef, df ] = qeegspecgram( dexSpec, f, [ 0.5 18 ] );
+[ mf, sef, df ] = qeegspecgram( dexSpec, f, [ 0.5 18 ] );
 
 % Plot spectrogram 3 times, to illustrate each concept.
 figure
@@ -24,7 +24,7 @@ xLims = [ dexInj - 600 dexInj + 3300 ];
 yLims = [ 0 30 ];
 cLims = [ 0 35 ];
 % freqFeats = [ df mf sef ];
-tits = { '100 ug/kg Dex' };
+tits = { sprintf( '100 %cg/kg Dex', 956 ) };
 % cols = { 'k', 'k', 'w' };
 gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
@@ -52,26 +52,37 @@ box off
 plotBand = true;
 if plotBand
     hold on
+    
+    % % patch spindle band
+    % patch(...
+    %     [ tSpec( 1 ) tSpec( 1 ) tSpec( end ) tSpec( end ) ],...
+    %     [ 12 18 18 12 ],...
+    %     [0.5 0.5 0.5],...
+    %     'FaceAlpha', 0.5,...
+    %     'EdgeColor', 'none' )
+
+    % plot mf
+    plot( tSpec, mf,...
+        'k', 'LineWidth', 1.5 )
+
+    % cover artifact
+    patch ( [ 1896 1896 2031 2031 ], [ 0 30 30 0 ], [ 0.1 0.1 0.1 ], 'EdgeColor', 'none' )
+
     % patch delta
     patch(...
         [ tSpec( 1 ) tSpec( 1 ) tSpec( end ) tSpec( end ) ],...
-        [ 0.5 4 4 0.5 ],...
+        [ 0.5 3 3 0.5 ],...
         [0.5 0.5 0.5],...
         'FaceAlpha', 0.5,...
         'EdgeColor', 'none' )
-
-    patch(...
-        [ tSpec( 1 ) tSpec( 1 ) tSpec( end ) tSpec( end ) ],...
-        [ 12 18 18 12 ],...
-        [0.5 0.5 0.5],...
-        'FaceAlpha', 0.5,...
-        'EdgeColor', 'none' )
+    
 
 end
 
 hAx( 2 ) = subtightplot( 3, 1, 3, opts{ : } );
 plot( tEmg, emg.data( emgIdx ), 'k' )
-ylabel( 'Amp. (uV)' )
+
+ylabel( sprintf( 'Amp. (%cV)', 956 ) )
 set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
@@ -91,7 +102,10 @@ if rmsPlot
 
 end
 
-
+hold on
+% cover artifact
+patch ( [ 1896 1896 2031 2031 ], [ -1000 1000 1000 -1000 ],...
+    [ 0.1 0.1 0.1 ], 'EdgeColor', 'none' )
 
 
 linkaxes( hAx, 'x' )
