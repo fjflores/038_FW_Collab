@@ -2,24 +2,25 @@ function makedeltafig( mouseId )
 
 % for i = 1 : length( mList )
 
-f2load = "ExampleFigData.mat";
-load( fullfile( getrootdir, "Results", mouseId, f2load ), "spec", "info" );
+f2load = "TidyData.mat";
+thisData = load( fullfile( getrootdir, "Results", mouseId, f2load ),...
+    "spec", "notes" );
 
 band = [ 0.5 4 ];
 dur = 2;
 base = false;
 art = true;
-nExp = length( spec );
+nExp = length( thisData.spec );
 for expIdx = 1 : nExp
     % Set vars
-    Stemp = spec( expIdx ).L;
-    t = spec( expIdx ).t2plot;
-    f = spec( expIdx ).f2plot;
+    S = thisData.spec( expIdx ).SL;
+    t = thisData.spec( expIdx ).t - thisData.notes( expIdx ).injDex;
+    f = thisData.spec( expIdx ).f;
     
-    % remove artifact
-    tOff = info( expIdx ).injOff;
-    tOn = info( expIdx ).injOn;
-    S = replacedatachunk( Stemp, t, [ tOff tOn ], 'min' );
+    % % remove artifact
+    % tOff = info( expIdx ).injOff;
+    % tOn = info( expIdx ).injOn;
+    % S = replacedatachunk( Stemp, t, [ tOff tOn ], 'min' );
 
     % get power
     bandtc = getbandtimecourse( S, t, f, band, dur, base, art );
