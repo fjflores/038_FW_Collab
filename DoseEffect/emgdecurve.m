@@ -40,8 +40,8 @@ for doseIdx = 1 : nDoses
         data = emg( tabExpIdx ).data;
         ts = emg( tabExpIdx ).t;
         emgFs = emg( tabExpIdx ).Fs;
-        tDexOn = info( tabExpIdx ).injOn;
-        [ percQuiet, rmsTmp ] = getperctquiet( data, ts, tDexOn, emgFs );
+        tOn = info( tabExpIdx ).tOn;
+        [ percQuiet, rmsTmp ] = getperctquiet( data, ts, tOn, emgFs );
         rmsVals{ cnt } = rmsTmp';
         % figure
         % histogram( rmsVals, 100 )

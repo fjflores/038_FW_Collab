@@ -52,9 +52,9 @@ for expIdx = 1 : nExps
     
     % get rid of offline to injection period.
     fprintf( " Removing pre injection period..." )
-    tOff = masterTab.dex_ts_offline( thisExpIdx );
-    tInj = masterTab.dex_ts_inj( thisExpIdx );
-    tOn = masterTab.dex_ts_online( thisExpIdx );
+    tOff = masterTab.drug_ts_offline( thisExpIdx );
+    tInj = masterTab.drug_ts_inj( thisExpIdx );
+    tOn = masterTab.drug_ts_online( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
     preIdx = tsOrig <= tOff;
@@ -71,8 +71,8 @@ for expIdx = 1 : nExps
     fprintf( "done.\n" )
 
     % Define epoch to extract
-    tEpochStart = masterTab.dex_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
-    tEpochEnd = masterTab.dex_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
+    tEpochStart = masterTab.drug_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
+    tEpochEnd = masterTab.drug_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
 
     % Downsample adn filter emg
     fprintf( " Processing emg..." )
@@ -138,9 +138,9 @@ for expIdx = 1 : nExps
     notes( expIdx ).expId = thisExp;
     notes( expIdx ).dose = doses( expIdx );
     notes( expIdx ).drug = masterTab.drug{ thisExpIdx };
-    notes( expIdx ).injDex = masterTab.dex_ts_inj( thisExpIdx );
-    notes( expIdx ).injOff = tOff;
-    notes( expIdx ).injOn = tOn;
+    notes( expIdx ).tInj = tInj;
+    notes( expIdx ).tOff = tOff;
+    notes( expIdx ).tOn = tOn;
     notes( expIdx ).params = params;
     notes( expIdx ).sex = masterTab.sex{ thisExpIdx };
 

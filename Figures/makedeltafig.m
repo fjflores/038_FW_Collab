@@ -14,20 +14,20 @@ nExp = length( thisData.spec );
 for expIdx = 1 : nExp
     % Set vars
     S = thisData.spec( expIdx ).SL;
-    t = thisData.spec( expIdx ).t - thisData.notes( expIdx ).injDex;
+    t = thisData.spec( expIdx ).t - thisData.notes( expIdx ).tInj;
     f = thisData.spec( expIdx ).f;
     
     % % remove artifact
-    % tOff = info( expIdx ).injOff;
-    % tOn = info( expIdx ).injOn;
+    % tOff = info( expIdx ).tOff;
+    % tOn = info( expIdx ).tOn;
     % S = replacedatachunk( Stemp, t, [ tOff tOn ], 'min' );
 
     % get power
     bandtc = getbandtimecourse( S, t, f, band, dur, base, art );
 
     % Remove offline period
-    % tOff = info( expIdx ).injOff;
-    % tOn = info( expIdx ).injOn;
+    % tOff = info( expIdx ).tOff;
+    % tOn = info( expIdx ).tOn;
     % t2plotOrig = spec( expIdx ).t2plot;
     % idxBase = find( t2plotOrig < tOff );
     % idxExp = find( t2plotOrig > tOn );

@@ -25,7 +25,7 @@ for doseIdx = 1 : nDoses
     nInvalid = 0;
     for idxExp = 1 : nExps
         thisExp = expList( idxExp );
-        tsInj = masterTab{ masterTab.exp_id == thisExp, 'dex_ts_inj' };
+        tsInj = masterTab{ masterTab.exp_id == thisExp, 'drug_ts_inj' };
         metDat = getmetadata( thisExp );
 
         if metDat.chValid( 1 ) == 0 % right now, fx is hard coded to only 

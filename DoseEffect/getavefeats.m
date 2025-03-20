@@ -50,7 +50,7 @@ for doseIdx = 1 : nDoses
         f2load = "TidyData.mat";
         thisData = load( fullfile( resDir, f2load ), "emg", "spec", "notes" );
         tabExpIdx = find( [ thisData.notes.expId ] == thisExp );
-        tInj = thisData.notes( tabExpIdx ).injDex;
+        tInj = thisData.notes( tabExpIdx ).tInj;
 
         % Get emg features
         if emgFlag( expIdx )

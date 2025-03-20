@@ -18,7 +18,7 @@ doseMsg{ 1 } = 'Baseline';
 for i = 2 : nDoses
     doseMsg{ i } = sprintf( 'Dex: %.1f %cg/kg i.v.', doses( i - 1 ), 956 );
 end
-injTime = [ 30*60 FW14.dex_ts_inj( ~isnan( FW14.drug_dose ) )' ];
+injTime = [ 30*60 FW14.drug_ts_inj( ~isnan( FW14.drug_dose ) )' ];
 
 for expIdx = 1 : length( exps )
     expID = exps( expIdx );

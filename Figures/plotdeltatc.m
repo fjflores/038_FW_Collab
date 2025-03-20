@@ -31,9 +31,9 @@ for idxExp = 1 : nExps
 
     valid = thisData.spec( structIdx ).valid( 1 );
     if valid
-        tDex = thisData.notes( structIdx ).injDex;
+        tInj = thisData.notes( structIdx ).tInj;
         S = thisData.spec( structIdx ).SL;
-        t = thisData.spec( structIdx ).t - tDex;
+        t = thisData.spec( structIdx ).t - tInj;
         f = thisData.spec( structIdx ).f;
 
         % Get spectra after injection

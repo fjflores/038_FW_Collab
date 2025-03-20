@@ -368,7 +368,7 @@ margH = [ 0.1 0.05 ];
 margV = [ 0.1 0.1 ];
 opts = { gap, margH, margV };
 
-yLims = [ 0 40 ];
+yLims = [ 0.5 40 ];
 
 figure
 colormap magma
@@ -376,7 +376,7 @@ nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     thisExp = exampleTab.expID( exampleTab.dose == thisDose );
-    tsInj = masterTab{ masterTab.exp_id == thisExp, 'dex_ts_inj' };
+    tsInj = masterTab{ masterTab.exp_id == thisExp, 'drug_ts_inj' };
     metDat = getmetadata( thisExp );
 
     resDir = fullfile( root, "Results", metDat.subject );

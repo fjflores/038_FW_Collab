@@ -35,7 +35,7 @@ plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
 load( fullfile( resDir, mouseId, "TidyData.mat" ) );
 for expIdx = 1 : nExps
-    tInj = notes( expIdx ).injDex;
+    tInj = notes( expIdx ).tInj;
     thisSpecL = spec( expIdx ).SL;
     thisSpecR = spec( expIdx ).SR;
     tSpec = ( spec( expIdx ).t - tInj ) / 60;
