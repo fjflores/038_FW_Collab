@@ -1,25 +1,10 @@
-%% Batchprocess example data
-ccc
-addpath(".\DoseEffect")
-
-% mList = {...
-%     "M101", "M102", "M103",...
-%     "M105", "M106", "M107", "M108",...
-%     "M109", "M111", "M112", "M113" };
-mList = { "M112" };
-csvFile = "abc_experiment_list.xlsm";
-epochLims = [ 600 3600 ];
-warning off
-batchtidydata( mList, csvFile, epochLims, true )
-warning on
-
 %% Plot series of spectrograms
 % close all
 clc
 
 addpath(".\Figures")
-mouseID = "M108";
-epochLims = [ 600 3600 ];
+mouseID = "M101";
+epochLims = [ 600 4200 ];
 
 figure( 'Name', sprintf( '%s', mouseID ) )
 makespecfig( mouseID, "dex", epochLims )
@@ -54,8 +39,8 @@ clc
 
 addpath( ".\Figures" )
 
-% doses = [ 0 10 50 100 150 ];
-doses = 30;
+% doses = [ 0 10 30 50 100 150 ];
+doses = [ 150 ];
 for featIdx = 1 : length( doses )
     thisDose = doses( featIdx );
     makespecdosefig( thisDose )

@@ -108,9 +108,9 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\DoseEffect\" )
 
-% mList = { "M101", "M102", "M103", "M105", "M106",...
-%     "M107", "M108", "M109", "M111", "M113" };
-mList = { "M109" };
+mList = { "M101", "M102", "M103", "M105", "M106",...
+    "M107", "M108", "M109", "M111", "M112", "M113" };
+% mList = { "M109" };
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 4200 ];
 saveFlag = true;  

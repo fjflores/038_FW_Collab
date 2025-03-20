@@ -2,7 +2,7 @@ function eTime = gettidydata( mouseId, csvFile, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
-% getexampledata( resDir, maxFreq, csvFile, tLims, saveFlag )
+% gettidydata( resDir, maxFreq, csvFile, tLims, saveFlag )
 %
 % Input:
 % mouseId: mouse ID.
@@ -68,6 +68,16 @@ for expIdx = 1 : nExps
     newSigs = cat( 1, preData, postWoArt );
     newTs = linspace(...
         preTs( 1 ) + ( tInj - tOff ), postTs( end ), size( newSigs, 1 ) );
+
+    % Remove atipamezole artifact time (if needed).
+    if ~isnan( masterTab.ati_ts_inj( thisExpIdx ) )
+        tOffAti = masterTab.ati_ts_offline( thisExpIdx );
+        tOnAti = masterTab.ati_ts_online( thisExpIdx );
+        newSigs = replaceartifact(...
+            newSigs, newTs, [ tOffAti tOnAti ], 'zeros' );
+    end
+
+
     fprintf( "done.\n" )
 
     % Define epoch to extract
