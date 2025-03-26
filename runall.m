@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 106;
+expList = 109;
 
 % Set parameters.
 specWin = [ 10 1 ];
