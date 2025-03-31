@@ -1,4 +1,4 @@
-function [losFrags, highFrags ] = finddeltafrags( drug, bandName, modo )
+function frags = finddeltafrags( drug, bandName, modo )
 % Plot delta power AUC across all mice for a single dose
 
 
@@ -16,8 +16,9 @@ PL = bandFile.PL;
 
 nDoses = length( PL );
 for doseIdx = 1 : nDoses
-    figure
+    % figure
     thisP = PL( doseIdx );
+    
     expList = thisP.expList;
     nExps = length( expList );
 
@@ -33,20 +34,34 @@ for doseIdx = 1 : nDoses
                 P2analyze = thisP.mean;
 
         end
-
+        
+        tP = thisP.ts;
         Psmooth = medfilt1( P2analyze( :, expIdx ), 30 );
         newSignal = stretchsignal( Psmooth );
+        dt = mean( diff( tP ) );
+        lowIdx = newSignal <= 0.2;
+        lowDur( expIdx ) = sum( lowIdx ) * dt;
+        highDur( expIdx ) = sum( ~lowIdx ) * dt;
+        % [ pks{ expIdx }, locs{ expIdx }, w{ expIdx } ] = findpeaks(...
+        %     newSignal, tP,...
+        %     "MinPeakHeight", 0.2,...
+        %     "MinPeakDistance", 0.1 );
+
+
+        % subplot( nExps, 1, expIdx )
         
-        subplot( nExps, 1, expIdx )
-        tP = thisP.ts;
-        plot( tP, newSignal )
-        box off
-
-
+        % plot( tP, newSignal )
+        % hold on
+        % plot( locs{ expIdx }, pks{ expIdx }, 'vr' )
+        % box off
 
         % disprog( expIdx, nExps, 10 )
 
     end
+
+    frags( doseIdx ).lowDur = lowDur;
+    frags( doseIdx ).highDur = highDur;
+    frags( doseIdx ).dose = thisP.dose;
 
 end
 
