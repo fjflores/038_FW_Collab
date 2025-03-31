@@ -25,7 +25,14 @@ for idxExp = 1 : nExps
     load( fullfile( resDir, f2load ), "spec", "notes" );
     % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = find( [ notes.expId ] == thisExp );
-    S = spec( tabExpIdx ).SL;
+    if spec( tabExpIdx ).valid( 1 ) == 0 % Check if channel is invalid.
+        sz = size( spec( tabExpIdx ).SL );
+        S = zeros( sz );
+        
+    else    
+        S = spec( tabExpIdx ).SL;
+
+    end
     t = spec( tabExpIdx ).t ./ 60;
     f = spec( tabExpIdx ).f;
     
