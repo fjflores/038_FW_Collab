@@ -9,9 +9,11 @@ figure
 for i = 1 : length( frags )
     rats{ :, i } = frags( i ).lowDur ./ frags( i ).highDur;
     doses( i ) = frags( i ).dose;
-    plot( doses( i ), rats{ :, i }, '.b',...
-        "MarkerSize", 20 )%,...
-        % "MarkerAlpha", 0.6 )
+    % plot( doses( i ), rats{ :, i }, '.b',...
+    %     "MarkerSize", 20 )%,...
+    %     % "MarkerAlpha", 0.6 )
+        scatter( doses( i ), rats{ :, i }, 50, 'filled', 'MarkerFaceColor', [ 27,158,119 ] / 255, ...
+        "MarkerFaceAlpha", 0.6 )
     hold on
 
 end
@@ -38,7 +40,7 @@ frags = finddeltafrags( "dex", "delta", "total" );
 figure
 hold on
 tmpDoses = [ 0 1 2 3 4 5 ];
-offset = 0.2;
+offset = 0;
 loCol = [ 217,95,2 ] / 255;
 hiCol = [ 27,158,119 ] / 255;
 for i = 1 : length( frags )
@@ -49,7 +51,7 @@ doses( i ) = frags( i ).dose;
     % scatter( doses( i ) - offset, frags( i ).lowDur / 60,...
     %     'filled', 'MarkerFaceColor', loCol )
     scatter( doses( i ) + offset, frags( i ).highDur / 60,...
-        'filled', 'MarkerFaceColor', hiCol )
+        50, 'filled', 'MarkerFaceColor', hiCol, 'MarkerFaceAlpha', 0.6 );
     % bar( doses( i ) - offset, mean( frags( i ).lowDur / 60 ),...
     %     2 * offset, 'FaceColor', loCol, 'FaceAlpha', 0.5, 'EdgeColor', loCol )
     % bar( doses( i ) + offset, mean( frags( i ).highDur / 60 ),...
