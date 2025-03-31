@@ -21,6 +21,7 @@ for doseIdx = 1 : nDoses
     tot = [];
     med = [];
     mu = [];
+    finalExpList = [];
     for expIdx = 1 : nExps
         thisExp = expList( expIdx );
         metDat = getmetadata( thisExp );
@@ -44,7 +45,8 @@ for doseIdx = 1 : nDoses
         valid = thisData.spec( structIdx ).valid;
 
         if valid( 1 )
-            tot( :, cnt ) = powerperband( SL, f, band, 'total' );
+            tmp = powerperband( SL, f, band, 'total' );
+            tot( :, cnt ) = tmp ./ sum( tmp );
             med( :, cnt ) = powerperband( SL, f, band, 'median' );
             mu( :, cnt ) = powerperband( SL, f, band, 'mean' );
             finalExpList( cnt ) = thisExp;

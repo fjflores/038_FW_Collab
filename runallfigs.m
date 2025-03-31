@@ -33,14 +33,14 @@ end
 
 %% Plot spectrograms for the same dose across mice
 
-clear all
-close all
+% clear all
+% close all
 clc
 
 addpath( ".\Figures" )
 
 % doses = [ 0 10 30 50 100 150 ];
-doses = [ 150 ];
+doses = [ 100 ];
 for featIdx = 1 : length( doses )
     thisDose = doses( featIdx );
     makespecdosefig( thisDose )
