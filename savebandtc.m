@@ -1,10 +1,11 @@
-function savebandtc( drug, doses, band, bandName )
+function PL = savebandtc( drug, doses, band, bandName, saveFlag )
 % Save power timecourse across all experiments for a given dose and drug.
 
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
+start = tic;
 nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
@@ -16,9 +17,12 @@ for doseIdx = 1 : nDoses
     expList = fTab.exp_id( expListIdx );
     nExps = length( expList );
     % csvFileSpec = "example_traces.csv";
-
-    for idxExp = 1 : nExps
-        thisExp = expList( idxExp );
+    cnt = 1;
+    tot = [];
+    med = [];
+    mu = [];
+    for expIdx = 1 : nExps
+        thisExp = expList( expIdx );
         metDat = getmetadata( thisExp );
         resDir = fullfile( root, "Results", metDat.subject );
         f2load = "TidyData.mat";
@@ -34,34 +38,58 @@ for doseIdx = 1 : nDoses
         f = thisData.spec( structIdx ).f;
 
         % Get spectra after injection
-        % dexIdxS = t > 0.5;
-        % Sdex = S( dexIdxS, : );
-        % tP = t( dexIdxS );
+        drugIdxS = t > 31 & t <= 3590;
+        SL = SL( drugIdxS, : );
+        tP = t( drugIdxS );
         valid = thisData.spec( structIdx ).valid;
-        if valid( 1 )
-            PL( nExps ).tot = powerperband( SL, f, band, 'total' );
-            PL( nExps ).med = powerperband( SL, f, band, 'median' );
-            PL( nExps ).mu = powerperband( SL, f, band, 'mean' );
 
-        elseif valid( 2 )
-            PR( nExps ).tot = powerperband( SR, f, band, 'total' );
-            PR( nExps ).med = powerperband( SR, f, band, 'median' );
-            PR( nExps ).mu = powerperband( SR, f, band, 'mean' );
+        if valid( 1 )
+            tot( :, cnt ) = powerperband( SL, f, band, 'total' );
+            med( :, cnt ) = powerperband( SL, f, band, 'median' );
+            mu( :, cnt ) = powerperband( SL, f, band, 'mean' );
+            finalExpList( cnt ) = thisExp;
+            cnt = cnt + 1;
+
+            % elseif valid( 2 )
+            %     PR( nExps ).tot = powerperband( SR, f, band, 'total' );
+            %     PR( nExps ).med = powerperband( SR, f, band, 'median' );
+            %     PR( nExps ).mu = powerperband( SR, f, band, 'mean' );
 
         else
             warning(...
-                fprintf( "None of the spectra were valid %u", thisExp ) )
+                sprintf( "Spectra in exp %u wasn't valid", thisExp ) )
 
         end
-        PL( nExps ).expId = thisExp;
-        PL( nExps ).loc = locL;
+        PL( doseIdx ).total = tot;
+        PL( doseIdx ).median = med;
+        PL( doseIdx ).mean = mu;
+        PL( doseIdx ).ts = tP;
+        PL( doseIdx ).expId = thisExp;
+        PL( doseIdx ).loc = locL;
+        PL( doseIdx ).dose = thisDose;
+        PL( doseIdx ).expList = finalExpList;
 
-        PR( nExps ).expId = thisExp;
-        PR( nExps ).loc = locR;
         
-        disprog( idxExp, nExps, 10 )
+
+        % PR( nExps ).expId = thisExp;
+        % PR( nExps ).loc = locR;
+
+        disprog( expIdx, nExps, 10 )
+
 
     end
+    % clear tot med mu locL finalExpList
+    disp( ' ' )
 
 end
-fprintf( "Done!%s\n", char([55357, 56842]) )
+
+if saveFlag
+    resDir = fullfile( getrootdir, "Results\Dose-Effect\" );
+    drug = char( drug );
+    drug = strcat( upper( drug( 1 ) ), drug( 2 : end ) ); 
+    fName = sprintf( "%s_Power_%s", bandName, drug );
+    save( fullfile( resDir, fName ), 'PL', 'band' )
+
+end
+
+fprintf( "Done in %s %c\n", humantime( toc( start ) ), 9786 )
