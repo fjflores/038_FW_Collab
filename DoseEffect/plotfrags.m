@@ -33,7 +33,8 @@ ylabel( "Ratio (\delta_L/\delta_H )" )
 
 
 %% plot fragments option B
-ccc
+clear all
+clc
 frags = finddeltafrags( "dex", "delta", "total" );
 
 % Process frags per dose
@@ -50,8 +51,12 @@ for i = 1 : length( frags )
 doses( i ) = frags( i ).dose;
     % scatter( doses( i ) - offset, frags( i ).lowDur / 60,...
     %     'filled', 'MarkerFaceColor', loCol )
+
+    % semilogx( doses( i ) + offset, frags( i ).highDur / 60,...
+    %     '.b', "MarkerSize", 20 )
     scatter( doses( i ) + offset, frags( i ).highDur / 60,...
         50, 'filled', 'MarkerFaceColor', hiCol, 'MarkerFaceAlpha', 0.6 );
+
     % bar( doses( i ) - offset, mean( frags( i ).lowDur / 60 ),...
     %     2 * offset, 'FaceColor', loCol, 'FaceAlpha', 0.5, 'EdgeColor', loCol )
     % bar( doses( i ) + offset, mean( frags( i ).highDur / 60 ),...
@@ -72,3 +77,35 @@ ylabel( "Time spent in \delta_H (min)" )
 % 
 % figure
 % scatter( doses, rats )
+
+
+%% Plot fragments option C
+clear all
+clc
+frags = finddeltafrags( "dex", "delta", "total" );
+
+% Process frags per dose
+figure
+loCol = [ 217,95,2 ] / 255;
+hiCol = [ 27,158,119 ] / 255;
+offset = 0;
+for i = 1 : length( frags )
+    rats{ :, i } = frags( i ).lowDur ./ frags( i ).highDur;
+    doses( i ) = frags( i ).dose;
+    scatter( doses( i ) + offset, rats{ i },...
+        50, 'filled', 'MarkerFaceColor', hiCol, 'MarkerFaceAlpha', 0.6 );
+
+        % "MarkerAlpha", 0.6 )
+        % scatter( doses( i ), rats{ :, i }, 50, 'filled', 'MarkerFaceColor', [ 27,158,119 ] / 255, ...
+        % "MarkerFaceAlpha", 0.6 )
+    hold on
+
+end
+box off
+xlim( [ 8 170 ] )
+ylim( [ 0.02 10 ] )
+hAx = gca;
+set( hAx, "XTick", doses )
+set( hAx, "XScale", "log", "YScale", "log" )
+xlabel( sprintf( "Dex dose (%cg/kg)", 956 ) )
+ylabel( "Ratio (\delta_L/\delta_H )" )
