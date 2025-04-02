@@ -88,16 +88,19 @@ for i = 1 : length( frags )
         % "MarkerFaceAlpha", 0.6 )
     hold on
     
-    lowDurs = frags( i ).lowDurs;
-    nDurs = length( lowDurs );
+    highDurs = frags( i ).highDurs;
+    nDurs = length( highDurs );
+    % cnt = 1;
     for j = 1 : nDurs
-        yTmp = lowDurs{ j };
+        yTmp = highDurs{ j };
         y = vertcat( y, yTmp );
+        % cnt = cnt + 1;
+        x = vertcat( x, frags( i ).dose * ones( length( yTmp ), 1 ) );
 
     end
     
-    nDurs = length( yTmp );
-    x = vertcat( x, frags( i ).dose * ones( nDurs, 1 ) );
+    % nDurs = length( yTmp );
+    
 
 end
 box off
@@ -119,12 +122,13 @@ sigmoidModel = fittype('L/(1 + exp(-k*(x - x0)))', 'independent', 'x', 'dependen
 startPointGPT = [max(y), 1, mean(x)];
 fitOptions = fitoptions('Method', 'NonlinearLeastSquares', ...
                         'StartPoint', [1, 1, 2]); % Initial guess for [L, k, x0]
-[fitResult, gof] = fit(x', y', sigmoidModel, fitOptions);
+[fitResult, gof] = fit(x, y, sigmoidModel, fitOptions);
 
 % Display the fit results
 disp(fitResult);
 
 % Plot the data and the fit
+figure
 plot(fitResult, x, y);
 xlabel('X-axis');
 ylabel('Y-axis');
