@@ -1,4 +1,4 @@
-function PL = savebandtc( drug, doses, band, bandName, saveFlag )
+function [ PL, PR, emg ] = savebandtc( drug, doses, band, bandName, saveFlag )
 % Save power timecourse across all experiments for a given dose and drug.
 
 root = getrootdir( );
@@ -55,7 +55,7 @@ for doseIdx = 1 : nDoses
             thisData.spec( structIdx ).valid ...
             thisData.emg( structIdx ).valid ];
 
-        tmp = [];
+        % tmp = [];
         if valid( 1 )
             tmp = powerperband( SL, f, band, 'total' );
             tot( :, cnt1 ) = tmp ./ sum( tmp );
@@ -87,6 +87,7 @@ for doseIdx = 1 : nDoses
                 emgDex, thisData.emg( tabExpIdx ).Fs, win );
             rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
             rmsVal( :, cnt3 ) = rmsEmg;
+            emg( doseIdx ).rms = rmsVals;
             cnt3 = cnt3 + 1;
 
         else
@@ -106,7 +107,7 @@ for doseIdx = 1 : nDoses
         PR( doseIdx ).dose = thisDose;
         PR( doseIdx ).expList = finalExpList;
 
-        emg( doseIdx ).rms = rmsEmg;
+        
 
         disprog( expIdx, nExps, 10 )
 
