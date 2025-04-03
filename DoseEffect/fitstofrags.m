@@ -114,7 +114,7 @@ ylabel( "Ratio (\delta_L/\delta_H )" )
 
 % x = [0, 1, 2, 3, 4, 5]; % Independent variable
 % y = [0, 0.1, 0.5, 0.8, 0.9, 1]; % Dependent variable (sigmoid data)
-
+ 
 % Define the sigmoid model
 sigmoidModel = fittype('L/(1 + exp(-k*(x - x0)))', 'independent', 'x', 'dependent', 'y');
 
