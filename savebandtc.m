@@ -1,8 +1,10 @@
-function [ PL, PR, emg ] = savebandtc( drug, doses, band, bandName, saveFlag )
+function [ PL, PR, emgRms ] = savebandtc(...
+    drug, doses, band, bandName, saveFlag )
 % Save power timecourse across all experiments for a given dose and drug.
 
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
+f2load = "TidyData.mat";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
 start = tic;
@@ -16,20 +18,33 @@ for doseIdx = 1 : nDoses
         fTab.drug == string( drug );
     expList = fTab.exp_id( expListIdx );
     nExps = length( expList );
-    % csvFileSpec = "example_traces.csv";
-    cnt1 = 1;
-    cnt2 = 2;
-    cnt3 = 3;
-    tot = [];
-    med = [];
-    mu = [];
-    finalExpList = [];
+    
+    % Set counters to 1
+    cnt1 = 1; % PL
+    cnt2 = 1; % PR
+    cnt3 = 1; % coher
+    cnt4 = 1; % emgRms
+
+    % Allocate empty vars
+    tmpL = [];
+    totL = [];
+    medL = [];
+    muL = [];
+    finalExpListL = [];
+    
+    tmpR = [];
+    totR = [];
+    medR = [];
+    muR = [];
+    finalExpListR = [];
+
+    finalExpListEmg = [];
 
     for expIdx = 1 : nExps
         thisExp = expList( expIdx );
         metDat = getmetadata( thisExp );
         resDir = fullfile( root, "Results", metDat.subject );
-        f2load = "TidyData.mat";
+        
         thisData = load( fullfile( resDir, f2load ),...
             "eeg", "emg", "spec", "notes" );
         structIdx = [ thisData.notes.expId ] == thisExp;
@@ -41,11 +56,12 @@ for doseIdx = 1 : nDoses
         SR = thisData.spec( structIdx ).SR;
         locR = thisData.eeg( structIdx ).eegLocs{ 2 };
 
-        emg = thisData.emg( structIdx ).data;
-        tEmg = thisData.emg( structIdx ).data;
-
         t = thisData.spec( structIdx ).t - tInj;
         f = thisData.spec( structIdx ).f;
+
+        emg = thisData.emg( structIdx ).data;
+        tEmg = thisData.emg( structIdx ).data;
+        Fs = thisData.emg( structIdx ).Fs;
 
         % Get spectra after injection
         drugIdxS = t > 31 & t <= 3590;
@@ -57,58 +73,59 @@ for doseIdx = 1 : nDoses
 
         % tmp = [];
         if valid( 1 )
-            tmp = powerperband( SL, f, band, 'total' );
-            tot( :, cnt1 ) = tmp ./ sum( tmp );
-            med( :, cnt1 ) = powerperband( SL, f, band, 'median' );
-            mu( :, cnt1 ) = powerperband( SL, f, band, 'mean' );
-            finalExpList( cnt1 ) = thisExp;
+            tmpL = powerperband( SL, f, band, 'total' );
+            totL( :, cnt1 ) = tmpL ./ sum( tmpL );
+            medL( :, cnt1 ) = powerperband( SL, f, band, 'median' );
+            muL( :, cnt1 ) = powerperband( SL, f, band, 'mean' );
+            finalExpListL( cnt1 ) = thisExp;
             cnt1 = cnt1 + 1;
 
-            PL( doseIdx ).total = tot;
-            PL( doseIdx ).median = med;
-            PL( doseIdx ).mean = mu;
-
-
-        elseif valid( 2 )
-            tmp = powerperband( SR, f, band, 'total' );
-            tot( :, cnt2 ) = tmp ./ sum( tmp );
-            med( :, cnt2 ) = powerperband( SR, f, band, 'median' );
-            mu( :, cnt2 ) = powerperband( SR, f, band, 'mean' );
-            finalExpList( cnt2 ) = thisExp;
-            cnt2 = cnt2 + 1;
-
-            PR( doseIdx ).total = tot;
-            PR( doseIdx ).median = med;
-            PR( doseIdx ).mean = mu;
-
-        elseif valid( 3 )
-            win = [ 15 1.5 ];
-            emgChunks = makesegments(...
-                emgDex, thisData.emg( tabExpIdx ).Fs, win );
-            rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
-            rmsVal( :, cnt3 ) = rmsEmg;
-            emg( doseIdx ).rms = rmsVals;
-            cnt3 = cnt3 + 1;
-
-        else
-            warning(...
-                sprintf( "Spectra in exp %u wasn't valid", thisExp ) )
+            PL( doseIdx ).total = totL;
+            PL( doseIdx ).median = medL;
+            PL( doseIdx ).mean = muL;
 
         end
+
+
+        if valid( 2 )
+            tmpR = powerperband( SR, f, band, 'total' );
+            totR( :, cnt2 ) = tmpR ./ sum( tmpR );
+            medR( :, cnt2 ) = powerperband( SR, f, band, 'median' );
+            muR( :, cnt2 ) = powerperband( SR, f, band, 'mean' );
+            finalExpListR( cnt2 ) = thisExp;
+            cnt2 = cnt2 + 1;
+
+            PR( doseIdx ).total = totR;
+            PR( doseIdx ).median = medR;
+            PR( doseIdx ).mean = muR;
+
+        end
+
+        if valid( 3 )
+            win = [ 15 1.5 ]; % Change this!
+            emgChunks = makesegments( emg, Fs, win );
+            rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
+            rmsVals( :, cnt3 ) = rmsEmg;
+            emgRms( doseIdx ).rms = rmsVals;
+            finalExpListEmg( cnt3 ) = thisExp;
+            cnt3 = cnt3 + 1;
+
+        end
+
         PL( doseIdx ).ts = tP;
-        PL( doseIdx ).expId = thisExp;
         PL( doseIdx ).loc = locL;
         PL( doseIdx ).dose = thisDose;
-        PL( doseIdx ).expList = finalExpList;
+        PL( doseIdx ).expList = finalExpListL;
 
         PR( doseIdx ).ts = tP;
-        PR( doseIdx ).expId = thisExp;
         PR( doseIdx ).loc = locL;
         PR( doseIdx ).dose = thisDose;
-        PR( doseIdx ).expList = finalExpList;
+        PR( doseIdx ).expList = finalExpListR;
 
+        emgRms( doseIdx ).ts = tP;
+        emgRms( doseIdx ).dose = thisDose;
+        emgRms( doseIdx ).expList = finalExpListEmg;
         
-
         disprog( expIdx, nExps, 10 )
 
     end
