@@ -40,8 +40,9 @@ for doseIdx = 1 : nDoses
         newSignal = stretchsignal( Psmooth );
         dt = mean( diff( tP ) );
         lowIdx = newSignal <= 0.2;
-        lowDur( expIdx ) = sum( lowIdx ) * dt;
-        highDur( expIdx ) = sum( ~lowIdx ) * dt;
+        [ lowDurs{ expIdx }, highDurs{ expIdx } ] = countzerosandones( lowIdx );
+        lowTotalDur( expIdx ) = sum( lowIdx ) * dt;
+        highTotalDur( expIdx ) = sum( ~lowIdx ) * dt;
         % [ pks{ expIdx }, locs{ expIdx }, w{ expIdx } ] = findpeaks(...
         %     newSignal, tP,...
         %     "MinPeakHeight", 0.2,...
@@ -58,10 +59,13 @@ for doseIdx = 1 : nDoses
         % disprog( expIdx, nExps, 10 )
 
     end
-
-    frags( doseIdx ).lowDur = lowDur;
-    frags( doseIdx ).highDur = highDur;
+    
+    frags( doseIdx ).lowDurs = lowDurs;
+    frags( doseIdx ).highDurs = highDurs; 
+    frags( doseIdx ).lowTotalDur = lowTotalDur;
+    frags( doseIdx ).highTotalDur = highTotalDur;
     frags( doseIdx ).dose = thisP.dose;
+    frags( doseIdx ).dt = dt;
 
 end
 
