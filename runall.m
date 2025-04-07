@@ -73,7 +73,7 @@ close all
 clear all
 clc
 
-addpath( '.\Vid_processing' )
+addpath( ".\Vid_processing\" )
 
 expList = 14; 
 
@@ -106,7 +106,7 @@ savesleepdata( mouseId )
 
 %% Batchprocess mice to get tidy data
 ccc
-addpath( ".\DoseEffect\" )
+addpath( ".\Dose_effect\" )
 
 % mList = { "M101", "M102", "M103", "M105", "M106",...
 %     "M107", "M108", "M109", "M111", "M112", "M113" };
@@ -120,8 +120,8 @@ warning on
 
 %% Get spectral features over time
 ccc
-% addpath( ".\Figures" )
-addpath( ".\DoseEffect\" )
+% addpath( ".\Pres_figs" )
+addpath( ".\Dose_effect\" )
 
 doses = [ 0 10 30 50 100 150 ];
 tLims = [ -5 5 65 ];
@@ -138,8 +138,8 @@ save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
 
 %% Fit linear mixed-effects model to time features
 ccc
-addpath( ".\Figures" )
-addpath( ".\DoseEffect\" )
+addpath( ".\Pres_figs" )
+addpath( ".\Dose_effect\" )
 root = getrootdir( );
 load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
     "allFeats" )
