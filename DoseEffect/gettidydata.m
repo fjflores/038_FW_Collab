@@ -52,29 +52,35 @@ for expIdx = 1 : nExps
     
     % get rid of offline to injection period.
     fprintf( " Removing pre injection period..." )
-    tOff = masterTab.drug_ts_offline( thisExpIdx );
+    tOffDrug = masterTab.drug_ts_offline( thisExpIdx );
     tInj = masterTab.drug_ts_inj( thisExpIdx );
-    tOn = masterTab.drug_ts_online( thisExpIdx );
+    tOnDrug = masterTab.drug_ts_online( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
-    preIdx = tsOrig <= tOff;
+    preIdx = tsOrig <= tOffDrug;
     postIdx = tsOrig >= tInj;
     preData = sigs( preIdx, : );
     postData = sigs( postIdx, : );
     preTs = tsOrig( preIdx );
     postTs = tsOrig( postIdx );
     postWoArt = replaceartifact(...
-        postData, postTs, [ postTs( 1 ) tOn ], 'zeros' );
+        postData, postTs, [ postTs( 1 ) tOnDrug ], 'zeros' );
     newSigs = cat( 1, preData, postWoArt );
     newTs = linspace(...
-        preTs( 1 ) + ( tInj - tOff ), postTs( end ), size( newSigs, 1 ) );
+        preTs( 1 ) + ( tInj - tOffDrug ), postTs( end ), size( newSigs, 1 ) );
 
     % Remove atipamezole artifact time (if needed).
-    if ~isnan( masterTab.ati_ts_inj( thisExpIdx ) )
-        tOffAti = masterTab.ati_ts_offline( thisExpIdx );
-        tOnAti = masterTab.ati_ts_online( thisExpIdx );
+    tInjRev = masterTab.ati_ts_inj( thisExpIdx );
+    if ~isnan( tInjAti )
+        tOffRev = masterTab.ati_ts_offline( thisExpIdx );
+        tOnRev = masterTab.ati_ts_online( thisExpIdx );
         newSigs = replaceartifact(...
             newSigs, newTs, [ tOffAti tOnAti ], 'zeros' );
+
+    else
+        tOffRev = nan;
+        tOnRev = nan;
+
     end
 
 
@@ -92,6 +98,7 @@ for expIdx = 1 : nExps
     emgTmp = eegemgfilt( newSigs( :, 3 ), [ 10 900 ], emgRaw.Fs );
     emgTmp( ~chunkIdx ) = [ ];
     analyzeEmgFlag = logical( masterTab{ thisExpIdx, { 'analyze_EMG' } } );
+
     if analyzeEmgFlag
         emgFilt = downsample( emgTmp, decFactor );
 
@@ -113,7 +120,9 @@ for expIdx = 1 : nExps
     % isolate baseline and compute z-score
     analyzeEegFlag = logical(...
         masterTab{ thisExpIdx, { 'analyze_EEG_L', 'analyze_EEG_R' } } );
+
     for eegIdx = 1 : 2
+
         if analyzeEegFlag( eegIdx )
             eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
             tBaseZIdx = tEeg <= tOff;
@@ -141,7 +150,9 @@ for expIdx = 1 : nExps
         'fpass', [ 0.5 100 ],...
         'pad', 1,...
         'win', [ 15 1.5 ] );
-    [ S, tStmp, f ] = mtspecgramc( eegZ, params.win, params );
+    % [ S, tStmp, f ] = mtspecgramc( eegZ, params.win, params );
+    [ C, phi, S12, S1, S2, tStmp, f ] = cohgramc(...
+        eegZ( :, 1 ), eegZ( :, 2 ), params.win, params );
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
 
@@ -149,13 +160,16 @@ for expIdx = 1 : nExps
     notes( expIdx ).dose = doses( expIdx );
     notes( expIdx ).drug = masterTab.drug{ thisExpIdx };
     notes( expIdx ).tInj = tInj;
-    notes( expIdx ).tOff = tOff;
-    notes( expIdx ).tOn = tOn;
+    notes( expIdx ).tOffDrug = tOffDrug;
+    notes( expIdx ).tOnDrug = tOnDrug;
+    notes( expIdx ).tInjRev = tInjRev;
+    notes( expIdx ).tOffRev = tOffRev;
+    notes( expIdx ).tOnRev = tOnRev;
     notes( expIdx ).params = params;
     notes( expIdx ).sex = masterTab.sex{ thisExpIdx };
 
-    eeg( expIdx ).dataL = eegZ( :, 1 );
-    eeg( expIdx ).dataR = eegZ( :, 2 );
+    eeg( expIdx ).dataL = eegTmp ( :, 1 );
+    eeg( expIdx ).dataR = eegTmp ( :, 2 );
     eeg( expIdx ).t = tEeg;
     eeg( expIdx ).Fs = eegFs;
     eeg( expIdx ).eegLocs = {...
@@ -163,17 +177,32 @@ for expIdx = 1 : nExps
         masterTab.EEG_R_location{ thisExpIdx } };
     eeg( expIdx ).valid = analyzeEegFlag;
 
+    eegZ( expIdx ).dataL = eegZ( :, 1 );
+    eegZ( expIdx ).dataR = eegZ( :, 2 );
+    eegZ( expIdx ).t = tEeg;
+    eegZ( expIdx ).Fs = eegFs;
+    eegZ( expIdx ).eegLocs = {...
+        masterTab.EEG_L_location{ thisExpIdx },...
+        masterTab.EEG_R_location{ thisExpIdx } };
+    eegZ( expIdx ).valid = analyzeEegFlag;
+
     emg( expIdx ).data = emgFilt;
     emg( expIdx ).t = tEmg;
     emg( expIdx ).Fs = emgFs;
     emg( expIdx ).valid = analyzeEmgFlag;
 
-    spec( expIdx ).SL = squeeze( S( :, :, 1 ) );
-    spec( expIdx ).SR = squeeze( S( :, :, 2 ) );
+    spec( expIdx ).SL = S1;
+    spec( expIdx ).SR = S2;
     spec( expIdx ).t = tS;
     spec( expIdx ).f = f;
     spec( expIdx ).params = params;
     spec( expIdx ).valid = analyzeEegFlag;
+
+    coher( expIdx ).C = C;
+    coher( expIdx ).phi = phi;
+    coher( expIdx ).t = tS;
+    coher( expIdx ).f = f;
+    coher( expIdx ).valid = and( analyzeEegFlag( 1 ), analyzeEegFlag( 2 ) );
 
     clear eegZ
 
@@ -184,7 +213,7 @@ if saveFlag
     fprintf( " Saving tidy data..." )
     f2save = "TidyData.mat";
     save( fullfile( resDir, mouseId, f2save ), ...
-        "notes", "eeg", "spec", "emg", "-v7.3" )
+        "notes", "eeg", "spec", "emg", "coher", "-v7.3" )
     fprintf( "done.\n\n" )
 
 end
