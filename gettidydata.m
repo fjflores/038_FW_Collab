@@ -1,4 +1,4 @@
-function eTime = gettidydata( mouseId, csvFile, tLims, saveFlag )
+function eTime = gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
@@ -6,6 +6,7 @@ function eTime = gettidydata( mouseId, csvFile, tLims, saveFlag )
 %
 % Input:
 % mouseId: mouse ID.
+% drug: name of the drug to extract (dex, ketamine, etc).
 % csvFile: name of csvFile to use.
 % tLims: epoch to extract around time of injection.
 % saveFlag: boolean to flag whether to save the figure data. Default: true.
@@ -26,6 +27,8 @@ if ~exist( "saveFlag", "var" )
 
 end
 
+drug = lower( string( drug ) );
+
 root = getrootdir( );
 resDir = fullfile( root, "Results" );
 masterTab = readtable( fullfile( resDir, csvFile ) );
@@ -35,7 +38,7 @@ doseSortTab = sortrows( masterTab, "drug_dose" );
 exps2procIdx = ...
     doseSortTab.analyze == 1 & ...
     doseSortTab.mouse_id == mouseId & ...
-    doseSortTab.drug == "dex";
+    doseSortTab.drug == drug;
 exps2proc = doseSortTab.exp_id( exps2procIdx );
 doses = doseSortTab.drug_dose( exps2procIdx );
 
