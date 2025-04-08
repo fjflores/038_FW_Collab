@@ -107,15 +107,17 @@ savesleepdata( mouseId )
 %% Batchprocess mice to get tidy data
 ccc
 addpath( ".\Dose_effect\" )
+addpath( ".\Helper" )
 
-% mList = { "M101", "M102", "M103", "M105", "M106",...
-%     "M107", "M108", "M109", "M111", "M112", "M113" };
-mList = { "M111", "M112" };
+mList = { "M101", "M102", "M103", "M105", "M106",...
+    "M107", "M108", "M109", "M111", "M112", "M113" };
+% mList = { "M111", "M112" };
+drug = "dex";
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 4200 ];
 saveFlag = true;  
 warning off
-batchtidydata( mList, csvFile, tLims, saveFlag )
+batchtidydata( mList, drug, csvFile, tLims, saveFlag )
 warning on
 
 %% Get spectral features over time

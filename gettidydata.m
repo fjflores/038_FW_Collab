@@ -1,4 +1,4 @@
-function eTime = gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
+function gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
@@ -10,7 +10,11 @@ function eTime = gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
 % csvFile: name of csvFile to use.
 % tLims: epoch to extract around time of injection.
 % saveFlag: boolean to flag whether to save the figure data. Default: true.
+% 
+% Output:
+% file saved to the corresponding mouse results folder.
 
+t1 = tic;
 % Set defaults
 if ~exist( "csvFile", "var" )
     csvFile = "abc_experiment_list.xlsm";
@@ -42,8 +46,7 @@ exps2procIdx = ...
 exps2proc = doseSortTab.exp_id( exps2procIdx );
 doses = doseSortTab.drug_dose( exps2procIdx );
 
-t1 = tic;
-% load dex experiment
+% load experiments
 nExps = length( exps2proc );
 for expIdx = 1 : nExps
     thisExp = exps2proc( expIdx );
@@ -128,16 +131,16 @@ for expIdx = 1 : nExps
 
         if analyzeEegFlag( eegIdx )
             eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-            tBaseZIdx = tEeg <= tOff;
+            tBaseZIdx = tEeg <= tOffDrug;
             mu = mean( eegFilt( tBaseZIdx ) );
             sigma = std( eegFilt( tBaseZIdx ) );
             % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
             %     eegIdx, )
-            eegZ( :, eegIdx) = ( eegFilt - mu ) ./ sigma;
+            eegZdata( :, eegIdx) = ( eegFilt - mu ) ./ sigma;
 
         else
             fprintf( 'one bad eeg channel...')
-            eegZ( :, eegIdx ) = nan( ceil( sum( chunkIdx ) ./ decFactor ), 1 );
+            eegZdata( :, eegIdx ) = nan( ceil( sum( chunkIdx ) ./ decFactor ), 1 );
 
         end
 
@@ -155,7 +158,7 @@ for expIdx = 1 : nExps
         'win', [ 15 1.5 ] );
     % [ S, tStmp, f ] = mtspecgramc( eegZ, params.win, params );
     [ C, phi, S12, S1, S2, tStmp, f ] = cohgramc(...
-        eegZ( :, 1 ), eegZ( :, 2 ), params.win, params );
+        eegZdata( :, 1 ), eegZdata( :, 2 ), params.win, params );
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
 
@@ -180,8 +183,8 @@ for expIdx = 1 : nExps
         masterTab.EEG_R_location{ thisExpIdx } };
     eeg( expIdx ).valid = analyzeEegFlag;
 
-    eegZ( expIdx ).dataL = eegZ( :, 1 );
-    eegZ( expIdx ).dataR = eegZ( :, 2 );
+    eegZ( expIdx ).dataL = eegZdata( :, 1 );
+    eegZ( expIdx ).dataR = eegZdata( :, 2 );
     eegZ( expIdx ).t = tEeg;
     eegZ( expIdx ).Fs = eegFs;
     eegZ( expIdx ).eegLocs = {...
@@ -207,7 +210,7 @@ for expIdx = 1 : nExps
     coher( expIdx ).f = f;
     coher( expIdx ).valid = and( analyzeEegFlag( 1 ), analyzeEegFlag( 2 ) );
 
-    clear eegZ
+    clear eegZdata
 
 end
 
