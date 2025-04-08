@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 113;
+expList = [ 123 124 ];
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 112;
+expId = 124;
 
 % expData = loadmixdata( expID );
 
@@ -52,20 +52,20 @@ metDat = getmetadata( expId );
 fwTab = readtable(...
     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
 
-xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
-xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
-xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
-xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
-% for i = 1 : 6
-%     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
-% 
-%     if metDat.FWCollab == 1
-%         xline( hAx( i ),...
-%             str2double( fwTab{ ( fwTab.exp_id == expId ), 10 : 12 } ),...
-%             'g', 'LineWidth', 1 ) % FW exps only
-%     end
-% 
-% end
+% xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
+% xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
+% xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
+% xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
+for i = 1 : 6
+    xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
+
+    if metDat.FWCollab == 1
+        xline( hAx( i ),...
+            str2double( fwTab{ ( fwTab.exp_id == expId ), 10 : 12 } ),...
+            'g', 'LineWidth', 1 ) % FW exps only
+    end
+
+end
 
 
 %% Batch process and save DLC and video data.
