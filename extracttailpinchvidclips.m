@@ -15,7 +15,8 @@ tailPinchCols = { 'tail_pinch_5_ts',...
     'tail_pinch_30_ts', 'tail_pinch_60_ts', 'tail_pinch_120_ts' };
 opts = setvartype( opts, tailPinchCols, 'double' );
 fwTab = readtable( fwTabPath, opts );
-expList = fwTab.exp_id( ~isnan( fwTab.tail_pinch_30_ts ) );
+expIdcs = any( ~isnan( table2array( fwTab( :, tailPinchCols ) ) ), 2 );
+expList = fwTab.exp_id( expIdcs );
 
 % Set directory to save video clips to.
 dbFolder = erase( root, '034_DARPA_ABC\' );
@@ -163,3 +164,46 @@ writetable( scores,...
     fullfile( saveDir, 'scores.xlsx' ) )
 fprintf( 'Saved updated ''FW_tail_pinch_key'' and ''scores''.\n')
 
+
+%% Match scores to tail pinches with relevant exp info.
+
+% 1) Run first section of this script.
+
+% 2) Run this section.
+
+cnt = 1;
+for expIdx = 1 : length( expList )
+    thisExpID = expList( expIdx );
+    thisExp = fwTab( fwTab.exp_id == thisExpID, : );
+    
+    tpIdcs = ~isnan( table2array( thisExp( :, tailPinchCols ) ) );
+    tps = find( tpIdcs );
+
+    for tpIdx = 1 : length( tps )
+        tpCol = tailPinchCols( tps( tpIdx ) );
+        tpTs( cnt, 1 ) = table2array( thisExp( :, tpCol ) );
+        approxMinTmp = regexp( tpCol, '_(\d+)_ts', 'tokens' );
+        approxMin( cnt, 1 ) = str2double( approxMinTmp{ 1 }{ 1 } );
+        clear approxMinTmp
+
+        % Get experiment-level info.
+        expID( cnt, 1 ) = thisExpID;
+        mID( cnt, 1 ) = thisExp.mouse_id;
+        dexDose( cnt, 1 ) = thisExp.dex_dose_ug_per_kg;
+        ketDose( cnt, 1 ) = thisExp.ket_dose_mg_per_kg;
+        vasoDose( cnt, 1 ) = thisExp.vaso_dose_ug_per_kg;
+        pdDose( cnt, 1 ) = thisExp.pd_dose_ug_per_kg;
+
+        cnt = cnt + 1;
+
+    end
+
+end
+
+
+tpTab = table( expID, mID, dexDose, ketDose, vasoDose, pdDose,...
+    approxMin, tpTs );
+
+% match each tp to coded tp from renameKey
+% grab score from scores based on code
+% save scores to tpTab
