@@ -62,6 +62,7 @@ for doseIdx = 1 : nDoses
         emg = thisData.emg( structIdx ).data;
         tEmg = thisData.emg( structIdx ).data;
         Fs = thisData.emg( structIdx ).Fs;
+        win = thisData( structIdx ).notes.params.win;
 
         % Get spectra after injection
         drugIdxS = t > 31 & t <= 3590;
@@ -102,7 +103,6 @@ for doseIdx = 1 : nDoses
         end
 
         if valid( 3 )
-            win = [ 15 1.5 ]; % Change this!
             emgChunks = makesegments( emg, Fs, win );
             rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
             rmsVals( :, cnt3 ) = rmsEmg;
