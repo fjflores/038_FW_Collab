@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = [ 123 124 ];
+expList = 127;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 124;
+expId = 126;
 
 % expData = loadmixdata( expID );
 
@@ -38,7 +38,7 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 100],...
+    'SetFreqSpec', [ 0.5 60 ],...
     'SetCAxis', [ 0 40 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
@@ -61,7 +61,7 @@ for i = 1 : 6
 
     if metDat.FWCollab == 1
         xline( hAx( i ),...
-            str2double( fwTab{ ( fwTab.exp_id == expId ), 10 : 12 } ),...
+            str2double( fwTab{ ( fwTab.exp_id == expId ), 11 : 14 } ),...
             'g', 'LineWidth', 1 ) % FW exps only
     end
 

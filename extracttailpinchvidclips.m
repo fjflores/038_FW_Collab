@@ -22,10 +22,28 @@ expList = fwTab.exp_id( expIdcs );
 dbFolder = erase( root, '034_DARPA_ABC\' );
 saveDir = fullfile( dbFolder, 'FW_tail_pinch_vids' );
 
+% Load existing key and score sheet so as not to overwrite.
+if exist( fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
+    renameKeyOG = readtable(...
+        fullfile( resDir, 'FW_tail_pinch_key.csv' ),...
+        'Delimiter', ',' );
+    scoresOG = readtable(...
+        fullfile( saveDir, 'scores.xlsx' ) );
+    scoresVarNames = scoresOG.Properties.VariableNames;
+
+else
+    fprintf( 'FW_tail_pinch_key.csv does not exist yet.\n' )
+
+end
+
 
 %% Extract and save clips.
 
-for expIdx = 1 : length( expList )
+nExp = length( expList );
+fprintf( 'Extracting video clips from %i experiment(s)...\n', nExp )
+skipCnt = 0;
+saveCnt = 0;
+for expIdx = 1 : nExp
 
     expID = expList( expIdx );
 
@@ -40,6 +58,14 @@ for expIdx = 1 : length( expList )
     vidPathSide = fullfile( mDatDir, vNameSide );
     vidPathTop = fullfile( mDatDir, vNameTop );
 
+    % Check if video pair is already in 'FW_tail_pinch_key'.    
+    if any( ~cellfun( @isempty,...
+            strfind( renameKeyOG.expInfo, bonsaiSuff ) ) )
+        skipCnt = skipCnt + 1;
+        continue
+    end
+    clear bonsaiSuff
+
     % Get tail pinch timestamps (seconds, in ephys timestamps).
     tailPinchTs = fwTab{ fwTab.exp_id == expID, tailPinchCols };
     tailPinchTs = tailPinchTs( ~isnan( tailPinchTs ) );
@@ -47,7 +73,8 @@ for expIdx = 1 : length( expList )
 
     % Calculate difference between ephys recording start time and video
     % recording start time (to nearest second).
-    ephysLog = fileread( fullfile( mDatDir, nlynxDir, 'CheetahLogFile.txt' ) );
+    ephysLog = fileread(...
+        fullfile( mDatDir, nlynxDir, 'CheetahLogFile.txt' ) );
     ephysRecTs = regexp( ephysLog,...
         [ '(\d{2})\:(\d{2})\:(\d{2}\.\d{3})',...
         '(?: - )\d+(?: - AcquisitionControl::StartRecording)' ],...
@@ -76,26 +103,17 @@ for expIdx = 1 : length( expList )
     extractvidclip( vidPathTop, evTs,...
         'Pad', pad, 'EvMsg', 'tailpinch',...
         'SaveDir', saveDir, 'SaveFlag', true );
+    saveCnt = saveCnt + 1;
 
 end
+
+fprintf( [ 'Extracted video clips from %i experiment(s) and ',...
+    'skipped %i experiment(s).\n' ], saveCnt, skipCnt )
 
 
 %% Anonymize and shuffle tail pinch video clips for blind scoring.
 
-% Load existing key and score sheet so as not to overwrite.
-if exist( fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
-    renameKeyOG = readtable(...
-        fullfile( resDir, 'FW_tail_pinch_key.csv' ),...
-        'Delimiter', ',' );
-    scoresOG = readtable(...
-        fullfile( saveDir, 'scores.xlsx' ) );
-    scoresVarNames = scoresOG.Properties.VariableNames;
-
-else
-    fprintf( 'FW_tail_pinch_key.csv does not exist yet.\n' )
-
-end
-
+% Only get video pairs that need to be renamed.
 vidListTmp = dir( fullfile( saveDir, '*.avi' ) );
 vidList = vidListTmp( 3 : end );
 vids = sort( { vidList.name } );
@@ -109,7 +127,8 @@ vids2Ignore = vids( cellfun( @isempty, vids2RenameTmp ) );
 vids2IgnoreIDs = str2double( string(...
     regexp( vids2Ignore, '(\d{3})_', 'tokens' ) ) );
 randIDOptions = randperm( 999, numel( vids ) );
-randIDOptions = randIDOptions( ~ismember( randIDOptions, vids2IgnoreIDs ) );
+randIDOptions = randIDOptions(...
+    ~ismember( randIDOptions, vids2IgnoreIDs ) );
 
 if nPinches == 0
     fprintf( 'No video pairs to rename.\n' )
@@ -120,6 +139,7 @@ else
     fprintf( 'Renaming all %i pairs of videos...\n', nPinches )
 end
 
+% Assign each video pair to random ID.
 randID = zeros( nPinches, 1 );
 randIDStr = strings( nPinches, 1 );
 expInfo = strings( nPinches, 1 );
@@ -128,7 +148,7 @@ ogNameTop = strings( nPinches, 1 );
 newNameSide = strings( nPinches, 1 );
 newNameTop = strings( nPinches, 1 );
 for pinchIdx = 1 : nPinches
-    randID( pinchIdx ) = randIDOptions( pinchIdx ); % Pick random 3-digit ID.
+    randID( pinchIdx ) = randIDOptions( pinchIdx ); % Random 3-digit ID.
     randIDStr( pinchIdx ) = sprintf( '%03d', randID( pinchIdx ) );
     expInfo( pinchIdx ) = string( regexp( vids2Rename{ pinchIdx, 1 },...
         '.*_(\d{4}-\d{2}-\d{2}T\d{2}_\d{2}_\d{2}.*)\.avi', 'tokens' ) );
@@ -148,12 +168,13 @@ end
 % Save record of renamed files.
 renameKeyNew = table( randID, randIDStr, expInfo,...
     ogNameSide, ogNameTop, newNameSide, newNameTop );
-scoresNew = table( randID, nan( length( randID ), 1 ),...
+scoresNew = table( randID, nan( length( randID ), 1 ), strings( length( randID ), 1 ),...
     'VariableNames', scoresVarNames );
 
 if exist( 'renameKeyOG', 'var' )
     renameKey = [ renameKeyOG; renameKeyNew ];
     scores = [ scoresOG; scoresNew ];
+    scores = sortrows( scores, 'tail_pinch_id' );
 else
     renameKey = renameKeyNew;
 end
@@ -163,6 +184,7 @@ writetable( renameKey,...
 writetable( scores,...
     fullfile( saveDir, 'scores.xlsx' ) )
 fprintf( 'Saved updated ''FW_tail_pinch_key'' and ''scores''.\n')
+clear randID
 
 
 %% Match scores to tail pinches with relevant exp info.
@@ -171,15 +193,19 @@ fprintf( 'Saved updated ''FW_tail_pinch_key'' and ''scores''.\n')
 
 % 2) Run this section.
 
+clear expID mID bonsaiSuff randID
 cnt = 1;
 for expIdx = 1 : length( expList )
     thisExpID = expList( expIdx );
     thisExp = fwTab( fwTab.exp_id == thisExpID, : );
+    metDat = getmetadata( thisExpID );
+    thisBonsaiSuff = metDat.bonsaiSuff;
     
     tpIdcs = ~isnan( table2array( thisExp( :, tailPinchCols ) ) );
     tps = find( tpIdcs );
 
     for tpIdx = 1 : length( tps )
+        tpNum( cnt, 1 ) = tpIdx;
         tpCol = tailPinchCols( tps( tpIdx ) );
         tpTs( cnt, 1 ) = table2array( thisExp( :, tpCol ) );
         approxMinTmp = regexp( tpCol, '_(\d+)_ts', 'tokens' );
@@ -189,10 +215,21 @@ for expIdx = 1 : length( expList )
         % Get experiment-level info.
         expID( cnt, 1 ) = thisExpID;
         mID( cnt, 1 ) = thisExp.mouse_id;
+        bonsaiSuff{ cnt, 1 } = thisBonsaiSuff;
         dexDose( cnt, 1 ) = thisExp.dex_dose_ug_per_kg;
         ketDose( cnt, 1 ) = thisExp.ket_dose_mg_per_kg;
         vasoDose( cnt, 1 ) = thisExp.vaso_dose_ug_per_kg;
         pdDose( cnt, 1 ) = thisExp.pd_dose_ug_per_kg;
+
+        % Match tail pinch to key (FW_tail_pinch_key.csv).
+        thisExpIdx = strcmp( renameKeyOG.expInfo,...
+            sprintf( '%s_tailpinch%i', thisBonsaiSuff, tpIdx ) );
+        thisRandID = renameKeyOG.randID( thisExpIdx );
+        randID( cnt, 1 ) = thisRandID;
+
+        % Match tail pinch random ID to score.
+        thisRandIDIdx = scoresOG.tail_pinch_id == thisRandID;
+        scorePD( cnt, 1 ) = scoresOG.score_PD( thisRandIDIdx );
 
         cnt = cnt + 1;
 
@@ -200,10 +237,11 @@ for expIdx = 1 : length( expList )
 
 end
 
+tpTab = table( expID, mID, bonsaiSuff,...
+    dexDose, ketDose, vasoDose, pdDose,...
+    tpNum, approxMin, tpTs, randID, scorePD );
 
-tpTab = table( expID, mID, dexDose, ketDose, vasoDose, pdDose,...
-    approxMin, tpTs );
+writetable( tpTab,...
+    fullfile( resDir, 'FW_tail_pinch_table.csv') )
+fprintf( 'Saved updated ''FW_tail_pinch_table''.\n' )
 
-% match each tp to coded tp from renameKey
-% grab score from scores based on code
-% save scores to tpTab
