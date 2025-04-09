@@ -219,7 +219,7 @@ for expIdx = 1 : length( expList )
         dexDose( cnt, 1 ) = thisExp.dex_dose_ug_per_kg;
         ketDose( cnt, 1 ) = thisExp.ket_dose_mg_per_kg;
         vasoDose( cnt, 1 ) = thisExp.vaso_dose_ug_per_kg;
-        pdDose( cnt, 1 ) = thisExp.pd_dose_ug_per_kg;
+        pdDose( cnt, 1 ) = thisExp.pd_dose_mg_per_kg;
 
         % Match tail pinch to key (FW_tail_pinch_key.csv).
         thisExpIdx = strcmp( renameKeyOG.expInfo,...
@@ -244,4 +244,117 @@ tpTab = table( expID, mID, bonsaiSuff,...
 writetable( tpTab,...
     fullfile( resDir, 'FW_tail_pinch_table.csv') )
 fprintf( 'Saved updated ''FW_tail_pinch_table''.\n' )
+
+
+%% Plot tail pinch scores.
+
+ccc
+
+% Get dirs.
+root = getrootdir;
+datDir = fullfile( root, 'Data' );
+resDir = fullfile( root, 'Results' );
+
+tpTab = readtable( fullfile( resDir, 'FW_tail_pinch_table.csv') );
+
+
+expList = unique( tpTab.expID );
+
+dexLoCol = [ 103 169 207 ] / 255;
+dexHiCol = [ 33 102 172 ] / 255;
+ketLoCol = [ 239 138 98 ] / 255;
+ketHiCol = [ 178 24 43 ] / 255;
+comboCol = [ 77 77 77 ] / 255;
+
+pdDoses = [ 0 0.5 1 ];
+dexDoses = [ 0 1 2 ];
+ketDoses = [ 0 3 ];
+tpMins = [ 5 30 60 120 ];
+
+expTypeCnt = 1;
+for pdDoseIdx = 1 : length( pdDoses )
+    thisPdDose = pdDoses( pdDoseIdx );
+    if thisPdDose == 0
+        thisVasoDose = 0;
+    else
+        thisVasoDose = 10; % So far have only tested 10 ug/kg vaso.
+    end
+    for dexDoseIdx = 1 : length( dexDoses )
+        thisDexDose = dexDoses( dexDoseIdx );
+        for ketDoseIdx = 1 : length( ketDoses )
+            thisKetDose = ketDoses( ketDoseIdx );
+            expType{ expTypeCnt, 1 } = sprintf(...
+                '%i %cg/kg vaso + %.1f mg/kg PD + %.1f %cg/kg dex + %.1f mg/kg ket',...
+                thisVasoDose, 956, thisPdDose, thisDexDose, 956, thisKetDose );
+            expTypeDoses( expTypeCnt, : ) = [ thisVasoDose thisPdDose thisDexDose thisKetDose ];
+            tpMinCnt = 1;
+            for tpMinIdx = 1 : length( tpMins )
+                thisTpMin = tpMins( tpMinIdx );
+                avgScores( expTypeCnt, tpMinCnt ) = mean( tpTab.scorePD(...
+                    tpTab.pdDose == thisPdDose &...
+                    tpTab.dexDose == thisDexDose &...
+                    tpTab.ketDose == thisKetDose &...
+                    tpTab.approxMin == thisTpMin ) );
+                tpMinCnt = tpMinCnt + 1;
+
+            end
+
+            expTypeCnt = expTypeCnt + 1;
+
+        end
+
+    end
+
+end
+
+% Clean up avgScores.
+rows2keep = any( ~isnan( avgScores ), 2 );
+avgScores = avgScores( rows2keep, : );
+expTypeDoses = expTypeDoses( rows2keep, : );
+expType = expType( rows2keep );
+
+
+figure
+hold on
+% scatterjit( tpTab.approxMin, tpTab.scorePD,...
+%     'filled', 'MarkerFaceAlpha', 0.5, 'Jit', 2.5 );
+for expTypeIdx = 1 : length( expType )
+    vasoDose = expTypeDoses( expTypeIdx, 1 );
+    pdDose = expTypeDoses( expTypeIdx, 2 );
+    dexDose = expTypeDoses( expTypeIdx, 3 );
+    ketDose = expTypeDoses( expTypeIdx, 4 );
+    
+    if pdDose == 0.5
+        lnWeight = 2;
+        lnStyle = '-';
+    elseif pdDose == 1
+        lnWeight = 4;
+        lnStyle = '-';
+    elseif pdDose == 0
+        lnWeight = 2;
+        lnStyle = ':';
+    end
+
+    if dexDose == 0 && ketDose == 0
+        lnCol = comboCol;
+    elseif dexDose == 1 && ketDose == 0
+        lnCol = dexLoCol;
+    elseif dexDose == 2 && ketDose == 0
+        lnCol = dexHiCol;
+    elseif dexDose == 0 && ketDose == 3
+        lnCol = ketLoCol;
+    else
+        warning( 'Something wrong :(' )
+    end
+
+
+    plot( tpMins, avgScores( expTypeIdx, : ),...
+        'LineWidth', lnWeight,...
+        'LineStyle', lnStyle,...
+        'Color', lnCol )
+end
+
+ylim( [ 0 4 ] )
+legend( expType{ : } )
+
 
