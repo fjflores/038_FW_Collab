@@ -17,7 +17,7 @@ nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     expListIdx = masterTab.analyze == 1 &...
-        masterTab.drug_dose == thisDose;
+        masterTab.drug_dose_inj1 == thisDose;
     expList = masterTab.exp_id( expListIdx );
     fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
     
@@ -25,7 +25,7 @@ for doseIdx = 1 : nDoses
     nInvalid = 0;
     for idxExp = 1 : nExps
         thisExp = expList( idxExp );
-        tsInj = masterTab{ masterTab.exp_id == thisExp, 'drug_ts_inj' };
+        tsInj1 = masterTab{ masterTab.exp_id == thisExp, 'ts_inj1' };
         metDat = getmetadata( thisExp );
 
         if metDat.chValid( 1 ) == 0 % right now, fx is hard coded to only 
@@ -41,7 +41,7 @@ for doseIdx = 1 : nDoses
             Sdose( :, : ) = median( S, 3 );
 
             if idxExp == 1
-                t = ( spec( tabExpIdx ).t - tsInj ) / 60;
+                t = ( spec( tabExpIdx ).t - tsInj1 ) / 60;
                 f = spec( tabExpIdx ).f;
 
             end

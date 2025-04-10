@@ -38,13 +38,14 @@ resDir = fullfile( root, "Results" );
 masterTab = readtable( fullfile( resDir, csvFile ) );
 
 % get experiments to load
-doseSortTab = sortrows( masterTab, "drug_dose" );
+doseSortTab = sortrows( masterTab, "drug_dose_inj1" );
 exps2procIdx = ...
     doseSortTab.analyze == 1 & ...
     doseSortTab.mouse_id == mouseId & ...
-    doseSortTab.drug == drug;
+    doseSortTab.drug_inj1 == drug;
 exps2proc = doseSortTab.exp_id( exps2procIdx );
-doses = doseSortTab.drug_dose( exps2procIdx );
+dosesInj1 = doseSortTab.drug_dose_inj1( exps2procIdx );
+dosesInj2 = doseSortTab.drug_dose_inj2( exps2procIdx );
 
 % load experiments
 nExps = length( exps2proc );
@@ -58,34 +59,34 @@ for expIdx = 1 : nExps
     
     % get rid of offline to injection period.
     fprintf( " Removing pre injection period..." )
-    tOffDrug = masterTab.drug_ts_offline( thisExpIdx );
-    tInj = masterTab.drug_ts_inj( thisExpIdx );
-    tOnDrug = masterTab.drug_ts_online( thisExpIdx );
+    tOffInj1 = masterTab.ts_offline_inj1( thisExpIdx );
+    tInj1 = masterTab.ts_inj1( thisExpIdx );
+    tOnInj1 = masterTab.ts_online_inj1( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
-    preIdx = tsOrig <= tOffDrug;
-    postIdx = tsOrig >= tInj;
+    preIdx = tsOrig <= tOffInj1;
+    postIdx = tsOrig >= tInj1;
     preData = sigs( preIdx, : );
     postData = sigs( postIdx, : );
     preTs = tsOrig( preIdx );
     postTs = tsOrig( postIdx );
     postWoArt = replaceartifact(...
-        postData, postTs, [ postTs( 1 ) tOnDrug ], 'zeros' );
+        postData, postTs, [ postTs( 1 ) tOnInj1 ], 'zeros' );
     newSigs = cat( 1, preData, postWoArt );
     newTs = linspace(...
-        preTs( 1 ) + ( tInj - tOffDrug ), postTs( end ), size( newSigs, 1 ) );
+        preTs( 1 ) + ( tInj1 - tOffInj1 ), postTs( end ), size( newSigs, 1 ) );
 
-    % Remove atipamezole artifact time (if needed).
-    tInjRev = masterTab.ati_ts_inj( thisExpIdx );
-    if ~isnan( tInjRev )
-        tOffRev = masterTab.ati_ts_offline( thisExpIdx );
-        tOnRev = masterTab.ati_ts_online( thisExpIdx );
+    % Remove second injection (e.g., atipamezole) artifact time (if needed).
+    tInj2 = masterTab.ts_inj2( thisExpIdx );
+    if ~isnan( tInj2 )
+        tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
+        tOnInj2 = masterTab.ts_online_inj2( thisExpIdx );
         newSigs = replaceartifact(...
-            newSigs, newTs, [ tOffRev tOnRev ], 'zeros' );
+            newSigs, newTs, [ tOffInj2 tOnInj2 ], 'zeros' );
 
     else
-        tOffRev = nan;
-        tOnRev = nan;
+        tOffInj2 = nan;
+        tOnInj2 = nan;
 
     end
 
@@ -93,8 +94,8 @@ for expIdx = 1 : nExps
     fprintf( "done.\n" )
 
     % Define epoch to extract
-    tEpochStart = masterTab.drug_ts_inj( thisExpIdx ) - tLims( 1 ); % epoch before
-    tEpochEnd = masterTab.drug_ts_inj( thisExpIdx ) + tLims( 2 ); % epoch after
+    tEpochStart = masterTab.ts_inj1( thisExpIdx ) - tLims( 1 ); % epoch before
+    tEpochEnd = masterTab.ts_inj1( thisExpIdx ) + tLims( 2 ); % epoch after
 
     % Downsample adn filter emg
     fprintf( " Processing emg..." )
@@ -131,7 +132,7 @@ for expIdx = 1 : nExps
 
         if analyzeEegFlag( eegIdx )
             eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-            tBaseZIdx = tEeg <= tOffDrug;
+            tBaseZIdx = tEeg <= tOffInj1;
             mu = mean( eegFilt( tBaseZIdx ) );
             sigma = std( eegFilt( tBaseZIdx ) );
             % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
@@ -163,14 +164,16 @@ for expIdx = 1 : nExps
     fprintf( "done.\n" )
 
     notes( expIdx ).expId = thisExp;
-    notes( expIdx ).dose = doses( expIdx );
-    notes( expIdx ).drug = masterTab.drug{ thisExpIdx };
-    notes( expIdx ).tInj = tInj;
-    notes( expIdx ).tOffDrug = tOffDrug;
-    notes( expIdx ).tOnDrug = tOnDrug;
-    notes( expIdx ).tInjRev = tInjRev;
-    notes( expIdx ).tOffRev = tOffRev;
-    notes( expIdx ).tOnRev = tOnRev;
+    notes( expIdx ).doseInj1 = dosesInj1( expIdx );
+    notes( expIdx ).drugInj1 = masterTab.drug_inj1{ thisExpIdx };
+    notes( expIdx ).tInj1 = tInj1;
+    notes( expIdx ).tOffInj1 = tOffInj1;
+    notes( expIdx ).tOnInj1 = tOnInj1;
+    notes( expIdx ).doseInj2 = dosesInj2( expIdx );
+    notes( expIdx ).drugInj2 = masterTab.drug_inj2{ thisExpIdx };
+    notes( expIdx ).tInj2 = tInj2;
+    notes( expIdx ).tOffInj2 = tOffInj2;
+    notes( expIdx ).tOnInj2 = tOnInj2;
     notes( expIdx ).params = params;
     notes( expIdx ).sex = masterTab.sex{ thisExpIdx };
 

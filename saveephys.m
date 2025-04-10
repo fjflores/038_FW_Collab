@@ -44,7 +44,7 @@ subject = metDat.subject;
 nlynxDir = metDat.nlynxDir;
 expName = metDat.expName;
 analyzeMask = metDat.analyzeMask;
-drugDose = metDat.dexDose;
+drugDoseInj1 = metDat.drugDoseInj1;
 
 % Creating read and save directories.
 dir2read = fullfile( rootDir, dataDir, subject );
@@ -87,7 +87,7 @@ fprintf( 'Processing exp %u: %s...\n', expID, expName )
 % Save experiment info to struct.
 info.expID = expID;
 info.subject = subject;
-info.drugDose = drugDose;
+info.drugDoseInj1 = drugDoseInj1;
 info.dateProcessed = dateProc;
 
 % Save processed data.

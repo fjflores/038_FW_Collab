@@ -26,7 +26,7 @@ nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     thisExp = exampleTab.expID( exampleTab.dose == thisDose );
-    tsInj = masterTab{ masterTab.exp_id == thisExp, 'drug_ts_inj' };
+    tsInj1 = masterTab{ masterTab.exp_id == thisExp, 'ts_inj1' };
     metDat = getmetadata( thisExp );
 
     resDir = fullfile( root, "Results", metDat.subject );
@@ -35,7 +35,7 @@ for doseIdx = 1 : nDoses
     tabExpIdx = find( [ notes.expId ] == thisExp );
     Sdose( :, : ) = spec( tabExpIdx ).SL;
 
-    t = ( spec( tabExpIdx ).t - tsInj ) / 60;
+    t = ( spec( tabExpIdx ).t - tsInj1 ) / 60;
     f = spec( tabExpIdx ).f;
 
     hAx( doseIdx ) = subtightplot( nDoses, 1, doseIdx, opts{ : } );

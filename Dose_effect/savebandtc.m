@@ -14,8 +14,8 @@ for doseIdx = 1 : nDoses
     fprintf( "Processing dose %u %cg\\kg...\n", thisDose, 956 )
     expListIdx = ...
         fTab.analyze == 1 & ...
-        fTab.drug_dose == thisDose & ...
-        fTab.drug == string( drug );
+        fTab.drug_dose_inj1 == thisDose & ...
+        fTab.drug_inj1 == string( drug );
     expList = fTab.exp_id( expListIdx );
     nExps = length( expList );
     
@@ -48,7 +48,7 @@ for doseIdx = 1 : nDoses
         thisData = load( fullfile( resDir, f2load ),...
             "eeg", "emg", "spec", "notes" );
         structIdx = [ thisData.notes.expId ] == thisExp;
-        tInj = thisData.notes( structIdx ).tInj;
+        tInj1 = thisData.notes( structIdx ).tInj1;
 
         SL = thisData.spec( structIdx ).SL;
         locL = thisData.eeg( structIdx ).eegLocs{ 1 };
@@ -56,7 +56,7 @@ for doseIdx = 1 : nDoses
         SR = thisData.spec( structIdx ).SR;
         locR = thisData.eeg( structIdx ).eegLocs{ 2 };
 
-        t = thisData.spec( structIdx ).t - tInj;
+        t = thisData.spec( structIdx ).t - tInj1;
         f = thisData.spec( structIdx ).f;
 
         emg = thisData.emg( structIdx ).data;

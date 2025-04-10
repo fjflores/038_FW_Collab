@@ -121,7 +121,7 @@ fprintf( 'Done.\n' )
   
 
 % Create the data structures.
-% info.drugDose = [];
+% info.drugDoseInj1 = [];
 
 eegRaw.data = eeg;
 eegRaw.Fs = eegFs;

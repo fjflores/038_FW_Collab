@@ -34,8 +34,8 @@ for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
     expListIdx = masterTab.analyze == 1 & ...
-        masterTab.drug == drug & ...
-        masterTab.drug_dose == thisDose;
+        masterTab.drug_inj1 == drug & ...
+        masterTab.drug_dose_inj1 == thisDose;
 
     expList = masterTab.exp_id( expListIdx );
     eegLFlag = logical( masterTab{ expListIdx, "analyze_EEG_L" } );
@@ -50,11 +50,11 @@ for doseIdx = 1 : nDoses
         f2load = "TidyData.mat";
         thisData = load( fullfile( resDir, f2load ), "emg", "spec", "notes" );
         tabExpIdx = find( [ thisData.notes.expId ] == thisExp );
-        tInj = thisData.notes( tabExpIdx ).tInj;
+        tInj1 = thisData.notes( tabExpIdx ).tInj1;
 
         % Get emg features
         if emgFlag( expIdx )
-            t = thisData.emg( tabExpIdx ).t - tInj;
+            t = thisData.emg( tabExpIdx ).t - tInj1;
             dexIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
             emgDex = thisData.emg( tabExpIdx ).data( dexIdxEmg );
             win = [ 15 1.5 ];
@@ -70,7 +70,7 @@ for doseIdx = 1 : nDoses
 
         % Get spectral features
         if eegLFlag( expIdx )
-            t = thisData.spec( tabExpIdx ).t - tInj;
+            t = thisData.spec( tabExpIdx ).t - tInj1;
             dexIdxS = t > tLims( 1 ) & t < tLims( 2 );
             Sdex = thisData.spec( tabExpIdx ).SL( dexIdxS, : );
             f = thisData.spec( tabExpIdx ).f;

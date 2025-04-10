@@ -18,7 +18,7 @@ end
 
 masterTab = readtable( fullfile( resDir, db2load ) );
 expListIdx = masterTab.analyze == 1 ...
-    & strcmp( masterTab.drug, drug ) ...
+    & strcmp( masterTab.drug_inj1, drug ) ...
     & strcmp( masterTab.mouse_id, mouseId );
 
 gap = [ 0.005 0.01 ];
@@ -29,16 +29,16 @@ yLims = [ 0 40 ];
 
 colormap magma
 expList = masterTab.exp_id( expListIdx );
-doseList = masterTab.drug_dose( expListIdx );
+doseList = masterTab.drug_dose_inj1( expListIdx );
 nExps = sum( expListIdx );
 plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
 load( fullfile( resDir, mouseId, "TidyData.mat" ) );
 for expIdx = 1 : nExps
-    tInj = notes( expIdx ).tInj;
+    tInj1 = notes( expIdx ).tInj1;
     thisSpecL = spec( expIdx ).SL;
     thisSpecR = spec( expIdx ).SR;
-    tSpec = ( spec( expIdx ).t - tInj ) / 60;
+    tSpec = ( spec( expIdx ).t - tInj1 ) / 60;
     fSpec = spec( expIdx ).f;
     thisDose = notes( expIdx ).dose;
 

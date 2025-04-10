@@ -4,7 +4,7 @@ function makespecdosefig( dose )
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
-expListIdx = fTab.analyze == 1 & fTab.drug_dose == dose & fTab.drug == "dex";
+expListIdx = fTab.analyze == 1 & fTab.drug_dose_inj1 == dose & fTab.drug_inj1 == "dex";
 expList = fTab.exp_id( expListIdx );
 
 gap = [ 0.005 0.01 ];

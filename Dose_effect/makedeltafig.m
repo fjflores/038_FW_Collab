@@ -14,7 +14,7 @@ nExp = length( thisData.spec );
 for expIdx = 1 : nExp
     % Set vars
     S = thisData.spec( expIdx ).SL;
-    t = thisData.spec( expIdx ).t - thisData.notes( expIdx ).tInj;
+    t = thisData.spec( expIdx ).t - thisData.notes( expIdx ).tInj1;
     f = thisData.spec( expIdx ).f;
     
     % % remove artifact

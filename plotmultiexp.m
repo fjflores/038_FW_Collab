@@ -8,17 +8,17 @@ clear all
 metTab = readtable(...
     fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
 FW14 = metTab( strcmp( metTab.mouse_id, 'FW14' ), : );
-FW14 = sortrows( FW14, 'drug_dose' );
+FW14 = sortrows( FW14, 'drug_dose_inj1' );
 clear metTab
 
-exps = [ 87 FW14.exp_id( ~isnan( FW14.drug_dose ) )' ];
-doses = FW14.drug_dose( ~isnan( FW14.drug_dose ) )';
+exps = [ 87 FW14.exp_id( ~isnan( FW14.drug_dose_inj1 ) )' ];
+doses = FW14.drug_dose_inj1( ~isnan( FW14.drug_dose_inj1 ) )';
 nDoses = length( doses ) + 1;
 doseMsg{ 1 } = 'Baseline';
 for i = 2 : nDoses
     doseMsg{ i } = sprintf( 'Dex: %.1f %cg/kg i.v.', doses( i - 1 ), 956 );
 end
-injTime = [ 30*60 FW14.drug_ts_inj( ~isnan( FW14.drug_dose ) )' ];
+injTime = [ 30*60 FW14.ts_inj1( ~isnan( FW14.drug_dose_inj1 ) )' ];
 
 for expIdx = 1 : length( exps )
     expID = exps( expIdx );

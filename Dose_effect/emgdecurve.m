@@ -4,27 +4,27 @@ root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
-doses = sort( unique( masterTab.drug_dose(...
-    masterTab.drug == drug & ...
+doses = sort( unique( masterTab.drug_dose_inj1(...
+    masterTab.drug_inj1 == drug & ...
     masterTab.analyze == 1 ) ) );
 
 % Create the table
 % expId = [ ];          % Example experiment IDs
 % mouseId = { };  % Example mouse IDs
-% drug = { };
-% dose = [ ];   % Example doses
+% drugInj1 = { };
+% doseInj1 = [ ];   % Example doses
 % percMov = [ ]; % Example percentage movement
 percQuietTab = table(...
     'Size', [ 5, 5 ], ...
     'VariableTypes', {'double', 'string', 'string', 'double', 'double'}, ...
-    'VariableNames', { 'expId', 'mouseId', 'drug', 'dose', 'percQuiet' } );
+    'VariableNames', { 'expId', 'mouseId', 'drugInj1', 'doseInj1', 'percQuiet' } );
 
 nDoses = length( doses );
 cnt = 1;
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     expListIdx = masterTab.analyze == 1 & ...
-        masterTab.drug_dose == thisDose & ...
+        masterTab.drug_dose_inj1 == thisDose & ...
         masterTab.analyze_EMG == 1;
     expList = masterTab.exp_id( expListIdx );
     fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
@@ -49,8 +49,8 @@ for doseIdx = 1 : nDoses
         % Fill table
         percQuietTab.expId( cnt ) = thisExp;
         percQuietTab.mouseId( cnt ) = metDat.subject;
-        percQuietTab.drug( cnt ) = drug;
-        percQuietTab.dose( cnt ) = thisDose;
+        percQuietTab.drugInj1( cnt ) = drug;
+        percQuietTab.doseInj1( cnt ) = thisDose;
         percQuietTab.percQuiet( cnt ) = percQuiet;
         cnt = cnt + 1;
 

@@ -45,8 +45,8 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 
 % TEMPORARY: turn this chunk into an option within plotexp
 metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
-tsTab = table2array( metTab( :, { 'drug_ts_offline', 'drug_ts_online',...
-    'ati_ts_offline', 'ati_ts_online', 'drug_ts_inj', 'ati_ts_inj' } ) );
+tsTab = table2array( metTab( :, { 'ts_offline_inj1', 'ts_online_inj1',...
+    'ts_offline_inj2', 'ts_online_inj2', 'ts_inj1', 'ts_inj2' } ) );
 metDat = getmetadata( expId );
 
 fwTab = readtable(...

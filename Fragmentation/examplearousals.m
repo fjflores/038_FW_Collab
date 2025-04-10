@@ -36,7 +36,7 @@ nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     thisExp = exampleTab.expID( exampleTab.dose == thisDose );
-    tsInj = masterTab{ masterTab.exp_id == thisExp, 'drug_ts_inj' };
+    tsInj1 = masterTab{ masterTab.exp_id == thisExp, 'ts_inj1' };
     metDat = getmetadata( thisExp );
 
     resDir = fullfile( root, "Results", metDat.subject );
@@ -46,8 +46,8 @@ for doseIdx = 1 : nDoses
     Sdose( :, : ) = spec( tabExpIdx ).SL;
     eegDose = eeg( tabExpIdx ).dataL;
     
-    tEeg = ( eeg( tabExpIdx ).t - tsInj ) / 60;
-    tSpec = ( spec( tabExpIdx ).t - tsInj ) / 60;
+    tEeg = ( eeg( tabExpIdx ).t - tsInj1 ) / 60;
+    tSpec = ( spec( tabExpIdx ).t - tsInj1 ) / 60;
     f = spec( tabExpIdx ).f;
 
     hAx( subP ) = subtightplot( 6, 1, doseIdx * 3 - 2 : doseIdx * 3 - 1, opts{ : } );
@@ -169,7 +169,7 @@ nDoses = length( doses );
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     thisExp = exampleTab.expID( exampleTab.dose == thisDose );
-    tsInj = masterTab{ masterTab.exp_id == thisExp, 'drug_ts_inj' };
+    tsInj1 = masterTab{ masterTab.exp_id == thisExp, 'ts_inj1' };
     metDat = getmetadata( thisExp );
 
     resDir = fullfile( root, "Results", metDat.subject );
@@ -180,9 +180,9 @@ for doseIdx = 1 : nDoses
     eegDose = eeg( tabExpIdx ).dataL;
     emgDose = emg( tabExpIdx ).data;
     
-    tEeg = ( eeg( tabExpIdx ).t - tsInj );
-    tEmg = ( emg( tabExpIdx ).t - tsInj );
-    % tSpec = ( spec( tabExpIdx ).t - tsInj );
+    tEeg = ( eeg( tabExpIdx ).t - tsInj1 );
+    tEmg = ( emg( tabExpIdx ).t - tsInj1 );
+    % tSpec = ( spec( tabExpIdx ).t - tsInj1 );
     % f = spec( tabExpIdx ).f;
 
     hAx( 2 * doseIdx - 1 ) = subtightplot( 4, 1, 2 * doseIdx - 1, opts{ : } );
