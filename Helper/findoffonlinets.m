@@ -6,6 +6,8 @@
 % 2) Right click in figure and hit "Export Cursor Data to Workspace".
 
 % 3) Run code below.
+addpath( ".\Helper\")
+
 for i = 1 : length( cursor_info )
     tsOffOnLine( i ) = cursor_info( i ).Position( 1 );
 end
