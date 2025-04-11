@@ -11,17 +11,18 @@ mTab = fwTab( strcmp( fwTab.mouse_id, thisM ), : );
 
 switch thisM
     case 'FW14'
-        expList = [ 100 96 98 94 103 126 ];
+        expList = [ 100 96 98 94 103 126 129 ];
 
         % fwTab{ ( fwTab.exp_id == expId ),      }
         
-        injTime = [ 12 38; 14 54; 12 22; 11 35; 12 59; 14 29 ];
+        injTime = [ 12 38; 14 54; 12 22; 11 35; 12 59; 14 29; 11 46 ];
         expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...            
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 %cg/kg ket', 956, 956 ) };
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 %cg/kg ket', 956, 956 ),...
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + delayed 3 %cg/kg ket', 956, 956 )};
 
     case 'FW16'
         expList = [ 99 102 101 104 ];

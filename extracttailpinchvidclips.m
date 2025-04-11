@@ -27,9 +27,9 @@ if exist( fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
     renameKeyOG = readtable(...
         fullfile( resDir, 'FW_tail_pinch_key.csv' ),...
         'Delimiter', ',' );
-    scoresOG = readtable(...
-        fullfile( saveDir, 'scores.xlsx' ) );
-    scoresVarNames = scoresOG.Properties.VariableNames;
+    scoresPDOG = readtable(...
+        fullfile( saveDir, 'scores_PD.xlsx' ) );
+    scoresVarNames = scoresPDOG.Properties.VariableNames;
 
 else
     fprintf( 'FW_tail_pinch_key.csv does not exist yet.\n' )
@@ -168,21 +168,21 @@ end
 % Save record of renamed files.
 renameKeyNew = table( randID, randIDStr, expInfo,...
     ogNameSide, ogNameTop, newNameSide, newNameTop );
-scoresNew = table( randID, nan( length( randID ), 1 ), strings( length( randID ), 1 ),...
+scoresPDNew = table( randID, nan( length( randID ), 1 ), strings( length( randID ), 1 ),...
     'VariableNames', scoresVarNames );
 
 if exist( 'renameKeyOG', 'var' )
     renameKey = [ renameKeyOG; renameKeyNew ];
-    scores = [ scoresOG; scoresNew ];
-    scores = sortrows( scores, 'tail_pinch_id' );
+    scoresPD = [ scoresPDOG; scoresPDNew ];
+    scoresPD = sortrows( scoresPD, 'tail_pinch_id' );
 else
     renameKey = renameKeyNew;
 end
 
 writetable( renameKey,...
     fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
-writetable( scores,...
-    fullfile( saveDir, 'scores.xlsx' ) )
+writetable( scoresPD,...
+    fullfile( saveDir, 'scores_PD.xlsx' ) )
 fprintf( 'Saved updated ''FW_tail_pinch_key'' and ''scores''.\n')
 clear randID
 
@@ -228,8 +228,8 @@ for expIdx = 1 : length( expList )
         randID( cnt, 1 ) = thisRandID;
 
         % Match tail pinch random ID to score.
-        thisRandIDIdx = scoresOG.tail_pinch_id == thisRandID;
-        scorePD( cnt, 1 ) = scoresOG.score_PD( thisRandIDIdx );
+        thisRandIDIdx = scoresPDOG.tail_pinch_id == thisRandID;
+        scorePD( cnt, 1 ) = scoresPDOG.score_PD( thisRandIDIdx );
 
         cnt = cnt + 1;
 
@@ -290,7 +290,7 @@ for pdDoseIdx = 1 : length( pdDoses )
             tpMinCnt = 1;
             for tpMinIdx = 1 : length( tpMins )
                 thisTpMin = tpMins( tpMinIdx );
-                avgScores( expTypeCnt, tpMinCnt ) = mean( tpTab.scorePD(...
+                avgscoresPD( expTypeCnt, tpMinCnt ) = mean( tpTab.scorePD(...
                     tpTab.pdDose == thisPdDose &...
                     tpTab.dexDose == thisDexDose &...
                     tpTab.ketDose == thisKetDose &...
@@ -308,8 +308,8 @@ for pdDoseIdx = 1 : length( pdDoses )
 end
 
 % Clean up avgScores.
-rows2keep = any( ~isnan( avgScores ), 2 );
-avgScores = avgScores( rows2keep, : );
+rows2keep = any( ~isnan( avgscoresPD ), 2 );
+avgscoresPD = avgscoresPD( rows2keep, : );
 expTypeDoses = expTypeDoses( rows2keep, : );
 expType = expType( rows2keep );
 
@@ -348,7 +348,7 @@ for expTypeIdx = 1 : length( expType )
     end
 
 
-    plot( tpMins, avgScores( expTypeIdx, : ),...
+    plot( tpMins, avgscoresPD( expTypeIdx, : ),...
         'LineWidth', lnWeight,...
         'LineStyle', lnStyle,...
         'Color', lnCol )
