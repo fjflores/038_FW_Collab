@@ -12,7 +12,8 @@ resDir = fullfile( root, 'Results' );
 fwTabPath = fullfile( resDir, 'FW_collab_exp_details.xlsx' );
 opts = detectImportOptions( fwTabPath );
 tailPinchCols = { 'tail_pinch_5_ts',...
-    'tail_pinch_30_ts', 'tail_pinch_60_ts', 'tail_pinch_120_ts' };
+    'tail_pinch_30_ts', 'tail_pinch_35_ts',...
+    'tail_pinch_60_ts', 'tail_pinch_120_ts' };
 opts = setvartype( opts, tailPinchCols, 'double' );
 fwTab = readtable( fwTabPath, opts );
 expIdcs = any( ~isnan( table2array( fwTab( :, tailPinchCols ) ) ), 2 );
