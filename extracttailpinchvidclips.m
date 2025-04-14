@@ -359,3 +359,32 @@ ylim( [ 0 4 ] )
 legend( expType{ : } )
 
 
+%% Compare IDB and PD scoring.
+clear all
+
+IDB = readtable( fullfile( getrootdir, 'Results', 'scores_IDB.xlsx' ) );
+PD = readtable( fullfile( 'D:\Dropbox (Personal)\FW_tail_pinch_vids',...
+    'scores_PD.xlsx' ) );
+scores = table( IDB.tail_pinch_id, PD.score_PD, IDB.score_IDB,...
+    'VariableNames', { 'tpID', 'PD', 'IDB' } );
+
+scores = sortrows( scores, 'IDB' );
+idcs = ~isnan( scores.PD );
+figure
+hold on
+scatter( 1 : sum( idcs ), scores.PD( idcs ),...
+    'r', 'filled', 'MarkerFaceAlpha', 0.4 )
+scatter( 1 : sum( idcs ), scores.IDB( idcs ),...
+    'b', 'filled', 'MarkerFaceAlpha', 0.4 )
+ylim( [ 0 4 ] )
+legend( {'PD', 'IDB' } )
+xticks([])
+ylabel( 'Score' )
+
+difs = scores.PD - scores.IDB;
+figure
+histogram( difs, [ -0.55 : 0.1 : 0.55 ] )
+title( 'PD score - IDB score' )
+
+
+
