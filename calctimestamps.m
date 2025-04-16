@@ -3,11 +3,9 @@
 
 % ccc
 
-addpath( ".\Helper\")
-
-expID = 127;
-dexTime = "5:47:00";
-atiTime = "2:29:00";
+expID = 135;
+dexTime = "5:22:50";
+atiTime = "4:19:40";
 
 % Get actual REC timestamp.
 metDat = getmetadata( expID );

@@ -11,9 +11,8 @@ resDir = fullfile( root, 'Results' );
 % Load FW exp details table and get experiments with tail pinches.
 fwTabPath = fullfile( resDir, 'FW_collab_exp_details.xlsx' );
 opts = detectImportOptions( fwTabPath );
-tailPinchCols = { 'tail_pinch_5_ts',...
-    'tail_pinch_30_ts', 'tail_pinch_35_ts',...
-    'tail_pinch_60_ts', 'tail_pinch_120_ts' };
+tpTmp = regexp( opts.VariableNames, 'tail_pinch.*_ts', 'match' );
+tailPinchCols = string( tpTmp( ~cellfun( @isempty, tpTmp ) ) );
 opts = setvartype( opts, tailPinchCols, 'double' );
 fwTab = readtable( fwTabPath, opts );
 expIdcs = any( ~isnan( table2array( fwTab( :, tailPinchCols ) ) ), 2 );
@@ -23,13 +22,15 @@ expList = fwTab.exp_id( expIdcs );
 dbFolder = erase( root, '034_DARPA_ABC\' );
 saveDir = fullfile( dbFolder, 'FW_tail_pinch_vids' );
 
-% Load existing key and score sheet so as not to overwrite.
+% Load existing key and score sheets so as not to overwrite.
 if exist( fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
     renameKeyOG = readtable(...
         fullfile( resDir, 'FW_tail_pinch_key.csv' ),...
         'Delimiter', ',' );
     scoresPDOG = readtable(...
         fullfile( saveDir, 'scores_PD.xlsx' ) );
+    scoresIDBOG = readtable(...
+        fullfile( resDir, 'scores_IDB.xlsx' ) );
     scoresVarNames = scoresPDOG.Properties.VariableNames;
 
 else
@@ -158,7 +159,31 @@ for pinchIdx = 1 : nPinches
     newNameSide( pinchIdx ) = strcat( randIDStr( pinchIdx ), '_side.avi' );
     newNameTop( pinchIdx ) = strcat( randIDStr( pinchIdx ), '_top.avi' );
 
-    % Rename files.
+end
+
+% Make record of files to rename and their codes.
+renameKeyNew = table( randID, randIDStr, expInfo,...
+    ogNameSide, ogNameTop, newNameSide, newNameTop );
+scoresPDNew = table( randID, nan( length( randID ), 1 ),...
+    strings( length( randID ), 1 ),...
+    'VariableNames', scoresVarNames );
+scoresIDBNew = table( randID, nan( length( randID ), 1 ),...
+    strings( length( randID ), 1 ),...
+    'VariableNames', scoresVarNames );
+
+if exist( 'renameKeyOG', 'var' )
+    renameKey = [ renameKeyOG; renameKeyNew ];
+    scoresPD = [ scoresPDOG; scoresPDNew ];
+    scoresPD = sortrows( scoresPD, 'tail_pinch_id' );
+    scoresIDB = [ scoresIDBOG; scoresIDBNew ];
+    scoresIDB = sortrows( scoresIDB, 'tail_pinch_id' );
+else
+    renameKey = renameKeyNew;
+end
+
+% Rename files.
+clear pinchIdx
+for pinchIdx = 1 : nPinches
     movefile( fullfile( saveDir, ogNameSide( pinchIdx ) ),...
         fullfile( saveDir, newNameSide( pinchIdx ) ) );
     movefile( fullfile( saveDir, ogNameTop( pinchIdx ) ),...
@@ -167,25 +192,13 @@ for pinchIdx = 1 : nPinches
 end
 
 % Save record of renamed files.
-renameKeyNew = table( randID, randIDStr, expInfo,...
-    ogNameSide, ogNameTop, newNameSide, newNameTop );
-scoresPDNew = table( randID, nan( length( randID ), 1 ), strings( length( randID ), 1 ),...
-    'VariableNames', scoresVarNames );
-
-if exist( 'renameKeyOG', 'var' )
-    renameKey = [ renameKeyOG; renameKeyNew ];
-    scoresPD = [ scoresPDOG; scoresPDNew ];
-    scoresPD = sortrows( scoresPD, 'tail_pinch_id' );
-else
-    renameKey = renameKeyNew;
-end
-
 writetable( renameKey,...
     fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
 writetable( scoresPD,...
     fullfile( saveDir, 'scores_PD.xlsx' ) )
+writetable( scoresIDB,...
+    fullfile( resDir, 'scores_IDB.xlsx' ) )
 fprintf( 'Saved updated ''FW_tail_pinch_key'' and ''scores''.\n')
-clear randID
 
 
 %% Match scores to tail pinches with relevant exp info.
@@ -228,9 +241,10 @@ for expIdx = 1 : length( expList )
         thisRandID = renameKeyOG.randID( thisExpIdx );
         randID( cnt, 1 ) = thisRandID;
 
-        % Match tail pinch random ID to score.
+        % Match tail pinch random ID to score (PD and IDB).
         thisRandIDIdx = scoresPDOG.tail_pinch_id == thisRandID;
         scorePD( cnt, 1 ) = scoresPDOG.score_PD( thisRandIDIdx );
+        scoreIDB( cnt, 1 ) = scoresIDBOG.score_IDB( thisRandIDIdx );
 
         cnt = cnt + 1;
 
@@ -238,16 +252,18 @@ for expIdx = 1 : length( expList )
 
 end
 
+scoreAvg = mean( [ scorePD scoreIDB ], 2, 'omitnan' );
+
 tpTab = table( expID, mID, bonsaiSuff,...
     dexDose, ketDose, vasoDose, pdDose,...
-    tpNum, approxMin, tpTs, randID, scorePD );
+    tpNum, approxMin, tpTs, randID, scorePD, scoreIDB, scoreAvg );
 
 writetable( tpTab,...
     fullfile( resDir, 'FW_tail_pinch_table.csv') )
 fprintf( 'Saved updated ''FW_tail_pinch_table''.\n' )
 
 
-%% Plot tail pinch scores.
+%% Plot tail pinch scores. (WIP)
 
 ccc
 
@@ -258,7 +274,6 @@ resDir = fullfile( root, 'Results' );
 
 tpTab = readtable( fullfile( resDir, 'FW_tail_pinch_table.csv') );
 
-
 expList = unique( tpTab.expID );
 
 dexLoCol = [ 103 169 207 ] / 255;
@@ -267,10 +282,12 @@ ketLoCol = [ 239 138 98 ] / 255;
 ketHiCol = [ 178 24 43 ] / 255;
 comboCol = [ 77 77 77 ] / 255;
 
-pdDoses = [ 0 0.5 1 ];
-dexDoses = [ 0 1 2 ];
+% pdDoses = [ 0 0.5 1 ];
+pdDoses = [ 0 0.5 ];
+% dexDoses = [ 0 1 2 ];
+dexDoses = 0;
 ketDoses = [ 0 3 ];
-tpMins = [ 5 30 60 120 ];
+tpMins = [ 5 30 35 60 120 ];
 
 expTypeCnt = 1;
 for pdDoseIdx = 1 : length( pdDoses )
@@ -291,7 +308,7 @@ for pdDoseIdx = 1 : length( pdDoses )
             tpMinCnt = 1;
             for tpMinIdx = 1 : length( tpMins )
                 thisTpMin = tpMins( tpMinIdx );
-                avgscoresPD( expTypeCnt, tpMinCnt ) = mean( tpTab.scorePD(...
+                avgScores( expTypeCnt, tpMinCnt ) = mean( tpTab.scoreAvg(...
                     tpTab.pdDose == thisPdDose &...
                     tpTab.dexDose == thisDexDose &...
                     tpTab.ketDose == thisKetDose &...
@@ -309,8 +326,8 @@ for pdDoseIdx = 1 : length( pdDoses )
 end
 
 % Clean up avgScores.
-rows2keep = any( ~isnan( avgscoresPD ), 2 );
-avgscoresPD = avgscoresPD( rows2keep, : );
+rows2keep = any( ~isnan( avgScores ), 2 );
+avgScores = avgScores( rows2keep, : );
 expTypeDoses = expTypeDoses( rows2keep, : );
 expType = expType( rows2keep );
 
@@ -349,7 +366,7 @@ for expTypeIdx = 1 : length( expType )
     end
 
 
-    plot( tpMins, avgscoresPD( expTypeIdx, : ),...
+    plot( tpMins, avgScores( expTypeIdx, : ),...
         'LineWidth', lnWeight,...
         'LineStyle', lnStyle,...
         'Color', lnCol )
@@ -360,6 +377,7 @@ legend( expType{ : } )
 
 
 %% Compare IDB and PD scoring.
+
 clear all
 
 IDB = readtable( fullfile( getrootdir, 'Results', 'scores_IDB.xlsx' ) );
@@ -385,6 +403,4 @@ difs = scores.PD - scores.IDB;
 figure
 histogram( difs, [ -0.55 : 0.1 : 0.55 ] )
 title( 'PD score - IDB score' )
-
-
 

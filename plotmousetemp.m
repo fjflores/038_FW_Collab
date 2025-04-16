@@ -3,7 +3,7 @@
 ccc
 % clear all
 
-thisM = 'FW14';
+thisM = 'FW16';
 
 fwTab = readtable(...
     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
@@ -25,10 +25,11 @@ switch thisM
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + delayed 3 %cg/kg ket', 956, 956 )};
 
     case 'FW16'
-        expList = [ 99 102 101 104 ];
-        injTime = [ 12 24; 13 30; 15 54; 16 47 ];
+        expList = [ 99 102 135 101 104 ];
+        injTime = [ 12 24; 13 30; 16 51; 15 54; 16 47 ];
         expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 mg/kg ket', 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ) };
 end

@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 127;
+expList = 135;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -12,7 +12,7 @@ params = struct(...
     'tapers', [ 3 5 ],...
     'pad', 0,...
     'err', [ 2 0.05 ],...
-    'fpass', [ 1 / specWin( 1 ) 100 ],...
+    'fpass', [ 1 / specWin( 1 ) 300 ],...
     'filtEeg', [ 1 40 ],...
     'filtEmg', [ 200 700 ] );
 smoothEmg = false;
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 126;
+expId = 135;
 
 % expData = loadmixdata( expID );
 
@@ -38,13 +38,18 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 60 ],...
-    'SetCAxis', [ 0 40 ],...
+    'SetFreqSpec', [ 0.5 150 ],...
+    'SetCAxis', [ -10 30 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
 
 % TEMPORARY: turn this chunk into an option within plotexp
-metTab = readtable( fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
+metTabPath = fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' );
+opts = detectImportOptions( metTabPath );
+tsTmp = regexp( opts.VariableNames, 'ts_.*\d', 'match' );
+tsCols = string( tsTmp( ~cellfun( @isempty, tsTmp ) ) );
+opts = setvartype( opts, tsCols, 'double' );
+metTab = readtable( metTabPath, opts );
 tsTab = table2array( metTab( :, { 'ts_offline_inj1', 'ts_online_inj1',...
     'ts_offline_inj2', 'ts_online_inj2', 'ts_inj1', 'ts_inj2' } ) );
 metDat = getmetadata( expId );
@@ -58,10 +63,11 @@ fwTab = readtable(...
 % xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 for i = 1 : 6
     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
+    xline( hAx( i ), tsTab( expId, 6 ), 'g', 'LineWidth', 2 )
 
     if metDat.FWCollab == 1
         xline( hAx( i ),...
-            str2double( fwTab{ ( fwTab.exp_id == expId ), 11 : 14 } ),...
+            str2double( fwTab{ ( fwTab.exp_id == expId ), 11 : 15 } ),...
             'g', 'LineWidth', 1 ) % FW exps only
     end
 
@@ -107,7 +113,6 @@ savesleepdata( mouseId )
 %% Batchprocess mice to get tidy data
 ccc
 addpath( ".\Dose_effect\" )
-addpath( ".\Helper" )
 
 mList = { "M101", "M102", "M103", "M105", "M106",...
     "M107", "M108", "M109", "M111", "M112", "M113" };
