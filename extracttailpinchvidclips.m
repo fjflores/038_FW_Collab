@@ -31,7 +31,8 @@ if exist( fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
         fullfile( saveDir, 'scores_PD.xlsx' ) );
     scoresIDBOG = readtable(...
         fullfile( resDir, 'scores_IDB.xlsx' ) );
-    scoresVarNames = scoresPDOG.Properties.VariableNames;
+    scoresPDVarNames = scoresPDOG.Properties.VariableNames;
+    scoresIDBVarNames = scoresIDBOG.Properties.VariableNames;
 
 else
     fprintf( 'FW_tail_pinch_key.csv does not exist yet.\n' )
@@ -166,10 +167,10 @@ renameKeyNew = table( randID, randIDStr, expInfo,...
     ogNameSide, ogNameTop, newNameSide, newNameTop );
 scoresPDNew = table( randID, nan( length( randID ), 1 ),...
     strings( length( randID ), 1 ),...
-    'VariableNames', scoresVarNames );
+    'VariableNames', scoresPDVarNames );
 scoresIDBNew = table( randID, nan( length( randID ), 1 ),...
     strings( length( randID ), 1 ),...
-    'VariableNames', scoresVarNames );
+    'VariableNames', scoresIDBVarNames );
 
 if exist( 'renameKeyOG', 'var' )
     renameKey = [ renameKeyOG; renameKeyNew ];
@@ -253,6 +254,9 @@ for expIdx = 1 : length( expList )
 end
 
 scoreAvg = mean( [ scorePD scoreIDB ], 2, 'omitnan' );
+if any( isnan( scorePD ) ) || any( isnan( scoreIDB ) )
+    warning( 'At least one scorer is missing some scores.' )
+end
 
 tpTab = table( expID, mID, bonsaiSuff,...
     dexDose, ketDose, vasoDose, pdDose,...
@@ -273,107 +277,198 @@ datDir = fullfile( root, 'Data' );
 resDir = fullfile( root, 'Results' );
 
 tpTab = readtable( fullfile( resDir, 'FW_tail_pinch_table.csv') );
-
-expList = unique( tpTab.expID );
+tpTab.approxMinCode = ones( height( tpTab ), 1 );
+tpTab.approxMinCode( tpTab.approxMin == 30 ) = 2;
+tpTab.approxMinCode( tpTab.approxMin == 60 ) = 3;
+tpTab.approxMinCode( tpTab.approxMin == 120 ) = 4;
 
 dexLoCol = [ 103 169 207 ] / 255;
 dexHiCol = [ 33 102 172 ] / 255;
 ketLoCol = [ 239 138 98 ] / 255;
 ketHiCol = [ 178 24 43 ] / 255;
-comboCol = [ 77 77 77 ] / 255;
+comboLoCol = [ 77 77 77 ] / 255;
+comboHiCol = [ 0 0 0 ] / 255;
 
-% pdDoses = [ 0 0.5 1 ];
-pdDoses = [ 0 0.5 ];
-% dexDoses = [ 0 1 2 ];
-dexDoses = 0;
+% Get exps of interest.
+pdDoses = [ 0.5 ];
+dexDoses = [ 0 1 2 ];
 ketDoses = [ 0 3 ];
-tpMins = [ 5 30 35 60 120 ];
+% dexDoses = 0;
+% ketDoses = 0;
+tpMins2exclude = 0;
+exp2exclude = 129; % exclude delayed ket exp for now
 
-expTypeCnt = 1;
-for pdDoseIdx = 1 : length( pdDoses )
-    thisPdDose = pdDoses( pdDoseIdx );
-    if thisPdDose == 0
-        thisVasoDose = 0;
-    else
-        thisVasoDose = 10; % So far have only tested 10 ug/kg vaso.
-    end
-    for dexDoseIdx = 1 : length( dexDoses )
-        thisDexDose = dexDoses( dexDoseIdx );
-        for ketDoseIdx = 1 : length( ketDoses )
-            thisKetDose = ketDoses( ketDoseIdx );
-            expType{ expTypeCnt, 1 } = sprintf(...
-                '%i %cg/kg vaso + %.1f mg/kg PD + %.1f %cg/kg dex + %.1f mg/kg ket',...
-                thisVasoDose, 956, thisPdDose, thisDexDose, 956, thisKetDose );
-            expTypeDoses( expTypeCnt, : ) = [ thisVasoDose thisPdDose thisDexDose thisKetDose ];
-            tpMinCnt = 1;
-            for tpMinIdx = 1 : length( tpMins )
-                thisTpMin = tpMins( tpMinIdx );
-                avgScores( expTypeCnt, tpMinCnt ) = mean( tpTab.scoreAvg(...
-                    tpTab.pdDose == thisPdDose &...
-                    tpTab.dexDose == thisDexDose &...
-                    tpTab.ketDose == thisKetDose &...
-                    tpTab.approxMin == thisTpMin ) );
-                tpMinCnt = tpMinCnt + 1;
+pdIdcs = ismember( tpTab.pdDose, pdDoses );
+dexIdcs = ismember( tpTab.dexDose, dexDoses );
+ketIdcs = ismember( tpTab.ketDose, ketDoses );
+minIdcs = ~ismember( tpTab.approxMin, tpMins2exclude );
+expIdcs = ~ismember( tpTab.expID, exp2exclude );
+expOIIdcs = all( [ pdIdcs dexIdcs ketIdcs minIdcs expIdcs ], 2 );
 
-            end
-
-            expTypeCnt = expTypeCnt + 1;
-
-        end
-
-    end
-
-end
-
-% Clean up avgScores.
-rows2keep = any( ~isnan( avgScores ), 2 );
-avgScores = avgScores( rows2keep, : );
-expTypeDoses = expTypeDoses( rows2keep, : );
-expType = expType( rows2keep );
-
+subTpTab = tpTab( expOIIdcs, : );
+expList = unique( subTpTab.expID );
 
 figure
 hold on
-% scatterjit( tpTab.approxMin, tpTab.scorePD,...
-%     'filled', 'MarkerFaceAlpha', 0.5, 'Jit', 2.5 );
-for expTypeIdx = 1 : length( expType )
-    vasoDose = expTypeDoses( expTypeIdx, 1 );
-    pdDose = expTypeDoses( expTypeIdx, 2 );
-    dexDose = expTypeDoses( expTypeIdx, 3 );
-    ketDose = expTypeDoses( expTypeIdx, 4 );
-    
-    if pdDose == 0.5
-        lnWeight = 2;
-        lnStyle = '-';
-    elseif pdDose == 1
-        lnWeight = 4;
-        lnStyle = '-';
-    elseif pdDose == 0
-        lnWeight = 2;
-        lnStyle = ':';
+for expIdx = 1 : length( expList )
+    thisExp = expList( expIdx );
+    thisExpTab = subTpTab( subTpTab.expID == thisExp, : );
+
+    thisCol = comboLoCol;
+    offset = -0.15;
+    % switch thisExpTab.pdDose( 1 )
+    %     case 1
+    %         thisCol = comboHiCol;
+    %         offset = 0.15;
+    % end
+
+    switch thisExpTab.dexDose( 1 )
+        case 1
+            thisCol = dexLoCol;
+            offset = -0.05;
+        case 2
+            thisCol = dexHiCol;
+            offset = 0.05;
+
     end
 
-    if dexDose == 0 && ketDose == 0
-        lnCol = comboCol;
-    elseif dexDose == 1 && ketDose == 0
-        lnCol = dexLoCol;
-    elseif dexDose == 2 && ketDose == 0
-        lnCol = dexHiCol;
-    elseif dexDose == 0 && ketDose == 3
-        lnCol = ketLoCol;
-    else
-        warning( 'Something wrong :(' )
+    switch thisExpTab.ketDose( 1 )
+        case 3
+            thisCol = ketLoCol;
+            offset = 0.15;
     end
 
+    hAx( expIdx ) = scatterjit( thisExpTab.approxMinCode + offset, thisExpTab.scoreAvg,...
+        40, 'MarkerEdgeColor', thisCol,...
+        'MarkerFaceAlpha', 0.6, 'Jit', [ 0.04 0.05 ], 'Axis', 'xy' );
 
-    plot( tpMins, avgScores( expTypeIdx, : ),...
-        'LineWidth', lnWeight,...
-        'LineStyle', lnStyle,...
-        'Color', lnCol )
 end
 
-ylim( [ 0 4 ] )
-legend( expType{ : } )
+% xlim( [ -5 130 ] )
+xlim( [ 0.4 4.6 ] )
+ylim( [ 0.5 3.5 ] )
+% xticks( [ 0 5 30 35 60 120 ] )
+xticks( [ 1 : 1 : 4 ] )
+xticklabels( [ 5 30 60 120 ] )
+yticks( [ 1 : 1 : 4 ] )
+xticklabels( [ 5 30 60 120 ] )
+xlabel( 'Time after injection (min)' )
+ylabel( 'Average tail pinch score' )
+legend( hAx( [ 3 1 2 7 ] ),... % MAKE THIS BETTER
+    { 'Combo',...
+    sprintf( '+ 1 %cg/kg Dex', 956 ),...
+    sprintf( '+ 2 %cg/kg Dex', 956 ),...
+    '+ 3 mg/kg Ket' } )
+
+
+%% Directly compare a few experiments.
+
+exps2compare = [ 129 126 ];
+% exps2compare = unique( tpTab.expID );
+figure
+hold on
+clear expIdx thisExp thisExpTab expLabs
+for expIdx = 1 : length( exps2compare )
+    thisExp = exps2compare( expIdx );
+    expLabs{ expIdx } = sprintf( 'Exp %i', thisExp );
+    plot( tpTab.approxMin( tpTab.expID == thisExp ),...
+        tpTab.scoreAvg( tpTab.expID == thisExp ) )
+
+end
+
+xlim( [ -5 130 ] )
+ylim( [ 0.5 3.5 ] )
+yticks( [ 1 : 1 : 4 ] )
+xlabel( 'Time after injection (min)' )
+ylabel( 'Average tail pinch score' )
+legend( expLabs )
+
+
+% expTypeCnt = 1;
+% for pdDoseIdx = 1 : length( pdDoses )
+%     thisPdDose = pdDoses( pdDoseIdx );
+%     if thisPdDose == 0
+%         thisVasoDose = 0;
+%     else
+%         thisVasoDose = 10; % So far have only tested 10 ug/kg vaso.
+%     end
+%     for dexDoseIdx = 1 : length( dexDoses )
+%         thisDexDose = dexDoses( dexDoseIdx );
+%         for ketDoseIdx = 1 : length( ketDoses )
+%             thisKetDose = ketDoses( ketDoseIdx );
+%             expType{ expTypeCnt, 1 } = sprintf(...
+%                 '%i %cg/kg vaso + %.1f mg/kg PD + %.1f %cg/kg dex + %.1f mg/kg ket',...
+%                 thisVasoDose, 956, thisPdDose, thisDexDose, 956, thisKetDose );
+%             expTypeDoses( expTypeCnt, : ) = [ thisVasoDose thisPdDose thisDexDose thisKetDose ];
+%             tpMinCnt = 1;
+%             for tpMinIdx = 1 : length( tpMins )
+%                 thisTpMin = tpMins( tpMinIdx );
+%                 avgScores( expTypeCnt, tpMinCnt ) = mean( tpTab.scoreAvg(...
+%                     tpTab.pdDose == thisPdDose &...
+%                     tpTab.dexDose == thisDexDose &...
+%                     tpTab.ketDose == thisKetDose &...
+%                     tpTab.approxMin == thisTpMin ) );
+%                 tpMinCnt = tpMinCnt + 1;
+% 
+%             end
+% 
+%             expTypeCnt = expTypeCnt + 1;
+% 
+%         end
+% 
+%     end
+% 
+% end
+% 
+% % Clean up avgScores.
+% rows2keep = any( ~isnan( avgScores ), 2 );
+% avgScores = avgScores( rows2keep, : );
+% expTypeDoses = expTypeDoses( rows2keep, : );
+% expType = expType( rows2keep );
+% 
+% 
+% figure
+% hold on
+% % scatterjit( tpTab.approxMin, tpTab.scorePD,...
+% %     'filled', 'MarkerFaceAlpha', 0.5, 'Jit', 2.5 );
+% for expTypeIdx = 1 : length( expType )
+%     vasoDose = expTypeDoses( expTypeIdx, 1 );
+%     pdDose = expTypeDoses( expTypeIdx, 2 );
+%     dexDose = expTypeDoses( expTypeIdx, 3 );
+%     ketDose = expTypeDoses( expTypeIdx, 4 );
+% 
+%     if pdDose == 0.5
+%         lnWeight = 2;
+%         lnStyle = '-';
+%     elseif pdDose == 1
+%         lnWeight = 4;
+%         lnStyle = '-';
+%     elseif pdDose == 0
+%         lnWeight = 2;
+%         lnStyle = ':';
+%     end
+% 
+%     if dexDose == 0 && ketDose == 0
+%         lnCol = comboCol;
+%     elseif dexDose == 1 && ketDose == 0
+%         lnCol = dexLoCol;
+%     elseif dexDose == 2 && ketDose == 0
+%         lnCol = dexHiCol;
+%     elseif dexDose == 0 && ketDose == 3
+%         lnCol = ketLoCol;
+%     else
+%         warning( 'Something wrong :(' )
+%     end
+% 
+% 
+%     plot( tpMins, avgScores( expTypeIdx, : ),...
+%         'LineWidth', lnWeight,...
+%         'LineStyle', lnStyle,...
+%         'Color', lnCol )
+% end
+% 
+% ylim( [ 0 4 ] )
+% legend( expType{ : } )
 
 
 %% Compare IDB and PD scoring.
@@ -400,7 +495,15 @@ xticks([])
 ylabel( 'Score' )
 
 difs = scores.PD - scores.IDB;
+if any( abs( difs ) > 0.5 )
+    fprintf( [ 'Warning! At least one pinch has an interscorer ',...
+        'difference > 0.5.\n' ] )
+else
+    fprintf( 'Yay! All pinches have an interscorer difference <= 0.5.\n')
+end
+
 figure
-histogram( difs, [ -0.55 : 0.1 : 0.55 ] )
+histogram( difs, [ -1.05 : 0.1 : 1.05 ] )
+xticks( [ -1 : 0.5 : 1 ] )
 title( 'PD score - IDB score' )
 

@@ -1,9 +1,9 @@
 %% Makes plot comparing mouse surface temps for different drug combos.
 
-ccc
-% clear all
+% ccc
+clear all
 
-thisM = 'FW16';
+thisM = 'FW17';
 
 fwTab = readtable(...
     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
@@ -32,6 +32,12 @@ switch thisM
             sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 mg/kg ket', 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
             sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ) };
+
+    case 'FW17'
+        expList = [ 125 137 ];
+        injTime = [  11	24; 17 05 ];
+        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
+            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 mg/kg ket', 956 ) };
 end
 
 figure
@@ -76,7 +82,7 @@ end
 
 title( 'Mouse Temperature' )
 xlabel( 'Time since injection (min)')
-xlim( [ 0 180 ] )
+xlim( [ 0 140 ] )
 ylim( [ 21 32 ] )
 ylabel( sprintf( 'Temperature (%cC)', 176 ) )
 legend( expLabs )
