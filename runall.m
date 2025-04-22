@@ -38,7 +38,7 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 150 ],...
+    'SetFreqSpec', [ 0.5 40 ],...
     'SetCAxis', [ -10 30 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
@@ -114,7 +114,7 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\Dose_effect\" )
 
-mList = { "M101", "M102", "M103", "M105", "M106",...
+allMice = { "M101", "M102", "M103", "M105", "M106",...
     "M107", "M108", "M109", "M111", "M112", "M113" };
 % mList = { "M111", "M112" };
 drug = "dex";
@@ -122,7 +122,7 @@ csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 4200 ];
 saveFlag = true;  
 warning off
-batchtidydata( mList, drug, csvFile, tLims, saveFlag )
+batchtidydata( allMice, drug, csvFile, tLims, saveFlag )
 warning on
 
 %% Get spectral features over time

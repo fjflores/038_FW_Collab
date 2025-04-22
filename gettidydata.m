@@ -35,7 +35,15 @@ drug = lower( string( drug ) );
 
 root = getrootdir( );
 resDir = fullfile( root, "Results" );
-masterTab = readtable( fullfile( resDir, csvFile ) );
+tab2read = fullfile( resDir, csvFile );
+opts = detectImportOptions( tab2read );
+
+% convert string timestamps to numbers
+cols2num = getcols( opts, 'ts', 'begining' );
+opts = setvartype( opts, ...
+    cols2num, ...
+    'double' ); % Set data types for specific columns
+masterTab = readtable( tab2read, opts );
 
 % get experiments to load
 doseSortTab = sortrows( masterTab, "drug_dose_inj1" );
@@ -62,6 +70,9 @@ for expIdx = 1 : nExps
     tOffInj1 = masterTab.ts_offline_inj1( thisExpIdx );
     tInj1 = masterTab.ts_inj1( thisExpIdx );
     tOnInj1 = masterTab.ts_online_inj1( thisExpIdx );
+    tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
+    tInj2 = masterTab.ts_inj2( thisExpIdx );
+    tOnInj1 = masterTab.ts_online_inj2( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
     preIdx = tsOrig <= tOffInj1;
