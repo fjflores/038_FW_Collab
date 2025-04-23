@@ -22,44 +22,51 @@ masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 
 % Allocate empty tables
 featTab = table(...
-    'Size', [ 5, 10 ], ...
-    'VariableTypes', { 'single', 'string', 'categorical', 'double', 'double', 'double',...
-    'double', 'double', 'double', 'double' },...
-    'VariableNames', { 'expId', 'mouseId', 'sex', 'dose', 'rmsEmg', 'sef', ...
-    'mf', 'df', 'Pdelta', 'Pspindle' } );
+    'Size', [ 1, 11 ], ...
+    'VariableTypes', ...
+    { 'single', 'string', 'string', 'double', 'double', 'double', 'double', ...
+     'double', 'double', 'double', 'double'},...
+    'VariableNames', ...
+    { 'expId', 'mouseId', 'sex', 'dose', 'rmsEmg_L',...
+     'mf_L', 'Pdelta_L', 'mf_R', 'Pdelta_R', 'mf_C', 'Pdelta_C' } );
 
 nDoses = length( doses );
+fBand = [ 0.5 3.5 ];
 cnt = 1;
 for doseIdx = 1 : nDoses
     thisDose = doses( doseIdx );
     fprintf( "Processing dose %u %cg/kg...\n", thisDose, 956 )
     expListIdx = masterTab.analyze == 1 & ...
         masterTab.drug_inj1 == drug & ...
-        masterTab.drug_dose_inj1 == thisDose;
+        masterTab.drug_dose_inj1 == thisDose & ...
+        masterTab.approx_inj1_inj2_dif_min < 70;
 
     expList = masterTab.exp_id( expListIdx );
-    eegLFlag = logical( masterTab{ expListIdx, "analyze_EEG_L" } );
-    emgFlag = logical( masterTab{ expListIdx, "analyze_EMG" } );
+    subjectList = masterTab.mouse_id( expListIdx );
+    sexList = masterTab.sex( expListIdx );
+    % eegLFlag = logical( masterTab{ expListIdx, "analyze_EEG_L" } );
+    % emgFlag = logical( masterTab{ expListIdx, "analyze_EMG" } );
     nExps = length( expList );
 
     % hAx( doseIdx ) = subtightplot( nDoses, 1, doseIdx, opts{ : } );
     for expIdx = 1 : nExps
         thisExp = expList( expIdx );
-        metDat = getmetadata( thisExp );
-        resDir = fullfile( root, "Results", metDat.subject );
+        % metDat = getmetadata( thisExp );
+        resDir = fullfile( root, "Results", subjectList{ expIdx  } );
         f2load = "TidyData.mat";
-        thisData = load( fullfile( resDir, f2load ), "emg", "spec", "notes" );
-        tabExpIdx = find( [ thisData.notes.expId ] == thisExp );
-        tInj1 = thisData.notes( tabExpIdx ).tInj1;
+        thisData = load( fullfile( resDir, f2load ),...
+            "emg", "spec", "coher", "notes" );
+        tidyExpIdx = find( [ thisData.notes.expId ] == thisExp );
+        tInj1 = thisData.notes( tidyExpIdx ).tInj1;
+        win = thisData.notes( tidyExpIdx ).params.win;
 
         % Get emg features
-        if emgFlag( expIdx )
-            t = thisData.emg( tabExpIdx ).t - tInj1;
-            dexIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
-            emgDex = thisData.emg( tabExpIdx ).data( dexIdxEmg );
-            win = [ 15 1.5 ];
+        if thisData.emg( tidyExpIdx ).valid
+            t = thisData.emg( tidyExpIdx ).t - tInj1;
+            drugIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
+            emgDex = thisData.emg( tidyExpIdx ).data( drugIdxEmg );
             emgChunks = makesegments(...
-                emgDex, thisData.emg( tabExpIdx ).Fs, win );
+                emgDex, thisData.emg( tidyExpIdx ).Fs, win );
             rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
             clear t
 
@@ -68,37 +75,66 @@ for doseIdx = 1 : nDoses
 
         end
 
-        % Get spectral features
-        if eegLFlag( expIdx )
-            t = thisData.spec( tabExpIdx ).t - tInj1;
-            dexIdxS = t > tLims( 1 ) & t < tLims( 2 );
-            Sdex = thisData.spec( tabExpIdx ).SL( dexIdxS, : );
-            f = thisData.spec( tabExpIdx ).f;
-            [ mf, sef, df ] = qeegspecgram( Sdex, f, [ 0.5 18 ] );
-            Pdelta = median( powerperband( Sdex, f, [ 0.5 3 ], 'total' ) );
-            Psigma = median( powerperband( Sdex, f, [ 12 18 ], 'total' ) );
+        % Get left spectral features
+        if thisData.spec( tidyExpIdx ).valid( 1 )
+            t = thisData.spec( tidyExpIdx ).t - tInj1;
+            drugIdxS = t > tLims( 1 ) & t < tLims( 2 );
+            SLdrug = thisData.spec( tidyExpIdx ).SL( drugIdxS, : );
+            f = thisData.spec( tidyExpIdx ).f;
+            mf_L = qeegspecgram( SLdrug, f, [ 0.5 18 ] );
+            Pdelta_L = median( powerperband( SLdrug, f, fBand, 'total' ) );
             clear t
 
         else
-            mf = NaN;
-            sef = NaN;
-            df = NaN;
-            Pdelta = NaN;
-            Psigma = NaN;
+            mf_L = NaN;
+            Pdelta_L = NaN;
+
+        end
+
+        % Get right spectral features
+        if thisData.spec( tidyExpIdx ).valid( 2 )
+            t = thisData.spec( tidyExpIdx ).t - tInj1;
+            drugIdxR = t > tLims( 1 ) & t < tLims( 2 );
+            SRdrug = thisData.spec( tidyExpIdx ).SR( drugIdxR, : );
+            f = thisData.spec( tidyExpIdx ).f;
+            mf_R = qeegspecgram( SRdrug, f, [ 0.5 18 ] );
+            Pdelta_R = median( powerperband( SLdrug, f, fBand, 'total' ) );
+            clear t
+
+        else
+            mf_R = NaN;
+            Pdelta_R = NaN;
+
+        end
+
+        % Get Coherence features
+        if thisData.coher( tidyExpIdx ).valid
+            t = thisData.coher( tidyExpIdx ).t - tInj1;
+            drugIdxS = t > tLims( 1 ) & t < tLims( 2 );
+            Cdrug = thisData.coher( tidyExpIdx ).C( drugIdxS, : );
+            f = thisData.spec( tidyExpIdx ).f;
+            mf_C = qeegspecgram( Cdrug, f, [ 0.5 18 ] );
+            Pdelta_C = median( powerperband( Cdrug, f, fBand, 'total' ) );
+            clear t
+
+        else
+            mf_C = NaN;
+            Pdelta_C = NaN;
 
         end
 
         % Fill table
         featTab.expId( cnt ) = thisExp;
-        featTab.mouseId( cnt ) = string( metDat.subject );
-        featTab.sex( cnt ) = string( metDat.sex );
+        featTab.mouseId( cnt ) = string( subjectList{ expIdx  } );
+        featTab.sex( cnt ) = string( sexList{ expIdx } );
         featTab.dose( cnt ) = thisDose;
         featTab.rmsEmg( cnt ) = median( rmsEmg );
-        featTab.sef( cnt ) = median( sef );
-        featTab.mf( cnt ) = median( mf );
-        featTab.df( cnt ) = median( df );
-        featTab.Pdelta( cnt ) = Pdelta;
-        featTab.Pspindle( cnt ) = Psigma;
+        featTab.mf_L( cnt ) = median( mf_L );
+        featTab.Pdelta_L( cnt ) = Pdelta_L;
+        featTab.mf_R( cnt ) = median( mf_R );
+        featTab.Pdelta_R( cnt ) = Pdelta_R;
+        featTab.mf_C( cnt ) = median( mf_C );
+        featTab.Pdelta_C( cnt ) = Pdelta_C;
 
         cnt = cnt + 1;
         disprog( expIdx, nExps, 10 )

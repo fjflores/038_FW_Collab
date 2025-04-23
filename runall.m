@@ -139,9 +139,9 @@ warning off
 allFeats = savetimefeats( doses, tLims, drug );
 warning on
 
-root = getrootdir( );
-save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
-    "allFeats" )
+% root = getrootdir( );
+% save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
+%     "allFeats" )
 
 %% Fit linear mixed-effects model to time features
 ccc
