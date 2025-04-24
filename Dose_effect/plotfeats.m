@@ -1,26 +1,32 @@
+function plotfeats( allFeats, mdls )
 %% Load data and set options for dose v. feature figures.
 % Run this section before running either of the two following feature
 % plotting sections.
 
-ccc
+% ccc
 % close all
 
-addpath( ".\Dose_effect\" )
+% addpath( ".\Dose_effect\" )
+
+if ~exist( "mdls", "var" )
+    mdls = [ ];
+
+end
 
 norm = false; % Choose to normalize to baseline or not.
 dbFromP = true; % Choose to convert power to db.
 saveFigs = true; % Choose to save pngs or not.
 
-if ~exist( "allFeats", "var" )
-    load( fullfile(...
-        getrootdir(), 'Results', 'Dose_Effect', 'Long_Feat_Table.mat' ),...
-        'allFeats')
-
-end
-
-load( fullfile(...
-    getrootdir(), 'Results', 'Dose_Effect', 'Feature_fits.mat' ),...
-    'mdls' )
+% if ~exist( "allFeats", "var" )
+%     load( fullfile(...
+%         getrootdir(), 'Results', 'Dose-Effect', 'Long_Feat_Table.mat' ),...
+%         'allFeats')
+% 
+% end
+% 
+% load( fullfile(...
+%     getrootdir(), 'Results', 'Dose_Effect', 'Feature_fits.mat' ),...
+%     'mdls' )
 featList = allFeats.Properties.VariableNames( 5 : 12 );
 
 yLims = [ 0 240; 7 16; 0.5 7.5; 0 8; 0 2.5; 0 0.11; -19 4; -22 -9 ];
@@ -32,6 +38,7 @@ if dbFromP
 else
     PUnits = sprintf( '%cV^2', 956 );
     PCols = [ 9 10 ];
+
 end
 
 featCols = [ 5 : 8 PCols ];
