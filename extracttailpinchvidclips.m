@@ -347,7 +347,7 @@ end
 
 % xlim( [ -5 130 ] )
 xlim( [ 0.4 4.6 ] )
-ylim( [ 0.5 3.5 ] )
+ylim( [ 0.2 3.8 ] )
 % xticks( [ 0 5 30 35 60 120 ] )
 xticks( [ 1 : 1 : 4 ] )
 xticklabels( [ 5 30 60 120 ] )
@@ -382,7 +382,7 @@ for expIdx = 1 : length( exps2compare )
 end
 
 xlim( [ -5 130 ] )
-ylim( [ 0.5 3.5 ] )
+ylim( [ 0.2 3.8 ] )
 yticks( [ 1 : 1 : 4 ] )
 xlabel( 'Time after first injection (min)' )
 ylabel( 'Average tail pinch score' )
