@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 135;
+expList = 143;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -12,7 +12,7 @@ params = struct(...
     'tapers', [ 3 5 ],...
     'pad', 0,...
     'err', [ 2 0.05 ],...
-    'fpass', [ 1 / specWin( 1 ) 300 ],...
+    'fpass', [ 1 / specWin( 1 ) 100 ],...
     'filtEeg', [ 1 40 ],...
     'filtEmg', [ 200 700 ] );
 smoothEmg = false;
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 135;
+expId = 143;
 
 % expData = loadmixdata( expID );
 
@@ -38,8 +38,8 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 150 ],...
-    'SetCAxis', [ -10 30 ],...
+    'SetFreqSpec', [ 0.5 60 ],...
+    'SetCAxis', [ 0 35 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
 
@@ -57,6 +57,9 @@ metDat = getmetadata( expId );
 fwTab = readtable(...
     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
 
+
+fwTab.tail_pinch_30_ts = string( fwTab.tail_pinch_30_ts );
+
 % xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 % xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
@@ -67,7 +70,7 @@ for i = 1 : 6
 
     if metDat.FWCollab == 1
         xline( hAx( i ),...
-            str2double( fwTab{ ( fwTab.exp_id == expId ), 11 : 15 } ),...
+            str2double( fwTab{ ( fwTab.exp_id == expId ), 12 : 16 } ),...
             'g', 'LineWidth', 1 ) % FW exps only
     end
 
@@ -114,9 +117,9 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\Dose_effect\" )
 
-mList = { "M101", "M102", "M103", "M105", "M106",...
-    "M107", "M108", "M109", "M111", "M112", "M113" };
-% mList = { "M111", "M112" };
+% mList = { "M101", "M102", "M103", "M105", "M106",...
+%     "M107", "M108", "M109", "M111", "M112", "M113" };
+mList = { "M112" };
 drug = "dex";
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 4200 ];

@@ -1,90 +1,123 @@
-%% Makes plot comparing mouse surface temps for different drug combos.
+function plotmousetemp( mice )
+% PLOTMOUSETEMP makes plot comparing mouse surface temps for different drug
+% combos.
 
-% ccc
-clear all
-
-thisM = 'FW17';
-
+% Load table with info.
 fwTab = readtable(...
     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
-mTab = fwTab( strcmp( fwTab.mouse_id, thisM ), : );
+fwTab = sortrows( fwTab, 'dex_dose_inj1' );
+fwTab = sortrows( fwTab, 'ket_dose_inj1' );
+fwTab = sortrows( fwTab, 'ket_dose_inj2' );
+fwTab = sortrows( fwTab, 'pd_dose_inj1' );
 
-switch thisM
-    case 'FW14'
-        expList = [ 100 96 98 94 103 126 129 ];
-
-        % fwTab{ ( fwTab.exp_id == expId ),      }
-        
-        injTime = [ 12 38; 14 54; 12 22; 11 35; 12 59; 14 29; 11 46 ];
-        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...            
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 2 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
-            sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 %cg/kg ket', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + delayed 3 %cg/kg ket', 956, 956 )};
-
-    case 'FW16'
-        expList = [ 99 102 135 101 104 ];
-        injTime = [ 12 24; 13 30; 16 51; 15 54; 16 47 ];
-        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 1 %cg/kg dex', 956, 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 mg/kg ket', 956 ),...
-            sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
-            sprintf( '10 %cg/kg vaso + 1 mg/kg PD + 1 %cg/kg dex', 956, 956 ) };
-
-    case 'FW17'
-        expList = [ 125 137 ];
-        injTime = [  11	24; 17 05 ];
-        expLabs = { sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ),...
-            sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD + 3 mg/kg ket', 956 ) };
+% Get mouse list.
+mice = string( mice );
+if strcmp( mice, "all" )
+    mice = string( unique( fwTab.mouse_id ) );
 end
 
+% Make figure.
 figure
 hold on
-for expIdx = 1 : length( expList )
-    thisExp = expList( expIdx );
-    fName = sprintf( 'exp%i_temps.xlsx', thisExp );
-    inj = datetime( 1, 1, 1, injTime( expIdx, 1 ), injTime( expIdx, 2 ), 0 );
-    exp = readtable( fullfile( getrootdir, 'Data', thisM, fName ) );
+lgndCnt = 1;
+for mIdx = 1 : length( mice )
+    thisM = mice( mIdx );
+    mTab = fwTab( strcmp( fwTab.mouse_id, thisM ), : );
+    expList = mTab.exp_id;
 
-    ts = regexp( exp.tsClock, "(\d+):(\d{2})", "tokens" );
-    for tsIdx = 1 : length( ts )
-        a( tsIdx, : ) = str2double( ts{ tsIdx }{ : } );
-        if a( tsIdx, 1 ) < 10
-            a( tsIdx, 1 ) = a( tsIdx, 1 ) + 12;
+    for expIdx = 1 : length( expList )
+        expID = expList( expIdx );
+        expTab = mTab( mTab.exp_id == expID, : );
+
+        % Load csv with this exp's temps.
+        fName = sprintf( 'exp%i_temps.xlsx', expID );
+        fPath = fullfile( getrootdir, 'Data', thisM, fName );
+        if exist( fPath )
+            expTemps = readtable( fPath );
+        else
+            continue
+        end
+
+        % Calculate timepoint for each temp measurement.
+        inj = datetime( 1, 1, 1, expTab.inj1_hr, expTab.inj1_min, 0 );
+
+        ts = regexp( expTemps.tsClock, "(\d+):(\d{2})", "tokens" );
+        for tsIdx = 1 : length( ts )
+            a( tsIdx, : ) = str2double( ts{ tsIdx }{ : } );
+            if a( tsIdx, 1 ) < 10
+                a( tsIdx, 1 ) = a( tsIdx, 1 ) + 12;
+
+            end
 
         end
 
+        b = datetime( 1, 1, 1,...
+            a( :, 1 ), a( :, 2 ), 0 );
+
+        c = between( inj, b );
+        c = time( c );
+        c = round( seconds( c ) );
+
+        expTemps.tsSec = c;
+
+        % For plotting purposes, change baseline temp to be at inj time.
+        blTemps = expTemps.tsSec < 0;
+        if sum( blTemps ) > 1
+            expTemps( end + 1, : ) = {...
+                '', mean( expTemps.temp( blTemps ) ), 0 };
+            expTemps( blTemps, : ) = [];
+            fprintf( 'Using average of multiple baseline temps.\n' )
+        else
+            expTemps.tsSec( blTemps ) = 0;
+        end
+
+        % Plot all temps for this exp.
+        expTemps = sortrows( expTemps, 'tsSec' );
+        plot( expTemps.tsSec / 60, expTemps.temp )
+
+        % Determine proper legend entry for this exp.
+        vasoMsg = '';
+        pdMsg = '';
+        dexMsg = '';
+        ketMsg = '';
+        if expTab.vaso_dose_inj1 > 0
+            vasoMsg = sprintf( '%i %cg/kg vaso',...
+                expTab.vaso_dose_inj1, 956 );
+        end
+        if expTab.pd_dose_inj1 > 0
+            pdMsg = sprintf( ' + %.1f mg/kg PD',...
+                expTab.pd_dose_inj1 );
+        end
+        if expTab.dex_dose_inj1 > 0
+            dexMsg = sprintf( ' + %i %cg/kg dex',...
+                expTab.dex_dose_inj1, 956 );
+        end
+        if expTab.ket_dose_inj2 > 0
+            ketMsg = sprintf( ' + delayed %i mg/kg ket',...
+                expTab.ket_dose_inj2 );
+        elseif expTab.ket_dose_inj1 > 0
+            ketMsg = sprintf( ' + %i mg/kg ket',...
+                expTab.ket_dose_inj1 );
+        end
+        expMsg = [ vasoMsg, pdMsg, dexMsg, ketMsg ];
+        expLabs{ lgndCnt } = expMsg;
+        lgndCnt = lgndCnt + 1;
+
+        clear expTemps ts a b c
+
     end
-
-    b = datetime( 1, 1, 1,...
-        a( :, 1 ), a( :, 2 ), 0 );
-
-    c = between( inj, b );
-    c = time( c );
-    c = round( seconds( c ) );
-
-    exp.tsSec = c;
-
-    % For plotting purposes, change baseline temp to all be at inj time.
-    if sum( exp.tsSec( exp.tsSec < 0 ) ) > 1
-        warning( 'more than one baseline (pre-inj) temp' )
-    else
-        exp.tsSec( exp.tsSec < 0 ) = 0;
-    end
-
-    plot( exp.tsSec / 60, exp.temp )
-
-    clear exp ts a b c 
 
 end
 
+% Set figure settings and add labels.
 title( 'Mouse Temperature' )
 xlabel( 'Time since injection (min)')
 xlim( [ 0 140 ] )
 ylim( [ 21 32 ] )
 ylabel( sprintf( 'Temperature (%cC)', 176 ) )
 legend( expLabs )
-text( 60, 28.5, sprintf( 'Note: ambient temperature ~21%c', 176 ) )
+% text( 60, 28.5, sprintf( 'Note: ambient temperature ~21%c', 176 ) )
+
+
+end
 

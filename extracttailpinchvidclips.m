@@ -231,10 +231,10 @@ for expIdx = 1 : length( expList )
         expID( cnt, 1 ) = thisExpID;
         mID( cnt, 1 ) = thisExp.mouse_id;
         bonsaiSuff{ cnt, 1 } = thisBonsaiSuff;
-        dexDose( cnt, 1 ) = thisExp.dex_dose_ug_per_kg;
-        ketDose( cnt, 1 ) = thisExp.ket_dose_mg_per_kg;
-        vasoDose( cnt, 1 ) = thisExp.vaso_dose_ug_per_kg;
-        pdDose( cnt, 1 ) = thisExp.pd_dose_mg_per_kg;
+        dexDose( cnt, 1 ) = thisExp.dex_dose_inj1;
+        ketDose( cnt, 1 ) = thisExp.ket_dose_inj1;
+        vasoDose( cnt, 1 ) = thisExp.vaso_dose_inj1;
+        pdDose( cnt, 1 ) = thisExp.pd_dose_inj1;
 
         % Match tail pinch to key (FW_tail_pinch_key.csv).
         thisExpIdx = strcmp( renameKeyOG.expInfo,...
@@ -296,7 +296,8 @@ ketDoses = [ 0 3 ];
 % dexDoses = 0;
 % ketDoses = 0;
 tpMins2exclude = 0;
-exp2exclude = 129; % exclude delayed ket exp for now
+% exp2exclude = [ 129 138 ]; % exclude delayed ket exp for now
+exp2exclude = [];
 
 pdIdcs = ismember( tpTab.pdDose, pdDoses );
 dexIdcs = ismember( tpTab.dexDose, dexDoses );
@@ -339,8 +340,8 @@ for expIdx = 1 : length( expList )
     end
 
     hAx( expIdx ) = scatterjit( thisExpTab.approxMinCode + offset, thisExpTab.scoreAvg,...
-        40, 'MarkerEdgeColor', thisCol,...
-        'MarkerFaceAlpha', 0.6, 'Jit', [ 0.04 0.05 ], 'Axis', 'xy' );
+        40, 'filled', 'MarkerFaceColor', thisCol,...
+        'MarkerFaceAlpha', 0.7, 'Jit', [ 0.04 0.05 ], 'Axis', 'xy' );
 
 end
 
@@ -363,25 +364,29 @@ legend( hAx( [ 3 1 2 7 ] ),... % MAKE THIS BETTER
 
 %% Directly compare a few experiments.
 
-exps2compare = [ 129 126 ];
+exps2compare = [ 100 126 129 99 135 138 125 137 143 ];
+cols = [ comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol ];
+offset = [ -0.5 0 0.5 -0.5 0 0.5 -0.5 0 0.5 ];
 % exps2compare = unique( tpTab.expID );
 figure
 hold on
 clear expIdx thisExp thisExpTab expLabs
 for expIdx = 1 : length( exps2compare )
     thisExp = exps2compare( expIdx );
-    expLabs{ expIdx } = sprintf( 'Exp %i', thisExp );
-    plot( tpTab.approxMin( tpTab.expID == thisExp ),...
-        tpTab.scoreAvg( tpTab.expID == thisExp ) )
+    % expLabs{ expIdx } = sprintf( 'Exp %i', thisExp );
+    hAx( expIdx ) = scatterjit( tpTab.approxMin( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ),...
+        tpTab.scoreAvg( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ),...
+        'filled', 'MarkerFaceAlpha', 0.7, 'MarkerFaceColor', cols( expIdx, : ),...
+        'Jit', [ 1 0.04 ], 'Axis', 'xy' );
 
 end
 
 xlim( [ -5 130 ] )
 ylim( [ 0.5 3.5 ] )
 yticks( [ 1 : 1 : 4 ] )
-xlabel( 'Time after injection (min)' )
+xlabel( 'Time after first injection (min)' )
 ylabel( 'Average tail pinch score' )
-legend( expLabs )
+legend( hAx( 1 : 3 ), { 'Combo', '+ 3 mg/kg Ket @ t = 0', '+ 3 mg/kg Ket @ t = 30' })
 
 
 % expTypeCnt = 1;
