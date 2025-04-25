@@ -117,15 +117,9 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\Dose_effect\" )
 
-<<<<<<< HEAD
-% mList = { "M101", "M102", "M103", "M105", "M106",...
-%     "M107", "M108", "M109", "M111", "M112", "M113" };
-mList = { "M112" };
-=======
 allMice = { "M101", "M102", "M103", "M105", "M106",...
     "M107", "M108", "M109", "M111", "M112", "M113" };
 % mList = { "M111", "M112" };
->>>>>>> 4947643493692728de2c260696a74ec6a5b5994d
 drug = "dex";
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 4200 ];
@@ -144,13 +138,10 @@ tLims = [ -5 5 65 ];
 % doses = [ 0 10 30 50 100 150 ];
 % tLims = [ 55 5 65 ];
 drug = "dex";
+saveFlag = true;
 warning off
-allFeats = savetimefeats( doses, tLims, drug );
+savetimefeats( doses, tLims, drug, saveFlag );
 warning on
-
-root = getrootdir( );
-save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
-    "allFeats" )
 
 %% Fit linear mixed-effects model to time features
 ccc

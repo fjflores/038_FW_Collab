@@ -1,4 +1,18 @@
-function allFeats = savetimefeats( doses, tLims, drug )
+function savetimefeats( doses, tLims, drug, saveFlag )
+% SAVETIMEFEATS saves an epochs x features table.
+% 
+% Usage:
+% savetimefeats( doses, tLims, drug, saveFlag )
+% 
+% Inputs:
+% doses: doses to extract.
+% tLims: time limits for epochs. 3-element vector with start time,
+%   interval, and end time, in mins.
+% drug: which drug to process.
+% saveFlag: logical. Whether to save the results or not.
+% 
+% Outputs:
+% none
 
 
 epochs = [...
@@ -33,6 +47,16 @@ for epochIdx = 1 : nEpochs
     end
 
     allFeats = vertcat( allFeats, featTab );
+
+end
+
+if saveFlag
+    fprintf( "Saving..." )
+    root = getrootdir( );
+    save(...
+        fullfile( root, "Results\Dose_Effect", "Feature_Table_Long.mat" ),...
+        "allFeats" )
+    fprintf( "Done!" )
 
 end
 

@@ -2,7 +2,7 @@ function featTab = getavefeats( doses, tLims, drug )
 % GETAVEFEATS gets average features from spectrograms and EMG.
 %
 % Usage:
-% featTab = getavefeats( doses, tLims )
+% featTab = getavefeats( doses, tLims, drug )
 %
 % Input:
 % doses: vector with dose or doses to be plotted and extracted.
@@ -18,7 +18,10 @@ drug = string( drug );
 % Get info
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
-masterTab = readtable( fullfile( root, "Results", csvFileMaster ) );
+tab2read = fullfile( root, "Results", csvFileMaster );
+opts = detectImportOptions( tab2read );
+opts = setvartype( opts, length( opts.VariableNames ) - 1, 'double' ); % Set data types for specific columns
+masterTab = readtable( tab2read, opts );
 
 % Allocate empty tables
 featTab = table(...

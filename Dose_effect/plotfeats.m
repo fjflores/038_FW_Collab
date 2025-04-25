@@ -1,48 +1,63 @@
-function plotfeats( allFeats, mdls, saveFigs, tipo )
+function plotfeats( allFeats, varargin )
 
 % Load data and set options for dose v. feature figures.
 % Run this section before running either of the two following feature
 % plotting sections.
 
-% ccc
-% close all
-
-% addpath( ".\Dose_effect\" )
-
-if nargin < 2
-    mdls = [ ];
-
-end
-
-if nargin < 3
-    saveFigs = false;
-
-end
-
-if nargin < 4
-    tipo = 'longitudinal';
-
-end
-
-norm = true; % Choose to normalize to baseline or not.
-dbFromP = true; % Choose to convert power to db.
-% saveFigs = true; % Choose to save pngs or not.
-
-% if ~exist( "allFeats", "var" )
-%     load( fullfile(...
-%         getrootdir(), 'Results', 'Dose-Effect', 'Long_Feat_Table.mat' ),...
-%         'allFeats')
-%
-% end
-%
-% load( fullfile(...
-%     getrootdir(), 'Results', 'Dose_Effect', 'Feature_fits.mat' ),...
-%     'mdls' )
-featList = allFeats.Properties.VariableNames( 5 : 12 );
-
+% Set options default values
+mdls = [ ];
+saveFigs = false;
+tipo = "longitudinal";
+normal = false;
+Pdb = false;
+feats2plot = "all";
 yLims = [ 0 240; 7 16; 0.5 7.5; 0 8; 0 2.5; 0 0.11; -19 4; -22 -9 ];
 
-if dbFromP
+% Parse  name-value pairs
+names = varargin( 1 : 2 : end );
+values = varargin( 2 : 2 : end );
+for k = 1 : numel( names )
+    switch lower( names{ k } )
+        case "mdls"
+            mdls = values{ k };
+            
+        case "savefigs"
+            saveFigs = values{ k };
+            
+        case "tipo"
+            tipo = values{ k };
+            
+        case "normal"
+            normal = values{ k };
+            
+        case "pdb"
+            Pdb = values{ k };
+
+        case "feats2plot"
+            feats2plot = values{ k };
+
+        case "ylims"
+            yLims = values{ k };
+            
+        otherwise
+            error( '''%s'' is not a valid Name for Name, Value pairs.',...
+                names{ k } )
+            
+    end
+    
+end
+
+varNames = allFeats.Properties.VariableNames;
+if strcmp( feats2plot, "all" )
+    featList = varNames( 5 : 12 );
+
+else
+    featIdx = findcolindex( allFeats, feats2plot );
+    featList = varNames( featIdx );
+
+end
+
+if Pdb
     PUnits = 'db';
     PCols = [ 11 12 ];
 
@@ -56,7 +71,7 @@ featCols = [ 5 : 8 PCols ];
 feats2plot = featList( featCols - 4 );
 epochList = unique( allFeats.epochOrdinal );
 
-if norm
+if normal
     % Normalize to [ -5 0 ] baseline.
     warning( [ 'Plotting linear model fits on top of scatters does ',...
         'not currently work with normalized data.' ] );
@@ -190,7 +205,7 @@ elseif strcmp( tipo, "longitudinal" )
             xticks( [ 0 : 50 : 150 ] )
             hold on
 
-            if norm & ismember( featIdx, [ 1 5 6 ] )
+            if normal & ismember( featIdx, [ 1 5 6 ] )
                 yline( 1, ':' );
 
             end
