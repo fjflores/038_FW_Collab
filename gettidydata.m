@@ -37,7 +37,6 @@ root = getrootdir( );
 resDir = fullfile( root, "Results" );
 tab2read = fullfile( resDir, csvFile );
 opts = detectImportOptions( tab2read );
-
 % convert string timestamps to numbers
 cols2num = getcols( opts, 'ts', 'begining' );
 opts = setvartype( opts, ...
