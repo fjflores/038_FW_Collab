@@ -41,7 +41,6 @@ function [ hAx, hLink ] = plotexp( expId, varargin )
 [ coher, eegClean, eegFilt, emgRaw, events, spec ]...
     = loadprocdata( expId, 'plot' );
 
-
 % Set options default values
 showEeg = 'all';
 yLimsEeg = [ -500 500 ];

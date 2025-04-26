@@ -81,7 +81,7 @@ addpath( ".\Dose_effect\" )
 
 dbFromP = false; % Choose to convert power to db.
 
-root = getrootdir( );
+% root = getrootdir( );
 % load( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
 %     "allFeats" )
 % load( fullfile( root, "Results\Dose_Effect", "Feature_fits.mat" ),...

@@ -139,13 +139,10 @@ tLims = [ -5 5 65 ];
 % doses = [ 0 10 30 50 100 150 ];
 % tLims = [ 55 5 65 ];
 drug = "dex";
+saveFlag = true;
 warning off
-allFeats = savetimefeats( doses, tLims, drug );
+savetimefeats( doses, tLims, drug, saveFlag );
 warning on
-
-% root = getrootdir( );
-% save( fullfile( root, "Results\Dose_Effect", "Long_Feat_Table.mat" ),...
-%     "allFeats" )
 
 %% Fit linear mixed-effects model to time features
 ccc
