@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 143;
+expList = 149;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 143;
+expId = 149;
 
 % expData = loadmixdata( expID );
 
@@ -38,7 +38,7 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
 [ hAx, hLink ] = plotexp( expId,...
     'SetShowEeg', 'raw',...
     'SetAmpEeg', [ -700 700 ],...
-    'SetFreqSpec', [ 0.5 60 ],...
+    'SetFreqSpec', [ 0.5 100 ],...
     'SetCAxis', [ 0 35 ],...
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
@@ -117,15 +117,10 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\Dose_effect\" )
 
-<<<<<<< HEAD
-% mList = { "M101", "M102", "M103", "M105", "M106",...
-%     "M107", "M108", "M109", "M111", "M112", "M113" };
-mList = { "M112" };
-=======
 allMice = { "M101", "M102", "M103", "M105", "M106",...
     "M107", "M108", "M109", "M111", "M112", "M113" };
 % mList = { "M111", "M112" };
->>>>>>> 4947643493692728de2c260696a74ec6a5b5994d
+
 drug = "dex";
 csvFile = "abc_experiment_list.xlsm";
 tLims = [ 600 4200 ];

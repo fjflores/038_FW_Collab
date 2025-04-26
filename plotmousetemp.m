@@ -92,9 +92,9 @@ for mIdx = 1 : length( mice )
             dexMsg = sprintf( ' + %i %cg/kg dex',...
                 expTab.dex_dose_inj1, 956 );
         end
-        if expTab.ket_dose_inj2 > 0
+        if isa(expTab.ket_dose_inj2, 'double' ) & expTab.ket_dose_inj2 > 0 % TODO fix this
             ketMsg = sprintf( ' + delayed %i mg/kg ket',...
-                expTab.ket_dose_inj2 );
+                double( expTab.ket_dose_inj2{ 1 } ) );
         elseif expTab.ket_dose_inj1 > 0
             ketMsg = sprintf( ' + %i mg/kg ket',...
                 expTab.ket_dose_inj1 );
