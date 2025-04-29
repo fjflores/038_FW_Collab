@@ -229,7 +229,7 @@ if saveFlag
     fprintf( " Saving tidy data..." )
     f2save = "TidyData.mat";
     save( fullfile( resDir, mouseId, f2save ), ...
-        "notes", "eeg", "spec", "emg", "coher", "-v7.3" )
+        "notes", "eeg", "eegZ", "spec", "emg", "coher", "-v7.3" )
     fprintf( "done.\n\n" )
 
 end
