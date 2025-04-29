@@ -4,8 +4,8 @@ root = getrootdir;
 resDir = fullfile( root, 'Results' );
 
 %% Full exp figs.
-expList = [ 148 ];
-doseMsg = { "combo_w_ket" };
+expList = [ 154 ];
+doseMsg = { "combo_w_delayed_ket" };
 
 specYLims = [ 0.5 15; 0.5 150 ];
 specCLims = [ 0 35; -10 40 ];

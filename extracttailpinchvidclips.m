@@ -31,8 +31,7 @@ if exist( fullfile( resDir, 'FW_tail_pinch_key.csv' ) )
         fullfile( saveDir, 'scores_PD.xlsx' ) );
     scoresIDBOG = readtable(...
         fullfile( resDir, 'scores_IDB.xlsx' ) );
-    scoresPDVarNames = scoresPDOG.Properties.VariableNames;
-    scoresIDBVarNames = scoresIDBOG.Properties.VariableNames;
+    scoresVarNames = scoresPDOG.Properties.VariableNames;
 
 else
     fprintf( 'FW_tail_pinch_key.csv does not exist yet.\n' )
@@ -167,10 +166,10 @@ renameKeyNew = table( randID, randIDStr, expInfo,...
     ogNameSide, ogNameTop, newNameSide, newNameTop );
 scoresPDNew = table( randID, nan( length( randID ), 1 ),...
     strings( length( randID ), 1 ),...
-    'VariableNames', scoresPDVarNames );
+    'VariableNames', scoresVarNames );
 scoresIDBNew = table( randID, nan( length( randID ), 1 ),...
     strings( length( randID ), 1 ),...
-    'VariableNames', scoresIDBVarNames );
+    'VariableNames', scoresVarNames );
 
 if exist( 'renameKeyOG', 'var' )
     renameKey = [ renameKeyOG; renameKeyNew ];
@@ -224,17 +223,26 @@ for expIdx = 1 : length( expList )
         tpCol = tailPinchCols( tps( tpIdx ) );
         tpTs( cnt, 1 ) = table2array( thisExp( :, tpCol ) );
         approxMinTmp = regexp( tpCol, '_(\d+)_ts', 'tokens' );
-        approxMin( cnt, 1 ) = str2double( approxMinTmp{ 1 }{ 1 } );
+        approxMinTmp = str2double( approxMinTmp{ 1 }{ 1 } );
+        approxMin( cnt, 1 ) = approxMinTmp;
+        pincher( cnt, 1 ) = thisExp.(...
+            sprintf( 'tail_pincher_%i', approxMinTmp ) );
         clear approxMinTmp
 
         % Get experiment-level info.
         expID( cnt, 1 ) = thisExpID;
         mID( cnt, 1 ) = thisExp.mouse_id;
         bonsaiSuff{ cnt, 1 } = thisBonsaiSuff;
-        dexDose( cnt, 1 ) = thisExp.dex_dose_inj1;
-        ketDose( cnt, 1 ) = thisExp.ket_dose_inj1;
-        vasoDose( cnt, 1 ) = thisExp.vaso_dose_inj1;
-        pdDose( cnt, 1 ) = thisExp.pd_dose_inj1;
+        dexDose1( cnt, 1 ) = thisExp.dex_dose_inj1;
+        ketDose1( cnt, 1 ) = thisExp.ket_dose_inj1;
+        vasoDose1( cnt, 1 ) = thisExp.vaso_dose_inj1;
+        pdDose1( cnt, 1 ) = thisExp.pd_dose_inj1;
+        dexDose2( cnt, 1 ) = thisExp.dex_dose_inj2;
+        ketDose2( cnt, 1 ) = thisExp.ket_dose_inj2;
+        vasoDose2( cnt, 1 ) = thisExp.vaso_dose_inj2;
+        pdDose2( cnt, 1 ) = thisExp.pd_dose_inj2;
+        inj1ts( cnt, 1 ) = thisExp.inj1_ts;
+        inj2ts( cnt, 1 ) = thisExp.inj2_ts;
 
         % Match tail pinch to key (FW_tail_pinch_key.csv).
         thisExpIdx = strcmp( renameKeyOG.expInfo,...
@@ -253,14 +261,18 @@ for expIdx = 1 : length( expList )
 
 end
 
+scoreDif = scorePD - scoreIDB;
 scoreAvg = mean( [ scorePD scoreIDB ], 2, 'omitnan' );
 if any( isnan( scorePD ) ) || any( isnan( scoreIDB ) )
     warning( 'At least one scorer is missing some scores.' )
 end
 
 tpTab = table( expID, mID, bonsaiSuff,...
-    dexDose, ketDose, vasoDose, pdDose,...
-    tpNum, approxMin, tpTs, randID, scorePD, scoreIDB, scoreAvg );
+    dexDose1, ketDose1, vasoDose1, pdDose1,...
+    dexDose2, ketDose2, vasoDose2, pdDose2,...
+    inj1ts, inj2ts,...
+    tpNum, approxMin, tpTs, pincher, randID,...
+    scorePD, scoreIDB, scoreDif, scoreAvg );
 
 writetable( tpTab,...
     fullfile( resDir, 'FW_tail_pinch_table.csv') )
@@ -276,7 +288,14 @@ root = getrootdir;
 datDir = fullfile( root, 'Data' );
 resDir = fullfile( root, 'Results' );
 
-tpTab = readtable( fullfile( resDir, 'FW_tail_pinch_table.csv') );
+tpTabPath = fullfile( resDir, 'FW_tail_pinch_table.csv');
+opts = detectImportOptions( tpTabPath );
+doseTmp = regexp( opts.VariableNames, '.*Dose.*', 'match' );
+doseCols = string( doseTmp( ~cellfun( @isempty, doseTmp ) ) );
+tsTmp = regexp( opts.VariableNames, '.*ts.*', 'match', 'ignorecase' );
+tsCols = string( tsTmp( ~cellfun( @isempty, tsTmp ) ) );
+opts = setvartype( opts, [ doseCols, tsCols ], 'double' );
+tpTab = readtable( tpTabPath, opts );
 tpTab.approxMinCode = ones( height( tpTab ), 1 );
 tpTab.approxMinCode( tpTab.approxMin == 30 ) = 2;
 tpTab.approxMinCode( tpTab.approxMin == 60 ) = 3;
@@ -290,24 +309,33 @@ comboLoCol = [ 77 77 77 ] / 255;
 comboHiCol = [ 0 0 0 ] / 255;
 
 % Get exps of interest.
+% So far, all vaso doses = 10 ug/kg.
 pdDoses = [ 0.5 ];
 dexDoses = [ 0 1 2 ];
 ketDoses = [ 0 3 ];
 % dexDoses = 0;
 % ketDoses = 0;
-tpMins2exclude = 0;
-% exp2exclude = [ 129 138 ]; % exclude delayed ket exp for now
+tpMins2exclude = [ 0 35 ]; % exclude baseline tail pinches
+% exp2exclude = [ 129 138 143 ]; % exclude delayed ket exp for now
 exp2exclude = [];
 
-pdIdcs = ismember( tpTab.pdDose, pdDoses );
-dexIdcs = ismember( tpTab.dexDose, dexDoses );
-ketIdcs = ismember( tpTab.ketDose, ketDoses );
+pdIdcs = ismember( tpTab.pdDose1, pdDoses ) | ismember( tpTab.pdDose2, pdDoses );
+dexIdcs = ismember( tpTab.dexDose1, dexDoses ) | ismember( tpTab.dexDose2, dexDoses );
+ketIdcs = ismember( tpTab.ketDose1, ketDoses ) | ismember( tpTab.ketDose2, ketDoses );
 minIdcs = ~ismember( tpTab.approxMin, tpMins2exclude );
 expIdcs = ~ismember( tpTab.expID, exp2exclude );
 expOIIdcs = all( [ pdIdcs dexIdcs ketIdcs minIdcs expIdcs ], 2 );
 
 subTpTab = tpTab( expOIIdcs, : );
 expList = unique( subTpTab.expID );
+doseTab = subTpTab( :, doseCols );
+doseTabTmp = table2array( doseTab );
+for rowIdx = 1 : height( doseTab )
+    doseTabTmp( rowIdx, isnan( doseTabTmp( rowIdx, : ) ) ) = -99;
+end
+expTypes = unique( doseTabTmp, 'rows' );
+nExpTypes = height( expTypes );
+offsets = linspace( -0.15, 0.15, nExpTypes );
 
 figure
 hold on
@@ -315,31 +343,31 @@ for expIdx = 1 : length( expList )
     thisExp = expList( expIdx );
     thisExpTab = subTpTab( subTpTab.expID == thisExp, : );
 
-    thisCol = comboLoCol;
-    offset = -0.15;
-    % switch thisExpTab.pdDose( 1 )
-    %     case 1
-    %         thisCol = comboHiCol;
-    %         offset = 0.15;
-    % end
+    thisCol = comboLoCol; % default = lo combo
+    offset = offsets( 1 );
+    
+    if thisExpTab.pdDose1( 1 ) == 1        
+            thisCol = comboHiCol;
+    end
 
-    switch thisExpTab.dexDose( 1 )
-        case 1
+    if thisExpTab.dexDose1( 1 ) == 1
             thisCol = dexLoCol;
-            offset = -0.05;
-        case 2
+            offset = offsets( 2 );
+    elseif thisExpTab.dexDose1( 1 ) == 2
             thisCol = dexHiCol;
-            offset = 0.05;
-
+            offset = offsets( 3 );
     end
 
-    switch thisExpTab.ketDose( 1 )
-        case 3
-            thisCol = ketLoCol;
-            offset = 0.15;
+    if thisExpTab.ketDose2( 1 ) == 3
+        thisCol = ketHiCol; % ONLY SOME ARE KET
+        offset = offsets( 5 );
+    elseif thisExpTab.ketDose1( 1 ) == 3
+        thisCol = ketLoCol;
+        offset = offsets( 4 );
     end
 
-    hAx( expIdx ) = scatterjit( thisExpTab.approxMinCode + offset, thisExpTab.scoreAvg,...
+    hAx( expIdx ) = scatterjit( thisExpTab.approxMinCode + offset,...
+        thisExpTab.scoreAvg,...
         40, 'filled', 'MarkerFaceColor', thisCol,...
         'MarkerFaceAlpha', 0.7, 'Jit', [ 0.04 0.05 ], 'Axis', 'xy' );
 
@@ -355,18 +383,19 @@ yticks( [ 1 : 1 : 4 ] )
 xticklabels( [ 5 30 60 120 ] )
 xlabel( 'Time after injection (min)' )
 ylabel( 'Average tail pinch score' )
-legend( hAx( [ 3 1 2 7 ] ),... % MAKE THIS BETTER
+legend( hAx( [ 3 1 2 7 8 ] ),... % MAKE THIS BETTER
     { 'Combo',...
     sprintf( '+ 1 %cg/kg Dex', 956 ),...
     sprintf( '+ 2 %cg/kg Dex', 956 ),...
-    '+ 3 mg/kg Ket' } )
+    '+ 3 mg/kg Ket @ t = 0',...
+    '+ 3 mg/kg Ket @ t = 30' } )
 
 
 %% Directly compare a few experiments.
 
-exps2compare = [ 100 126 129 99 135 138 125 137 143 ];
-cols = [ comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol ];
-offset = [ -0.5 0 0.5 -0.5 0 0.5 -0.5 0 0.5 ];
+exps2compare = [ 100 126 129 99 135 138 125 137 143 142 148 154 ];
+cols = [ comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol ];
+offset = [ -0.5 0 0.5 -0.5 0 0.5 -0.5 0 0.5 -0.5 0 0.5 ] * 3;
 % exps2compare = unique( tpTab.expID );
 figure
 hold on
@@ -374,10 +403,10 @@ clear expIdx thisExp thisExpTab expLabs
 for expIdx = 1 : length( exps2compare )
     thisExp = exps2compare( expIdx );
     % expLabs{ expIdx } = sprintf( 'Exp %i', thisExp );
-    hAx( expIdx ) = scatterjit( tpTab.approxMin( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ),...
+    hAx( expIdx ) = scatterjit( tpTab.approxMin( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ) + offset( expIdx ),...
         tpTab.scoreAvg( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ),...
         'filled', 'MarkerFaceAlpha', 0.7, 'MarkerFaceColor', cols( expIdx, : ),...
-        'Jit', [ 1 0.04 ], 'Axis', 'xy' );
+        'Jit', [ .5 0.04 ], 'Axis', 'xy' );
 
 end
 
