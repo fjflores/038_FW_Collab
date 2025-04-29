@@ -1,4 +1,4 @@
-function savetimefeats( doses, tLims, drug, saveFlag )
+function allFeats = savetimefeats( doses, tLims, drug, saveFlag )
 % SAVETIMEFEATS saves an epochs x features table.
 % 
 % Usage:
@@ -29,9 +29,9 @@ for epochIdx = 1 : nEpochs
         epochString );
     featTab = getavefeats( doses, thisEpoch, drug );
     epochCol = repmat( epochString, height( featTab ), 1 );
-    epochOrd = repmat( epochIdx - 1, height( featTab ), 1 );
-    featTab = addvars( featTab, epochCol, epochOrd,...
-        'NewVariableNames', { 'epoch', 'epochOrdinal' } );
+    epochIdx = repmat( epochIdx - 1, height( featTab ), 1 );
+    featTab = addvars( featTab, epochCol, epochIdx,...
+        'NewVariableNames', { 'epoch', 'epochIdx' } );
     % timeFeats ( epochIdx ).featTab = getavefeats( doses, thisEpoch, drug );
     % timeFeats ( epochIdx ).epoch = thisEpoch;
     fprintf( ' done...\n\n' )

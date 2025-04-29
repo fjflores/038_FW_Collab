@@ -19,9 +19,10 @@ drug = string( drug );
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 tab2read = fullfile( root, "Results", csvFileMaster );
-opts = detectImportOptions( tab2read );
-opts = setvartype( opts, length( opts.VariableNames ) - 1, 'double' ); % Set data types for specific columns
-masterTab = readtable( tab2read, opts );
+masterTab = safereadtable( tab2read );
+% opts = detectImportOptions( tab2read );
+% opts = setvartype( opts, length( opts.VariableNames ) - 1, 'double' ); % Set data types for specific columns
+% masterTab = readtable( tab2read, opts );
 
 % Allocate empty tables
 featTab = table(...
@@ -30,8 +31,8 @@ featTab = table(...
     { 'single', 'string', 'string', 'double', 'double', 'double', 'double', ...
      'double', 'double', 'double', 'double'},...
     'VariableNames', ...
-    { 'expId', 'mouseId', 'sex', 'dose', 'rmsEmg_L',...
-     'mf_L', 'Pdelta_L', 'mf_R', 'Pdelta_R', 'mf_C', 'Pdelta_C' } );
+    { 'expId', 'mouseId', 'sex', 'dose', 'rmsEmg',...
+     'mf_L', 'Pdelta_L', 'mf_R', 'Pdelta_R', 'mf_C', 'Cdelta' } );
 
 nDoses = length( doses );
 fBand = [ 0.5 3.5 ];
@@ -67,9 +68,9 @@ for doseIdx = 1 : nDoses
         if thisData.emg( tidyExpIdx ).valid
             t = thisData.emg( tidyExpIdx ).t - tInj1;
             drugIdxEmg = t > tLims( 1 ) & t < tLims( 2 );
-            emgDex = thisData.emg( tidyExpIdx ).data( drugIdxEmg );
+            emgDrug = thisData.emg( tidyExpIdx ).data( drugIdxEmg );
             emgChunks = makesegments(...
-                emgDex, thisData.emg( tidyExpIdx ).Fs, win );
+                emgDrug, thisData.emg( tidyExpIdx ).Fs, win );
             rmsEmg = sqrt( mean( emgChunks .^ 2 ) );
             clear t
 
@@ -117,12 +118,12 @@ for doseIdx = 1 : nDoses
             Cdrug = thisData.coher( tidyExpIdx ).C( drugIdxS, : );
             f = thisData.spec( tidyExpIdx ).f;
             mf_C = qeegspecgram( Cdrug, f, [ 0.5 18 ] );
-            Pdelta_C = median( powerperband( Cdrug, f, fBand, 'total' ) );
+            Cdelta = median( powerperband( Cdrug, f, fBand, 'total' ) );
             clear t
 
         else
             mf_C = NaN;
-            Pdelta_C = NaN;
+            Cdelta = NaN;
 
         end
 
@@ -133,11 +134,11 @@ for doseIdx = 1 : nDoses
         featTab.dose( cnt ) = thisDose;
         featTab.rmsEmg( cnt ) = median( rmsEmg );
         featTab.mf_L( cnt ) = median( mf_L );
-        featTab.Pdelta_L( cnt ) = Pdelta_L;
+        featTab.Pdelta_L( cnt ) = pow2db( Pdelta_L );
         featTab.mf_R( cnt ) = median( mf_R );
-        featTab.Pdelta_R( cnt ) = Pdelta_R;
+        featTab.Pdelta_R( cnt ) = pow2db( Pdelta_R );
         featTab.mf_C( cnt ) = median( mf_C );
-        featTab.Pdelta_C( cnt ) = Pdelta_C;
+        featTab.Cdelta( cnt ) = atanh( Cdelta );
 
         cnt = cnt + 1;
         disprog( expIdx, nExps, 10 )
