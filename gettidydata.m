@@ -36,13 +36,8 @@ drug = lower( string( drug ) );
 root = getrootdir( );
 resDir = fullfile( root, "Results" );
 tab2read = fullfile( resDir, csvFile );
-opts = detectImportOptions( tab2read );
-% convert string timestamps to numbers
-cols2num = getcols( opts, 'ts', 'begining' );
-opts = setvartype( opts, ...
-    cols2num, ...
-    'double' ); % Set data types for specific columns
-masterTab = readtable( tab2read, opts );
+% opts = detectImportOptions( tab2read );
+masterTab = safereadtable( tab2read );
 
 % get experiments to load
 doseSortTab = sortrows( masterTab, "drug_dose_inj1" );
@@ -69,9 +64,9 @@ for expIdx = 1 : nExps
     tOffInj1 = masterTab.ts_offline_inj1( thisExpIdx );
     tInj1 = masterTab.ts_inj1( thisExpIdx );
     tOnInj1 = masterTab.ts_online_inj1( thisExpIdx );
-    tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
-    tInj2 = masterTab.ts_inj2( thisExpIdx );
-    tOnInj1 = masterTab.ts_online_inj2( thisExpIdx );
+    % tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
+    % tInj2 = masterTab.ts_inj2( thisExpIdx );
+    % tOnInj2 = masterTab.ts_online_inj2( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
     preIdx = tsOrig <= tOffInj1;
@@ -99,7 +94,6 @@ for expIdx = 1 : nExps
         tOnInj2 = nan;
 
     end
-
 
     fprintf( "done.\n" )
 
@@ -137,21 +131,24 @@ for expIdx = 1 : nExps
     % isolate baseline and compute z-score
     analyzeEegFlag = logical(...
         masterTab{ thisExpIdx, { 'analyze_EEG_L', 'analyze_EEG_R' } } );
-
+    
     for eegIdx = 1 : 2
-
         if analyzeEegFlag( eegIdx )
-            eegFilt = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
+            eegDecTmp = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
             tBaseZIdx = tEeg <= tOffInj1;
-            mu = mean( eegFilt( tBaseZIdx ) );
-            sigma = std( eegFilt( tBaseZIdx ) );
+            mu = mean( eegDecTmp( tBaseZIdx ) );
+            sigma = std( eegDecTmp( tBaseZIdx ) );
             % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
             %     eegIdx, )
-            eegZdata( :, eegIdx) = ( eegFilt - mu ) ./ sigma;
+            eegZdata( :, eegIdx) = ( eegDecTmp - mu ) ./ sigma;
+            eegDec( :, eegIdx ) = eegDecTmp;
 
         else
             fprintf( 'one bad eeg channel...')
-            eegZdata( :, eegIdx ) = nan( ceil( sum( chunkIdx ) ./ decFactor ), 1 );
+            eegZdata( :, eegIdx ) = nan(...
+                ceil( sum( chunkIdx ) ./ decFactor ), 1 );
+            eegDec( :, eegIdx ) = nan(...
+                ceil( sum( chunkIdx ) ./ decFactor ), 1 );
 
         end
 
@@ -187,8 +184,8 @@ for expIdx = 1 : nExps
     notes( expIdx ).params = params;
     notes( expIdx ).sex = masterTab.sex{ thisExpIdx };
 
-    eeg( expIdx ).dataL = eegTmp ( :, 1 );
-    eeg( expIdx ).dataR = eegTmp ( :, 2 );
+    eeg( expIdx ).dataL = eegDec( :, 1 );
+    eeg( expIdx ).dataR = eegDec( :, 2 );
     eeg( expIdx ).t = tEeg;
     eeg( expIdx ).Fs = eegFs;
     eeg( expIdx ).eegLocs = {...
@@ -223,7 +220,7 @@ for expIdx = 1 : nExps
     coher( expIdx ).f = f;
     coher( expIdx ).valid = and( analyzeEegFlag( 1 ), analyzeEegFlag( 2 ) );
 
-    clear eegZdata
+    clear eegZdata eegDec
 
 end
 
