@@ -12,7 +12,7 @@ function allFeats = savetimefeats( doses, tLims, drug, saveFlag )
 % saveFlag: logical. Whether to save the results or not.
 %
 % Outputs:
-% allFeats
+% allFeats: long table with features per epoch.
 
 
 epochs = [...
@@ -28,7 +28,6 @@ for epochIdx = 1 : nEpochs
     fprintf( "Processing %s mins segment...\n",...
         epochString );
     featTab = getavefeats( doses, thisEpoch, drug );
-    % featTab = addprocescols( featTab );
     dbLCol = pow2db( featTab.Pdelta_L );
     dbRCol = pow2db( featTab.Pdelta_R );
     tanCdelta = atanh( featTab.Cdelta );
@@ -38,10 +37,7 @@ for epochIdx = 1 : nEpochs
         dbLCol, dbRCol, tanCdelta, epochCol, epochOrd,...
         'NewVariableNames', ...
         { 'dBdelta_L', 'dBdelta_R', 'tanCdelta', 'epoch', 'epochOrd' } );
-    % timeFeats ( epochIdx ).featTab = getavefeats( doses, thisEpoch, drug );
-    % timeFeats ( epochIdx ).epoch = thisEpoch;
     fprintf( ' done...\n\n' )
-    % featTab = addprocescols( featTab );
 
     if epochIdx == 1
         numRows = height( featTab );
@@ -71,26 +67,6 @@ end
 % allFeats.epochOrdinal = ordinal( allFeats.epochOrdinal );
 fprintf( "All done in %s\n", humantime( toc ) )
 
-
-
-function T = addprocescols( T )
-% This function adds two columns to the input table T,
-% converting the power values in the existing columns to decibels (dB).
-
-% Assuming the first two columns of T are the power columns
-powerColL = T{ :, 7 }; % First power column
-powerColR = T{ :, 9 }; % Second power column
-coherCol = T{ :, 11 };
-
-% Convert power columns to dB
-dbColumnL = pow2db( powerColL );
-dbColumnR = pow2db( powerColR );
-coherCol = atanh( coherCol );
-
-% Add new columns to the table
-T.DBdelta_L = dbColumnL; % Add first dB column
-T.DBdelta_R = dbColumnR; % second dB column
-T.TanC_delta = coherCol; % second dB column
 
 
 

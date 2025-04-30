@@ -136,12 +136,12 @@ addpath( ".\Dose_effect\" )
 
 doses = [ 0 10 30 50 100 150 ];
 tLims = [ -5 5 65 ];
-% doses = [ 0 10 30 50 100 150 ];
+% doses = [ 150 ];
 % tLims = [ 55 5 65 ];
 drug = "dex";
-saveFlag = true;
+saveFlag = false;
 warning off
-savetimefeats( doses, tLims, drug, saveFlag );
+allFeats = savetimefeats( doses, tLims, drug, saveFlag );
 warning on
 
 %% Fit linear mixed-effects model to time features
