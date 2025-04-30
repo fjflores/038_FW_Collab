@@ -118,7 +118,7 @@ for doseIdx = 1 : nDoses
             Cdrug = thisData.coher( tidyExpIdx ).C( drugIdxS, : );
             f = thisData.spec( tidyExpIdx ).f;
             mf_C = qeegspecgram( Cdrug, f, [ 0.5 18 ] );
-            Cdelta = median( powerperband( Cdrug, f, fBand, 'total' ) );
+            Cdelta = median( powerperband( Cdrug, f, fBand, 'median' ) );
             clear t
 
         else
@@ -134,11 +134,11 @@ for doseIdx = 1 : nDoses
         featTab.dose( cnt ) = thisDose;
         featTab.rmsEmg( cnt ) = median( rmsEmg );
         featTab.mf_L( cnt ) = median( mf_L );
-        featTab.Pdelta_L( cnt ) = pow2db( Pdelta_L );
+        featTab.Pdelta_L( cnt ) = Pdelta_L;
         featTab.mf_R( cnt ) = median( mf_R );
-        featTab.Pdelta_R( cnt ) = pow2db( Pdelta_R );
+        featTab.Pdelta_R( cnt ) = Pdelta_R;
         featTab.mf_C( cnt ) = median( mf_C );
-        featTab.Cdelta( cnt ) = atanh( Cdelta );
+        featTab.Cdelta( cnt ) = Cdelta;
 
         cnt = cnt + 1;
         disprog( expIdx, nExps, 10 )
