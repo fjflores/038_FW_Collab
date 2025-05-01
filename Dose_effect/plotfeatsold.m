@@ -1,4 +1,4 @@
-function plotfeats( allFeats, varargin )
+function plotfeatsold( allFeats, varargin )
 
 % Load data and set options for dose v. feature figures.
 % Run this section before running either of the two following feature
