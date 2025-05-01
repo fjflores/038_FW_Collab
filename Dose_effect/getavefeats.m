@@ -102,7 +102,7 @@ for doseIdx = 1 : nDoses
             SRdrug = thisData.spec( tidyExpIdx ).SR( drugIdxR, : );
             f = thisData.spec( tidyExpIdx ).f;
             mf_R = qeegspecgram( SRdrug, f, [ 0.5 18 ] );
-            Pdelta_R = median( powerperband( SLdrug, f, fBand, 'total' ) );
+            Pdelta_R = median( powerperband( SRdrug, f, fBand, 'total' ) );
             clear t
 
         else
