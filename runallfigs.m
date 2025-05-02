@@ -3,11 +3,17 @@
 clc
 
 addpath( ".\Dose_effect\" )
-mouseID = "M101";
+miceList = { "M114", "M115", "M116", "M117", "M118", "M119",...
+    "M121", "M122", "M123" };
 epochLims = [ 600 4200 ];
+fLims = [ 0 80 ];
 
-figure( 'Name', sprintf( '%s', mouseID ) )
-makespecfig( mouseID, "dex", epochLims )
+for mouseIdx = 1 : length( miceList )
+    thisMouse = miceList{ mouseIdx };
+    figure( 'Name', sprintf( '%s', thisMouse ) )
+    makespecfig( thisMouse, "ket", epochLims, fLims )
+
+end
 
 
 %% Plot series of traces
@@ -40,10 +46,12 @@ clc
 addpath( ".\Dose_effect\" )
 
 % doses = [ 0 10 30 50 100 150 ];
-doses = [ 50 ];
+doses = [ 150 ];
+tLims = [ 600 4200 ];
+fLims = [ 0 80 ];
 for featIdx = 1 : length( doses )
     thisDose = doses( featIdx );
-    makespecdosefig( thisDose )
+    makespecdosefig( "ket", thisDose, tLims, fLims )
 
 end
 
