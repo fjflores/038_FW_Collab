@@ -1,6 +1,6 @@
 ccc
 load( ...
-    'E:\Dropbox (Personal)\Projects\034_DARPA_ABC\Results\Dose_Effect\Feature_Table_Long.mat')
+    'D:\Dropbox (Personal)\Projects\034_DARPA_ABC\Results\Dose_Effect\Feature_Table_Long.mat')
 
 feats2plot = {
     "rmsEmg", "mf_L", "dBdelta_L", "mf_R", "dBdelta_R", "mf_C", "Cdelta" };
@@ -15,6 +15,7 @@ for featIdx = 1 : length( feats2plot )
         thisFeatIdx = allFeats.dose == thisDose;
         thisFeat = allFeats.( feats2plot{ featIdx } )( thisFeatIdx );
         thisEpochs = allFeats.epochOrd( thisFeatIdx );
+        % ep2plot = reshape( thisEpochs,  )
         plot( thisEpochs, thisFeat )
         hold on
 
