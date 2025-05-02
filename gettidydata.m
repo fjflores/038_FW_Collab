@@ -2,7 +2,7 @@ function gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
-% gettidydata( resDir, maxFreq, csvFile, tLims, saveFlag )
+% gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
 %
 % Input:
 % mouseId: mouse ID.
@@ -227,7 +227,7 @@ end
 % Save data for plotting to figures folder
 if saveFlag
     fprintf( " Saving tidy data..." )
-    f2save = "TidyData.mat";
+    f2save = strcat( "TidyData_", drug, ".mat" );
     save( fullfile( resDir, mouseId, f2save ), ...
         "notes", "eeg", "eegZ", "spec", "emg", "coher", "-v7.3" )
     fprintf( "done.\n\n" )
