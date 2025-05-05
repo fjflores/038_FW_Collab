@@ -1,4 +1,4 @@
-function makespecdosefig( drug, dose, tLims, fLims )
+function makespecdosefig( drug, dose, fLims )
 % Plot all specs for a given dose acros mice
 
 drug = lower( drug );
@@ -14,7 +14,6 @@ gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
-yLims = fLims;
 
 % define units
 switch lower( drug )
@@ -38,6 +37,7 @@ for idxExp = 1 : nExps
     load( fullfile( resDir, f2load ), "spec", "notes" );
     % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = find( [ notes.expId ] == thisExp );
+
     if spec( tabExpIdx ).valid( 1 ) == 0 % Check if channel is invalid.
         sz = size( spec( tabExpIdx ).SL );
         S = zeros( sz );
@@ -46,7 +46,9 @@ for idxExp = 1 : nExps
         S = spec( tabExpIdx ).SL;
 
     end
-    t = spec( tabExpIdx ).t ./ 60;
+
+    t = ( spec( tabExpIdx ).t - notes( tabExpIdx ).tInj1 ) ./ 60;
+    tLims = [ floor( t( 1 ) ) ceil( t( end ) ) ];
     f = spec( tabExpIdx ).f;
     
     hAx( idxExp ) = subtightplot( nExps, 1, idxExp, opts{ : } );
@@ -55,9 +57,9 @@ for idxExp = 1 : nExps
     clim( [ -35 -5 ])
     box off
     xLims = get( gca, 'xlim' );
-    ylim( yLims )
+    ylim( fLims )
     posX = xLims( 1 ) + 1;
-    posY = yLims( 2 ) - 5;
+    posY = fLims( 2 ) - 5;
     tit = sprintf( '%s', metDat.subject );
     text( posX, posY, tit,...
         'Color', 'w',...
@@ -71,17 +73,14 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick',  0 : 10 : 50  )
+    'YTick',  0 : 10 : fLims( 2 ) - 10  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 hAx( 1 ).Title.String = sprintf(...
     "Spectrograms at %u %cg/kg in each mouse", dose, units );
 
+xTicksVec = tLims( 1 ) : 10 : tLims( 2 );
 set( hAx( end ),...
-    "XTick", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60,...
-    "XTickLabel", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60 )
-% set( hAx( end ),...
-%     "XTick", [ -10 : 10 : 60 ],...
-%     "XTickLabel", [ -10 : 10 : 60 ] )
+    "XTick", xTicksVec, ...
+    "XTickLabel", xTicksVec )
 xlabel( hAx( end ), "Time (min)" );
-set( hAx, 'FontSize', 12, 'TickDir', 'out' )
-set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
+
