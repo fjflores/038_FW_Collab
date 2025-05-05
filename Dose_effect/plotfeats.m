@@ -3,6 +3,20 @@ root = getrootdir( );
 tab2read = 'Feature_table_long_dex_5.mat';
 load( fullfile( root, 'Results\Dose_Effect\', tab2read ) )
 
+
+% % Clean table from anomalous values less than 1e-5
+% cutoff = 10e-10;
+% rowsToReplace = any( allFeats{ :, 7} < cutoff, 2 );
+% 
+% % Replace those rows with NaNs
+% allFeats( rowsToReplace, 5 : 14 ) = { NaN };
+
+% minmax the rms Values
+minRms = min( allFeats.rmsEmg );
+maxRms = max( allFeats.rmsEmg );
+stdRms = ( allFeats.rmsEmg - minRms ) ./ ( maxRms - minRms );
+allFeats = addvars( allFeats, stdRms, 'NewVariableNames', { 'stdRms' } );
+
 feats2plot = {
     "rmsEmg", "mf_L", "dBdelta_L", "mf_R", "dBdelta_R", "mf_C", "Cdelta" };
 featsYlabels = {
