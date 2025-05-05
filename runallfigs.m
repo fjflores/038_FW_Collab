@@ -3,8 +3,9 @@
 clc
 
 addpath( ".\Dose_effect\" )
-miceList = { "M114", "M115", "M116", "M117", "M118", "M119",...
-    "M121", "M122", "M123" };
+% miceList = { "M114", "M115", "M116", "M117", "M118", "M119",...
+%     "M121", "M122", "M123" };
+miceList = "M120";
 epochLims = [ 600 4200 ];
 fLims = [ 0 80 ];
 
@@ -46,12 +47,11 @@ clc
 addpath( ".\Dose_effect\" )
 
 % doses = [ 0 10 30 50 100 150 ];
-doses = [ 150 ];
-tLims = [ 600 4200 ];
+doses = [ 50 ];
 fLims = [ 0 80 ];
-for featIdx = 1 : length( doses )
-    thisDose = doses( featIdx );
-    makespecdosefig( "ket", thisDose, tLims, fLims )
+for doseIdx = 1 : length( doses )
+    thisDose = doses( doseIdx );
+    makespecdosefig( "ket", thisDose, fLims )
 
 end
 
