@@ -57,7 +57,7 @@ for doseIdx = 1 : nDoses
         thisExp = expList( expIdx );
         % metDat = getmetadata( thisExp );
         resDir = fullfile( root, "Results", subjectList{ expIdx  } );
-        f2load = "TidyData.mat";
+        f2load = strcat( "TidyData_", drug, ".mat" );
         thisData = load( fullfile( resDir, f2load ),...
             "emg", "spec", "coher", "notes" );
         tidyExpIdx = find( [ thisData.notes.expId ] == thisExp );
