@@ -252,8 +252,8 @@ for expIdx = 1 : length( expList )
 
         % Match tail pinch random ID to score (PD and IDB).
         thisRandIDIdx = scoresPDOG.tail_pinch_id == thisRandID;
-        scorePD( cnt, 1 ) = scoresPDOG.score_PD( thisRandIDIdx );
-        scoreIDB( cnt, 1 ) = scoresIDBOG.score_IDB( thisRandIDIdx );
+        scorePD( cnt, 1 ) = scoresPDOG.score( thisRandIDIdx );
+        scoreIDB( cnt, 1 ) = scoresIDBOG.score( thisRandIDIdx );
 
         cnt = cnt + 1;
 
@@ -396,6 +396,10 @@ legend( hAx( [ 3 1 2 7 8 ] ),... % MAKE THIS BETTER
 exps2compare = [ 100 126 129 99 135 138 125 137 143 142 148 154 ];
 cols = [ comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol; comboLoCol; ketLoCol; ketHiCol ];
 offset = [ -0.5 0 0.5 -0.5 0 0.5 -0.5 0 0.5 -0.5 0 0.5 ] * 3;
+
+% exps2compare = [ 94 100 99 101 125 142 ];
+% cols = [ dexHiCol; dexLoCol; dexLoCol; dexHiCol; dexLoCol; dexLoCol ];
+% offset = [ 0.25 -0.25 -0.25 0.25 -0.25 -0.25 ] * 5;
 % exps2compare = unique( tpTab.expID );
 figure
 hold on
@@ -406,7 +410,7 @@ for expIdx = 1 : length( exps2compare )
     hAx( expIdx ) = scatterjit( tpTab.approxMin( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ) + offset( expIdx ),...
         tpTab.scoreAvg( tpTab.expID == thisExp & tpTab.approxMin ~= 0 ),...
         'filled', 'MarkerFaceAlpha', 0.7, 'MarkerFaceColor', cols( expIdx, : ),...
-        'Jit', [ .5 0.04 ], 'Axis', 'xy' );
+        'Jit', [ 0.5 0.04 ], 'Axis', 'xy' );
 
 end
 
@@ -415,8 +419,9 @@ ylim( [ 0.2 3.8 ] )
 yticks( [ 1 : 1 : 4 ] )
 xlabel( 'Time after first injection (min)' )
 ylabel( 'Average tail pinch score' )
-legend( hAx( 1 : 3 ), { 'Combo', '+ 3 mg/kg Ket @ t = 0', '+ 3 mg/kg Ket @ t = 30' })
-
+% legend( hAx( 1 : 3 ), { 'Combo', '+ 3 mg/kg Ket @ t = 0', '+ 3 mg/kg Ket @ t = 30' })
+legend( hAx( 1 : 2 ), { sprintf( '10 %cg/kg vaso + 1 mg/kg PD', 956 ),...
+    sprintf( '10 %cg/kg vaso + 0.5 mg/kg PD', 956 ) } )
 
 % expTypeCnt = 1;
 % for pdDoseIdx = 1 : length( pdDoses )
