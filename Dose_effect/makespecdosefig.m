@@ -1,17 +1,30 @@
-function makespecdosefig( dose )
+function makespecdosefig( drug, dose, tLims, fLims )
 % Plot all specs for a given dose acros mice
 
+drug = lower( drug );
 root = getrootdir( );
 csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
-expListIdx = fTab.analyze == 1 & fTab.drug_dose_inj1 == dose & fTab.drug_inj1 == "dex";
+expListIdx = fTab.analyze == 1 & ...
+    fTab.drug_dose_inj1 == dose & ...
+    fTab.drug_inj1 == drug;
 expList = fTab.exp_id( expListIdx );
 
 gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
-yLims = [ 0 40 ];
+yLims = fLims;
+
+% define units
+switch lower( drug )
+    case "dex"
+        units = 956; % micro
+
+    case { "ket", "pro" }
+        units = 109; % milli
+
+end
 
 figure( 'WindowState', 'maximized' )
 colormap magma
@@ -21,7 +34,7 @@ for idxExp = 1 : nExps
     thisExp = expList( idxExp );
     metDat = getmetadata( thisExp );
     resDir = fullfile( root, "Results", metDat.subject );
-    f2load = "TidyData.mat";
+    f2load = strcat( "TidyData_", drug, ".mat" );
     load( fullfile( resDir, f2load ), "spec", "notes" );
     % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = find( [ notes.expId ] == thisExp );
@@ -61,11 +74,14 @@ set( hAx,...
     'YTick',  0 : 10 : 50  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 hAx( 1 ).Title.String = sprintf(...
-    "Spectrograms at %u %cg/kg in each mouse", dose, 956 );
+    "Spectrograms at %u %cg/kg in each mouse", dose, units );
 
 set( hAx( end ),...
-    "XTick", [ -10 : 10 : 60 ],...
-    "XTickLabel", [ -10 : 10 : 60 ] )
-xlabel( hAx( end - 1 : end ), "Time (min)" );
+    "XTick", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60,...
+    "XTickLabel", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60 )
+% set( hAx( end ),...
+%     "XTick", [ -10 : 10 : 60 ],...
+%     "XTickLabel", [ -10 : 10 : 60 ] )
+xlabel( hAx( end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )

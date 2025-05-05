@@ -1,4 +1,4 @@
-function makespecfig( mouseId, drug, tLims, db2load )
+function makespecfig( mouseId, drug, tLims, fLims, db2load )
 % MAKESPECFIG plots spectrograms for all doses of a drug in a signle mouse.
 % 
 % Usage:
@@ -7,6 +7,8 @@ function makespecfig( mouseId, drug, tLims, db2load )
 % Input:
 % mouseId: mous ID.
 % tLims: 2-element vector with time limits before and after the event.
+
+drug = lower( drug );
 
 root = getrootdir( );
 resDir = fullfile( root, "Results" );
@@ -25,7 +27,7 @@ gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
-yLims = [ 0 40 ];
+yLims = fLims;
 
 colormap magma
 expList = masterTab.exp_id( expListIdx );
@@ -33,14 +35,27 @@ doseList = masterTab.drug_dose_inj1( expListIdx );
 nExps = sum( expListIdx );
 plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
-load( fullfile( resDir, mouseId, "TidyData.mat" ) );
+
+% define units
+switch lower( drug )
+    case "dex"
+        units = 956; % micro
+
+    case { "ket", "pro" }
+        units = 109; % milli
+
+end
+
+
+f2load = strcat( "TidyData_", drug, ".mat" );
+load( fullfile( resDir, mouseId, f2load ) );
 for expIdx = 1 : nExps
     tInj1 = notes( expIdx ).tInj1;
     thisSpecL = spec( expIdx ).SL;
     thisSpecR = spec( expIdx ).SR;
     tSpec = ( spec( expIdx ).t - tInj1 ) / 60;
     fSpec = spec( expIdx ).f;
-    thisDose = notes( expIdx ).dose;
+    thisDose = notes( expIdx ).doseInj1;
 
     % Spectrogram figure
     hAx( plotIdx( expIdx ) ) = subtightplot( nExps, 2, plotIdx( expIdx ),...
@@ -57,7 +72,7 @@ for expIdx = 1 : nExps
         tit = "saline";
 
     else
-        tit = sprintf( '%s %u %cg/kg', drug, thisDose, 956 );
+        tit = sprintf( '%s %u %cg/kg', drug, thisDose, units );
 
     end
     text( posX, posY, tit,...
@@ -87,7 +102,7 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick',  0 : 10 : 30  )
+    'YTick',  0 : 10 : yLims( end ) - 10  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
 hAx( 1 ).Title.String = "Left hemisphere";
 hAx( 2 ).Title.String = "Right hemisphere";
