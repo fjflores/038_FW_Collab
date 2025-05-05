@@ -1,16 +1,18 @@
 ccc
 root = getrootdir( );
-load( fullfile( root, 'Results\Dose_Effect\Feature_Table_Long.mat' ) )
+tab2read = 'Feature_table_long_dex_5.mat';
+load( fullfile( root, 'Results\Dose_Effect\', tab2read ) )
 
 feats2plot = {
     "rmsEmg", "mf_L", "dBdelta_L", "mf_R", "dBdelta_R", "mf_C", "Cdelta" };
 featsYlabels = {
-    "r.m.s. (uV)", "freq. (Hz)", "power (dB)", "freq. (Hz)", "power (dB)",
-    "freq. (Hz)", "coherence (a.u.)" };
+    "r.m.s. (uV)", "freq. (Hz)", "power (dB)", "freq. (Hz)", "power (dB)",...
+    "freq. (Hz)", "coher. (a.u.)" };
 
 doses = unique( allFeats.dose );
 epochTmp = unique( allFeats.epoch );
-epochLabels = epochTmp( 2 : 2 : end );
+nEpochs = length( epochTmp );
+epochLabels = natsort( cellstr( epochTmp ) );
 
 nDoses = length( doses );
 colorTmp = brewermap( 9, 'YlOrRd' );
@@ -32,11 +34,15 @@ for featIdx = 1 : length( feats2plot )
 
     end
     title( thisFeat )
-    legend( hLinesThick, num2str( doses ) )
+    legend( hLinesThick, num2str( doses ), "Location", "eastoutside" )
     box off
     set( gca, ...
-        "XTick", [ 2 : 2 : 14 ], ...
-        "XTickLabel", [ 0 : 10 : 60 ] )
+        "XTick", 1 : nEpochs, ...
+        "XTickLabel", epochLabels,...
+        "XTickLabelRotation", 45,...
+        "XLim", [ 0 nEpochs + 1 ] )
+    xlabel( "epoch (min)" )
+    ylabel( featsYlabels{ featIdx } )
 
 
 end
@@ -45,20 +51,24 @@ function dat2plot = getdat2plot( allFeats, thisFeat, thisDose )
 
 miceList = unique( allFeats.mouseId );
 nMice = length( miceList );
+nEpochs = length( unique( allFeats.epochOrd ) );
 dat2plot = [];
 for mouseIdx = 1 : nMice
     thisMouse = miceList( mouseIdx );
     thisIdx = strcmp( thisMouse, allFeats.mouseId ) & ...
         allFeats.dose == thisDose;
+    thisEpochFeats = allFeats.( thisFeat )( thisIdx );
+    numZeros = sum( thisEpochFeats == 0 );
 
-    if sum( thisIdx ) > 0
-        dat2plot( :, mouseIdx ) = allFeats.( thisFeat )( thisIdx );
+    if numZeros == 0 && ~isempty( thisEpochFeats )
+        dat2plot( :, mouseIdx ) = thisEpochFeats;
 
     else
-        dat2plot( :, mouseIdx ) = nan( 14, 1 );
+        dat2plot( :, mouseIdx ) = nan( nEpochs, 1 );
 
     end
 
 end
+% dat2plot( :, all( dat2plot == 0, 1 ) ) = [];
 
 end
