@@ -2,7 +2,7 @@
 ccc
 
 % Define experiment of interest.
-expList = 161;
+expList = 165;
 
 % Set parameters.
 specWin = [ 10 1 ];
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 149;
+expId = 165;
 
 % expData = loadmixdata( expID );
 
@@ -117,17 +117,22 @@ savesleepdata( mouseId )
 ccc
 addpath( ".\Dose_effect\" )
 
-%allDexMice = { "M101", "M102", "M103", "M105", "M106",...
-%    "M107", "M108", "M109", "M111", "M112", "M113" };
-allKetMice = {"M122"};
-% mList = { "M111", "M112" };
+allDexMice = { "M101", "M102", "M103", "M105", "M106",...
+   "M107", "M108", "M109", "M111", "M112", "M113" };
+allKetMice = { "M114", "M115", "M116", "M117", "M118",...
+    "M119", "M120", "M121", "M122", "M123" };
+
+% mList = allDexMice;
+% mList = allKetMice;
+mList = { "M114" };
 
 drug = "ket";
 csvFile = "abc_experiment_list.xlsm";
-tLims = [ 600 7200 ];
+% tLims = [ 600 4200 ]; % for dex experiments
+tLIms = [ 600 7200 ]; % for ket experiments
 saveFlag = true;  
 warning off
-batchtidydata( allKetMice, drug, csvFile, tLims, saveFlag )
+batchtidydata( mList, drug, csvFile, tLims, saveFlag )
 warning on
 
 %% Get spectral features over time

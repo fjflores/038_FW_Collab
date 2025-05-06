@@ -46,12 +46,13 @@ clc
 
 addpath( ".\Dose_effect\" )
 
-% doses = [ 0 10 30 50 100 150 ];
-doses = [ 50 ];
+drug = "ket";
+% doses = [ 0 10 30 50 100 150 ]; % All dex doses.
+doses = [ 0 10 50 100 ]; % All ket doses.
 fLims = [ 0 80 ];
 for doseIdx = 1 : length( doses )
     thisDose = doses( doseIdx );
-    makespecdosefig( "ket", thisDose, fLims )
+    makespecdosefig( drug, thisDose, fLims )
 
 end
 
