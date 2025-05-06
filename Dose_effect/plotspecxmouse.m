@@ -1,4 +1,4 @@
-function makespecfig( mouseId, drug, tLims, fLims, db2load )
+function plotspecxmouse( mouseId, drug, tLims, fLims, db2load )
 % MAKESPECFIG plots spectrograms for all doses of a drug in a signle mouse.
 % 
 % Usage:
@@ -27,7 +27,6 @@ gap = [ 0.005 0.01 ];
 margH = [ 0.1 0.05 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
-yLims = fLims;
 
 colormap magma
 expList = masterTab.exp_id( expListIdx );
@@ -51,23 +50,30 @@ f2load = strcat( "TidyData_", drug, ".mat" );
 load( fullfile( resDir, mouseId, f2load ) );
 for expIdx = 1 : nExps
     tInj1 = notes( expIdx ).tInj1;
-    thisSpecL = spec( expIdx ).SL;
-    thisSpecR = spec( expIdx ).SR;
-    tSpec = ( spec( expIdx ).t - tInj1 ) / 60;
-    fSpec = spec( expIdx ).f;
+        t = ( spec( expIdx ).t - tInj1 ) / 60;
+    f = spec( expIdx ).f;
     thisDose = notes( expIdx ).doseInj1;
+    
+    % Left Spectrogram
+    if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
+        SL = spec( tabExpIdx ).SL;
+        
+    else    
+        sz = size( spec( tabExpIdx ).SL );
+        SL = repmat( eps, sz );
 
-    % Spectrogram figure
-    hAx( plotIdx( expIdx ) ) = subtightplot( nExps, 2, plotIdx( expIdx ),...
-        opts{ : } );
-    imagesc( tSpec, fSpec, pow2db( thisSpecL' ) )
+    end
+    
+    thisPlotIdx = ( 2 * expIdx ) - 1;
+    hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
+    imagesc( t, f, pow2db( SL' ) )
     axis xy
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
-    ylim( yLims )
+    ylim( fLims )
     posX = xLims( 1 ) + 2;
-    posY = yLims( 2 ) - 5;
+    posY = fLims( 2 ) - 5;
     if thisDose == 0
         tit = "saline";
 
@@ -80,10 +86,20 @@ for expIdx = 1 : nExps
         'FontWeight', 'bold',...
         'FontSize', 10 )
     ylabel( "Freq. (Hz)" )
+    
+    % Right spectrogram
+    if spec( tabExpIdx ).valid( 2 ) == true % Check if channel is invalid.
+        SR = spec( tabExpIdx ).SR;
+        
+    else    
+        sz = size( spec( tabExpIdx ).SR );
+        SR = repmat( eps, sz );
 
-    hAx( plotIdx( expIdx ) + 1 ) = subtightplot(...
-        nExps, 2, plotIdx( expIdx ) + 1, opts{ : } );
-    imagesc( tSpec, fSpec, pow2db( thisSpecR' ) )
+    end
+    
+    thisPlotIdx = ( 2 * expIdx );
+    hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
+    imagesc( t, f, pow2db( SR' ) )
     axis xy
     box off
     clim( colorLims )

@@ -52,8 +52,8 @@ for expIdx = 1 : nExps
     tLims = [ floor( t( 1 ) ) ceil( t( end ) ) ];
     f = spec( tabExpIdx ).f;
     
-    hAx( ( 2 * expIdx ) - 1 ) = subtightplot( ...
-        nExps, 2, ( 2 * expIdx ) - 1, opts{ : } );
+    thisPlotIdx = ( 2 * expIdx ) - 1;
+    hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
     imagesc( t, f, pow2db( SL' ) )
     axis xy
     clim( colorLims )
@@ -69,7 +69,7 @@ for expIdx = 1 : nExps
         'FontSize', 10 )
     ylabel( 'Freq. (Hz)' )
 
-    if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
+    if spec( tabExpIdx ).valid( 2 ) == true % Check if channel is invalid.
         SR = spec( tabExpIdx ).SR;
         
     else    
@@ -78,8 +78,8 @@ for expIdx = 1 : nExps
 
     end
 
-    hAx( 2 * expIdx ) = subtightplot( ...
-        nExps, 2, 2 * expIdx, opts{ : } );
+    thisPlotIdx = 2 * expIdx;
+    hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
     imagesc( t, f, pow2db( SR' ) )
     axis xy
     clim( colorLims )
