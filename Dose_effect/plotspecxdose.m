@@ -11,9 +11,10 @@ expListIdx = fTab.analyze == 1 & ...
 expList = fTab.exp_id( expListIdx );
 
 gap = [ 0.005 0.01 ];
-margH = [ 0.1 0.05 ];
+margH = [ 0.07 0.08 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
+colorLims = [ -35 -5 ];
 
 % define units
 switch lower( drug )
@@ -29,8 +30,8 @@ figure( 'WindowState', 'maximized' )
 colormap magma
 nExps = length( expList );
 
-for idxExp = 1 : nExps
-    thisExp = expList( idxExp );
+for expIdx = 1 : nExps
+    thisExp = expList( expIdx );
     metDat = getmetadata( thisExp );
     resDir = fullfile( root, "Results", metDat.subject );
     f2load = strcat( "TidyData_", drug, ".mat" );
@@ -38,12 +39,12 @@ for idxExp = 1 : nExps
     % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = find( [ notes.expId ] == thisExp );
 
-    if spec( tabExpIdx ).valid( 1 ) == 0 % Check if channel is invalid.
-        sz = size( spec( tabExpIdx ).SL );
-        S = zeros( sz );
+    if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
+        SL = spec( tabExpIdx ).SL;
         
     else    
-        S = spec( tabExpIdx ).SL;
+        sz = size( spec( tabExpIdx ).SL );
+        SL = repmat( eps, sz );
 
     end
 
@@ -51,10 +52,11 @@ for idxExp = 1 : nExps
     tLims = [ floor( t( 1 ) ) ceil( t( end ) ) ];
     f = spec( tabExpIdx ).f;
     
-    hAx( idxExp ) = subtightplot( nExps, 1, idxExp, opts{ : } );
-    imagesc( t, f, pow2db( S' ) )
+    hAx( ( 2 * expIdx ) - 1 ) = subtightplot( ...
+        nExps, 2, ( 2 * expIdx ) - 1, opts{ : } );
+    imagesc( t, f, pow2db( SL' ) )
     axis xy
-    clim( [ -35 -5 ])
+    clim( colorLims )
     box off
     xLims = get( gca, 'xlim' );
     ylim( fLims )
@@ -67,6 +69,33 @@ for idxExp = 1 : nExps
         'FontSize', 10 )
     ylabel( 'Freq. (Hz)' )
 
+    if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
+        SR = spec( tabExpIdx ).SR;
+        
+    else    
+        sz = size( spec( tabExpIdx ).SR );
+        SR = repmat( eps, sz );
+
+    end
+
+    hAx( 2 * expIdx ) = subtightplot( ...
+        nExps, 2, 2 * expIdx, opts{ : } );
+    imagesc( t, f, pow2db( SR' ) )
+    axis xy
+    clim( colorLims )
+    box off
+    xLims = get( gca, 'xlim' );
+    ylim( fLims )
+    posX = xLims( 1 ) + 1;
+    posY = fLims( 2 ) - 5;
+    tit = sprintf( '%s', metDat.subject );
+    text( posX, posY, tit,...
+        'Color', 'w',...
+        'FontWeight', 'bold',...
+        'FontSize', 10 )
+    set( hAx( 2 * expIdx ), "YTickLabel", [] )
+    % ylabel( 'Freq. (Hz)' )
+
 end
 
 set( hAx,...
@@ -75,12 +104,14 @@ set( hAx,...
     'XTickLabel', [],...
     'YTick',  0 : 10 : fLims( 2 ) - 10  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
-hAx( 1 ).Title.String = sprintf(...
-    "Spectrograms at %u %cg/kg in each mouse", dose, units );
+sgtitle( sprintf(...
+    "Spectrograms at %u %cg/kg in each mouse", dose, units ) );
+% hAx( 1 ).Title.String = sprintf(...
+%     "Spectrograms at %u %cg/kg in each mouse", dose, units );
 
 xTicksVec = tLims( 1 ) : 10 : tLims( 2 );
-set( hAx( end ),...
+set( hAx( end - 1 : end ),...
     "XTick", xTicksVec, ...
     "XTickLabel", xTicksVec )
-xlabel( hAx( end ), "Time (min)" );
+xlabel( hAx( end - 1 : end ), "Time (min)" );
 
