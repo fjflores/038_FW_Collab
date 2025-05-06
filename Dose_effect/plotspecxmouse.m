@@ -47,7 +47,7 @@ end
 
 
 f2load = strcat( "TidyData_", drug, ".mat" );
-load( fullfile( resDir, mouseId, f2load ) );
+load( fullfile( resDir, mouseId, f2load ), "notes", "spec" );
 for expIdx = 1 : nExps
     tInj1 = notes( expIdx ).tInj1;
     t = ( spec( expIdx ).t - tInj1 ) / 60;
