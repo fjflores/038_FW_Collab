@@ -1,4 +1,4 @@
-function makespecdosefig( drug, dose, fLims )
+function plotspecxdose( drug, dose, fLims )
 % Plot all specs for a given dose acros mice
 
 drug = lower( drug );
