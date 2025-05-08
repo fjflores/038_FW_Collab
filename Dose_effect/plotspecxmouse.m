@@ -71,8 +71,7 @@ for expIdx = 1 : nExps
     
     thisPlotIdx = ( 2 * expIdx ) - 1;
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SL' ) )
-    axis xy
+    plotspecgram( SL, t, f, "log" )
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
@@ -104,8 +103,7 @@ for expIdx = 1 : nExps
     
     thisPlotIdx = ( 2 * expIdx );
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SR' ) )
-    axis xy
+    plotspecgram( SR, t, f, "log" )
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
@@ -129,7 +127,8 @@ ffcbar( gcf, hAx( end ), "Power (dB)" );
 % hAx( 2 ).Title.String = "Right hemisphere";
 
 sgtitle( sprintf(...
-    "Spectrograms from mouse %s at each dose", mouseId ) );
+    "Spectrograms from mouse %s at each dose", mouseId ), ...
+    "FontSize", 12 );
 
 set( hAx( 2 : 2 : end ),...
     "YTickLabel", [] )

@@ -36,7 +36,6 @@ for expIdx = 1 : nExps
     resDir = fullfile( root, "Results", metDat.subject );
     f2load = strcat( "TidyData_", drug, ".mat" );
     load( fullfile( resDir, f2load ), "spec", "notes" );
-    % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = find( [ notes.expId ] == thisExp );
 
     if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
@@ -54,8 +53,7 @@ for expIdx = 1 : nExps
     
     thisPlotIdx = ( 2 * expIdx ) - 1;
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SL' ) )
-    axis xy
+    plotspecgram( SL, t, f, 'log' )
     clim( colorLims )
     box off
     xLims = get( gca, 'xlim' );
@@ -80,8 +78,7 @@ for expIdx = 1 : nExps
 
     thisPlotIdx = 2 * expIdx;
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SR' ) )
-    axis xy
+    plotspecgram( SR, t, f, 'log' )
     clim( colorLims )
     box off
     xLims = get( gca, 'xlim' );
