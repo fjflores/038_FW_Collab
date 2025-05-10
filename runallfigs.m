@@ -12,7 +12,7 @@ fLims = [ 0 80 ];
 for mouseIdx = 1 : length( miceList )
     thisMouse = miceList{ mouseIdx };
     figure( 'Name', sprintf( '%s', thisMouse ) )
-    makespecfig( thisMouse, "ket", epochLims, fLims )
+    plotspecxmouse( thisMouse, "ket", epochLims, fLims )
 
 end
 
@@ -52,7 +52,7 @@ doses = [ 0 10 50 100 ]; % All ket doses.
 fLims = [ 0 80 ];
 for doseIdx = 1 : length( doses )
     thisDose = doses( doseIdx );
-    makespecdosefig( drug, thisDose, fLims )
+    plotspecxdose( drug, thisDose, fLims )
 
 end
 
