@@ -1,11 +1,11 @@
-function plotspecxmouse( mouseId, drug, tLims, fLims, db2load )
+function plotspecxmouse( mouseId, drug, fLims, db2load )
 % MAKESPECFIG plots spectrograms for all doses of a drug in a signle mouse.
 % 
 % Usage:
 % makespecfig( mouseId, tLims )
 % 
 % Input:
-% mouseId: mous ID.
+% mouseId: mouse ID.
 % tLims: 2-element vector with time limits before and after the event.
 
 drug = lower( drug );
@@ -24,15 +24,15 @@ expListIdx = masterTab.analyze == 1 ...
     & strcmp( masterTab.mouse_id, mouseId );
 
 gap = [ 0.005 0.01 ];
-margH = [ 0.1 0.05 ];
+margH = [ 0.07 0.08 ];
 margV = [0.1 0.1];
 opts = { gap, margH, margV };
 
 colormap magma
-expList = masterTab.exp_id( expListIdx );
-doseList = masterTab.drug_dose_inj1( expListIdx );
+% expList = masterTab.exp_id( expListIdx );
+% doseList = masterTab.drug_dose_inj1( expListIdx );
 nExps = sum( expListIdx );
-plotIdx = 1 : 2 : 2 * nExps;
+% plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
 
 % define units
@@ -47,16 +47,21 @@ end
 
 
 f2load = strcat( "TidyData_", drug, ".mat" );
-load( fullfile( resDir, mouseId, f2load ) );
+load( fullfile( resDir, mouseId, f2load ), "notes", "spec" );
 for expIdx = 1 : nExps
     tInj1 = notes( expIdx ).tInj1;
-        t = ( spec( expIdx ).t - tInj1 ) / 60;
+    t = ( spec( expIdx ).t - tInj1 ) / 60;
     f = spec( expIdx ).f;
     thisDose = notes( expIdx ).doseInj1;
+
+    if expIdx == 1
+        tLims = [ floor( t( 1 ) ) ceil( t( end ) ) ];
+
+    end
     
     % Left Spectrogram
-    if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
-        SL = spec( tabExpIdx ).SL;
+    if spec( expIdx ).valid( 1 ) == true % Check if channel is invalid.
+        SL = spec( expIdx ).SL;
         
     else    
         sz = size( spec( tabExpIdx ).SL );
@@ -88,11 +93,11 @@ for expIdx = 1 : nExps
     ylabel( "Freq. (Hz)" )
     
     % Right spectrogram
-    if spec( tabExpIdx ).valid( 2 ) == true % Check if channel is invalid.
-        SR = spec( tabExpIdx ).SR;
+    if spec( expIdx ).valid( 2 ) == true % Check if channel is invalid.
+        SR = spec( expIdx ).SR;
         
     else    
-        sz = size( spec( tabExpIdx ).SR );
+        sz = size( spec( expIdx ).SR );
         SR = repmat( eps, sz );
 
     end
@@ -104,9 +109,9 @@ for expIdx = 1 : nExps
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
-    ylim( yLims );
+    ylim( fLims );
     posX = xLims( 1 ) + 2;
-    posY = yLims( 2 ) - 5;
+    posY = fLims( 2 ) - 5;
     text( posX, posY, tit,...
         'Color', 'w',...
         'FontWeight', 'bold',...
@@ -118,16 +123,19 @@ set( hAx,...
     'FontSize', 12,...
     'TickDir', 'out',...
     'XTickLabel', [],...
-    'YTick',  0 : 10 : yLims( end ) - 10  )
+    'YTick',  0 : 10 : fLims( end ) - 10  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
-hAx( 1 ).Title.String = "Left hemisphere";
-hAx( 2 ).Title.String = "Right hemisphere";
+% hAx( 1 ).Title.String = "Left hemisphere";
+% hAx( 2 ).Title.String = "Right hemisphere";
+
+sgtitle( sprintf(...
+    "Spectrograms from mouse %s at each dose", mouseId ) );
 
 set( hAx( 2 : 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end - 1 : end ),...
-    "XTick", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60,...
-    "XTickLabel", -tLims( 1 ) / 60 : 10 : tLims( 2 ) / 60 )
+    "XTick", 0 : 20 : tLims( 2 ),...
+    "XTickLabel", 0 : 20 : tLims( 2 ) )
 xlabel( hAx( end - 1 : end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
 set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
