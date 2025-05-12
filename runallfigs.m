@@ -50,7 +50,7 @@ doses = [ 0 10 50 100 ]; % All ket doses.
 fLims = [ 0 80 ];
 for doseIdx = 1 : length( doses )
     thisDose = doses( doseIdx );
-    makespecdosefig( drug, thisDose, fLims )
+    plotspecxdose( drug, thisDose, fLims )
 
 end
 
