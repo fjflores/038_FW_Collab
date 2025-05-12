@@ -1,8 +1,8 @@
-function hAx = plottidydata( mouseId, vars2plot )
+function plottidydata( mouseId, drug, fLims, vars2plot )
 
 
 tidyDir = fullfile( getrootdir, "Results", mouseId );
-vars2load = { vars2plot{ : }, "notes" };
+vars2load = [ vars2plot(:)', { "notes" } ];
 thisData = load( fullfile( tidyDir, "TidyData.mat" ), vars2load{ : } );
 nVars = length( vars2plot );
 nExps = length( thisData.( vars2plot{ 1 } ) );
@@ -18,17 +18,7 @@ for varIdx = 1 : nVars
         
         switch thisVar
             case { "eeg", "eegZ" }
-                t = thisData.( thisVar )( plotIdx ).t - tInj;
-                datL = thisData.( thisVar )( plotIdx ).dataL;
-                datR = thisData.( thisVar )( plotIdx ).dataR;
-                
-                subIdx = ( 2 * plotIdx )  - 1;
-                hAx( subIdx ) = subplot( nExps, 2, subIdx );
-                plot( t, datL, "Color", colors( 1, : ) );
-                
-                subIdx = 2 * plotIdx;
-                hAx( subIdx ) = subplot( nExps, 2, subIdx );
-                plot( t, datR, "Color", colors( 2, : ) );
+                ploteegxmouse( mouseId, drug, thisVar )
 
             case "emg"
                 t = thisData.( thisVar )( plotIdx ).t - tInj;
@@ -37,28 +27,11 @@ for varIdx = 1 : nVars
                 plot( t, dat, 'Color', colors( 1 , : ) )
 
             case { "spec", "coher" }
-                t = thisData.( thisVar )( plotIdx ).t - tInj;
-                f = thisData.( thisVar )( plotIdx ).f;
-
                 if strcmp( thisVar, "spec" )
-                    datL = thisData.( thisVar )( plotIdx ).SL;
-                    datR = thisData.( thisVar )( plotIdx ).SR;
-
-                    subIdx = ( 2 * plotIdx )  - 1;
-                    hAx( subIdx ) = subplot( nExps, 2, plotIdx );
-                    imagesc( t, f, pow2db( datL' ) )
-                    axis xy
-
-                    subIdx = 2 * plotIdx;
-                    hAx( subIdx ) = subplot( nExps, 2, plotIdx );
-                    imagesc( t, f, pow2db( datR' ) )
-                    axis xy
+                    plotspecxmouse( mouseId, drug, fLims )
 
                 else
-                    hAx( plotIdx ) = subplot( nExps, 1, plotIdx );
-                    datC = thisData.( thisVar )( plotIdx ).C;
-                    imagesc( t, f, datC' )
-                    axis xy
+                    plotcoherxmouse( mouseId, drug, fLims )
 
                 end
                 
@@ -69,6 +42,5 @@ for varIdx = 1 : nVars
         end
 
     end
-    set( hAx, 'Box', 'off' )
 
 end
