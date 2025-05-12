@@ -35,7 +35,6 @@ for varIdx = 1 : nVars
 
                 end
                 
-
             otherwise
                 error( "Wrong variable name" )
 
