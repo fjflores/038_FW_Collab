@@ -29,10 +29,7 @@ margV = [0.1 0.1];
 opts = { gap, margH, margV };
 
 colormap magma
-% expList = masterTab.exp_id( expListIdx );
-% doseList = masterTab.drug_dose_inj1( expListIdx );
 nExps = sum( expListIdx );
-% plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
 
 % define units
@@ -123,13 +120,9 @@ set( hAx,...
     'XTickLabel', [],...
     'YTick',  0 : 10 : fLims( end ) - 10  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
-% hAx( 1 ).Title.String = "Left hemisphere";
-% hAx( 2 ).Title.String = "Right hemisphere";
-
 sgtitle( sprintf(...
     "Spectrograms from mouse %s at each dose", mouseId ), ...
     "FontSize", 12 );
-
 set( hAx( 2 : 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end - 1 : end ),...

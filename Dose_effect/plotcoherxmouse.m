@@ -32,7 +32,7 @@ colormap magma
 % doseList = masterTab.drug_dose_inj1( expListIdx );
 nExps = sum( expListIdx );
 % plotIdx = 1 : 2 : 2 * nExps;
-colorLims = [ 0 2 ];
+colorLims = [ 0 3 ];
 
 % define units
 switch lower( drug )
@@ -43,7 +43,6 @@ switch lower( drug )
         units = 109; % milli
 
 end
-
 
 f2load = strcat( "TidyData_", drug, ".mat" );
 load( fullfile( resDir, mouseId, f2load ), "notes", "coher" );
@@ -71,8 +70,7 @@ for expIdx = 1 : nExps
     end
     
     hAx( expIdx ) = subtightplot( nExps, 1, expIdx, opts{ : } );
-    imagesc( t, f, atanh( C' ) )
-    axis xy
+    plotcohergram( C, t, f, "tan" )
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
