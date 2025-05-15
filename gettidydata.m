@@ -1,28 +1,28 @@
-function gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
+function gettidydata( mouseId, drug, tLims, saveFlag, csvFile )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
-% gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
+% gettidydata( mouseId, drug, tLims, saveFlag, csvFile )
 %
 % Input:
 % mouseId: mouse ID.
 % drug: name of the drug to extract (dex, ketamine, etc).
-% csvFile: name of csvFile to use.
 % tLims: epoch to extract around time of injection.
 % saveFlag: boolean to flag whether to save the figure data. Default: true.
-% 
+% csvFile: name of csvFile to use.
+%
 % Output:
 % file saved to the corresponding mouse results folder.
 
 t1 = tic;
 % Set defaults
-if ~exist( "csvFile", "var" )
-    csvFile = "abc_experiment_list.xlsm";
+if ~exist( "tLims", "var" )
+    tLims = [ 300 3600 ];
 
 end
 
-if ~exist( "tLims", "var" )
-    tLims = [ 300 3600 ];
+if ~exist( "csvFile", "var" )
+    csvFile = "abc_experiment_list.xlsm";
 
 end
 
@@ -58,7 +58,7 @@ for expIdx = 1 : nExps
     [ eegClean, emgRaw ] = loadprocdata(...
         thisExp, { "eegClean", "emgRaw" } );
     fprintf( 'done.\n' )
-    
+
     % get rid of offline to injection period.
     fprintf( " Removing pre injection period..." )
     tOffInj1 = masterTab.ts_offline_inj1( thisExpIdx );
@@ -131,7 +131,7 @@ for expIdx = 1 : nExps
     % isolate baseline and compute z-score
     analyzeEegFlag = logical(...
         masterTab{ thisExpIdx, { 'analyze_EEG_L', 'analyze_EEG_R' } } );
-    
+
     for eegIdx = 1 : 2
         if analyzeEegFlag( eegIdx )
             eegDecTmp = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
@@ -153,7 +153,7 @@ for expIdx = 1 : nExps
         end
 
     end
-    
+
     fprintf( "done.\n" )
 
     % Get new spectrogram
@@ -164,11 +164,15 @@ for expIdx = 1 : nExps
         'fpass', [ 0.5 100 ],...
         'pad', 1,...
         'win', [ 15 1.5 ] );
-    % [ S, tStmp, f ] = mtspecgramc( eegZ, params.win, params );
     [ C, phi, S12, S1, S2, tStmp, f ] = cohgramc(...
         eegZdata( :, 1 ), eegZdata( :, 2 ), params.win, params );
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
+
+    % Get emg rms values
+    emgChunks = makesegments(...
+        emgFilt, emgFs, params.win );
+    rmsVals = sqrt( mean( emgChunks .^ 2 ) );
 
     notes( expIdx ).expId = thisExp;
     notes( expIdx ).doseInj1 = dosesInj1( expIdx );
@@ -207,6 +211,11 @@ for expIdx = 1 : nExps
     emg( expIdx ).Fs = emgFs;
     emg( expIdx ).valid = analyzeEmgFlag;
 
+    emgRms( expIdx ).data = rmsVals;
+    emgRms( expIdx ).t = tS;
+    emgRms( expIdx ).Fs = mean( 1 ./ diff( tS ) );
+    emgRms( expIdx ).valid = analyzeEmgFlag;
+
     spec( expIdx ).SL = S1;
     spec( expIdx ).SR = S2;
     spec( expIdx ).t = tS;
@@ -229,7 +238,7 @@ if saveFlag
     fprintf( " Saving tidy data..." )
     f2save = strcat( "TidyData_", drug, ".mat" );
     save( fullfile( resDir, mouseId, f2save ), ...
-        "notes", "eeg", "eegZ", "spec", "emg", "coher", "-v7.3" )
+        "notes", "eeg", "eegZ", "spec", "emg", "emgRms", "coher", "-v7.3" )
     fprintf( "done.\n\n" )
 
 end
