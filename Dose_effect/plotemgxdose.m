@@ -27,16 +27,16 @@ switch lower( drug )
 end
 
 % define y-limits
-% switch emgKind
-%     case "emg"
+switch emgKind
+    case "emg"
         yLimits = [ -1500 1500 ]; 
         yTick = [ -1000 10000 ];
-% 
-%     case "emgRms"
-%         yLimits = [ -15 15 ];  % milli
-%         yTick = [ -10 10 ];
-% 
-% end
+
+    case "emgRms"
+        yLimits = [ 0 250 ]; 
+        yTick = [ 50 150 ];
+
+end
 
 nExps = length( expList );
 for expIdx = 1 : nExps
@@ -56,7 +56,7 @@ for expIdx = 1 : nExps
     data = thisData.( emgKind )( tabExpIdx ).data;
 
     hAx( expIdx ) = subtightplot( nExps, 1, expIdx, opts{ : } );
-    plot( t, data, "Color", colors( 1, : ) );
+    plot( t, data, "Color", colors( 2, : ) );
     xLims = get( hAx( expIdx ), 'xlim' );
     ylim( yLimits )
     posX = xLims( 1 ) + 2;
