@@ -130,6 +130,5 @@ set( hAx( end - 1 : end ),...
     "XTickLabel", 0 : 20 : tLims( 2 ) )
 xlabel( hAx( end - 1 : end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
-set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
 
 

@@ -1,4 +1,4 @@
-function gettidydata( mouseId, drug, tLims, saveFlag, csvFile )
+function gettidydata( mouseId, drug, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
@@ -21,11 +21,6 @@ if ~exist( "tLims", "var" )
 
 end
 
-if ~exist( "csvFile", "var" )
-    csvFile = "abc_experiment_list.xlsm";
-
-end
-
 if ~exist( "saveFlag", "var" )
     saveFlag = true;
 
@@ -35,8 +30,7 @@ drug = lower( string( drug ) );
 
 root = getrootdir( );
 resDir = fullfile( root, "Results" );
-tab2read = fullfile( resDir, csvFile );
-% opts = detectImportOptions( tab2read );
+tab2read = fullfile( resDir, "abc_experiment_list.xlsm" );
 masterTab = safereadtable( tab2read );
 
 % get experiments to load
@@ -64,9 +58,6 @@ for expIdx = 1 : nExps
     tOffInj1 = masterTab.ts_offline_inj1( thisExpIdx );
     tInj1 = masterTab.ts_inj1( thisExpIdx );
     tOnInj1 = masterTab.ts_online_inj1( thisExpIdx );
-    % tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
-    % tInj2 = masterTab.ts_inj2( thisExpIdx );
-    % tOnInj2 = masterTab.ts_online_inj2( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
     preIdx = tsOrig <= tOffInj1;
@@ -164,15 +155,15 @@ for expIdx = 1 : nExps
         'fpass', [ 0.5 100 ],...
         'pad', 1,...
         'win', [ 15 1.5 ] );
-    [ C, phi, S12, S1, S2, tStmp, f ] = cohgramc(...
+    [ C, phi, ~, S1, S2, tStmp, f ] = cohgramc(...
         eegZdata( :, 1 ), eegZdata( :, 2 ), params.win, params );
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
 
     % Get emg rms values
-    emgChunks = makesegments(...
-        emgFilt, emgFs, params.win );
+    emgChunks = makesegments( emgFilt, emgFs, params.win );
     rmsVals = sqrt( mean( emgChunks .^ 2 ) );
+    tRms = median( makesegments( tEmg, emgFs, params.win ), 1 );
 
     notes( expIdx ).expId = thisExp;
     notes( expIdx ).doseInj1 = dosesInj1( expIdx );
@@ -212,7 +203,7 @@ for expIdx = 1 : nExps
     emg( expIdx ).valid = analyzeEmgFlag;
 
     emgRms( expIdx ).data = rmsVals;
-    emgRms( expIdx ).t = tS;
+    emgRms( expIdx ).t = tRms;
     emgRms( expIdx ).Fs = mean( 1 ./ diff( tS ) );
     emgRms( expIdx ).valid = analyzeEmgFlag;
 

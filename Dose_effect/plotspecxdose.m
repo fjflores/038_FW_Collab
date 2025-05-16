@@ -7,7 +7,7 @@ csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 expListIdx = fTab.analyze == 1 & ...
     fTab.drug_dose_inj1 == dose & ...
-    fTab.drug_inj1 == drug;
+    strcmp( drug, fTab.drug_inj1 );
 expList = fTab.exp_id( expListIdx );
 
 gap = [ 0.005 0.01 ];
@@ -26,7 +26,8 @@ switch lower( drug )
 
 end
 
-figure( 'WindowState', 'maximized' )
+% figure( 'WindowState', 'maximized' )
+figure
 colormap magma
 nExps = length( expList );
 

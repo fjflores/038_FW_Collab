@@ -1,14 +1,13 @@
-function plotemgxmouse( mouseId, drug )
+function plotemgxmouse( mouseId, drug, emgKind )
 % PLOTSPECXMOUSE plots spectrograms for doses of a drug in a mouse.
 %
 % Usage:
-% plotspecxmouse( mouseId, drug, fLims, db2load )
+% plotemgxmouse( mouseId, drug, emgKind )
 %
 % Input:
 % mouseId: mouse ID.
 % drug: drug to plot. Either "dex", "ket", or "pro".
-% fLims: 2-element vector with frequency limits.
-% db2load: Optional. experiment database file.
+
 
 drug = lower( drug );
 
@@ -39,16 +38,16 @@ switch lower( drug )
 end
 
 % define y-limits
-% switch eegKind
-%     case "eeg"
-        yLimits = [ -2000 2000 ]; 
-        yTick = [ -1500 1500 ];
-% 
-%     case "eegZ"
-%         yLimits = [ -15 15 ];  % milli
-%         yTick = [ -10 10 ];
-% 
-% end
+switch emgKind
+    case "emg"
+        yLimits = [ -1000 1000 ]; 
+        yTick = [ -500 500 ];
+
+    case "emgRms"
+        yLimits = [ 0 15 ];  % milli
+        yTick = [ 0 10 ];
+
+end
 
 f2load = strcat( "TidyData_", drug, ".mat" );
 thisData = load( fullfile( resDir, mouseId, f2load ), "notes", "emg" );
@@ -92,7 +91,7 @@ set( hAx,...
     'YTick',  yTick  )
 
 sgtitle( sprintf(...
-    "Spectrograms from mouse %s at each dose", mouseId ), ...
+    "EMG from %s at each dose", mouseId ), ...
     "FontSize", 12 );
 
 set( hAx( end - 1 : end ),...
