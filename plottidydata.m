@@ -51,6 +51,9 @@ if strcmp( drug, "dex" )
 elseif strcmp( drug, "ket" )
     fLims = [ 0.5 80 ];
 
+else
+    fLims = [ 0.5 40 ];
+
 end
 
 switch thisVar

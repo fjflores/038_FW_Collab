@@ -39,6 +39,15 @@ exps2procIdx = ...
     doseSortTab.analyze == 1 & ...
     doseSortTab.mouse_id == mouseId & ...
     doseSortTab.drug_inj1 == drug;
+
+if sum( exps2procIdx ) == 0
+    fprintf( ...
+        "There are no experiments to process: %s %s.\n  Skipping.\n\n", ...
+        mouseId, drug )
+    return
+
+end
+
 exps2proc = doseSortTab.exp_id( exps2procIdx );
 dosesInj1 = doseSortTab.drug_dose_inj1( exps2procIdx );
 dosesInj2 = doseSortTab.drug_dose_inj2( exps2procIdx );
@@ -60,21 +69,31 @@ for expIdx = 1 : nExps
     tOnInj1 = masterTab.ts_online_inj1( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
-    preIdx = tsOrig <= tOffInj1;
-    postIdx = tsOrig >= tInj1;
-    preData = sigs( preIdx, : );
-    postData = sigs( postIdx, : );
-    preTs = tsOrig( preIdx );
-    postTs = tsOrig( postIdx );
-    postWoArt = replaceartifact(...
-        postData, postTs, [ postTs( 1 ) tOnInj1 ], 'zeros' );
-    newSigs = cat( 1, preData, postWoArt );
-    newTs = linspace(...
-        preTs( 1 ) + ( tInj1 - tOffInj1 ), postTs( end ), size( newSigs, 1 ) );
+
+    if ~isnan( tOffInj1 ) && ~isempty( tOffInj1 )
+        preIdx = tsOrig <= tOffInj1;
+        postIdx = tsOrig >= tInj1;
+        preData = sigs( preIdx, : );
+        postData = sigs( postIdx, : );
+        preTs = tsOrig( preIdx );
+        postTs = tsOrig( postIdx );
+        postWoArt = replaceartifact(...
+            postData, postTs, [ postTs( 1 ) tOnInj1 ], 'zeros' );
+        newSigs = cat( 1, preData, postWoArt );
+        newTs = linspace(...
+            preTs( 1 ) + ( tInj1 - tOffInj1 ), postTs( end ), size( newSigs, 1 ) );
+
+    else
+        tOffInj1 = nan;
+        tOnInj1 = nan;
+        newTs = tsOrig - tInj1;
+        newSigs = sigs;
+
+    end
 
     % Remove second injection (e.g., atipamezole) artifact time (if needed).
     tInj2 = masterTab.ts_inj2( thisExpIdx );
-    if ~isnan( tInj2 )
+    if ~isnan( tInj2 ) || ~isempty( tInj1 )
         tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
         tOnInj2 = masterTab.ts_online_inj2( thisExpIdx );
         newSigs = replaceartifact(...
@@ -126,7 +145,15 @@ for expIdx = 1 : nExps
     for eegIdx = 1 : 2
         if analyzeEegFlag( eegIdx )
             eegDecTmp = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-            tBaseZIdx = tEeg <= tOffInj1;
+
+            if ~isnan( tOffInj1 ) && ~isempty( tOffInj1 )
+                tBaseZIdx = tEeg <= tOffInj1;
+
+            else
+                tBaseZIdx = tEeg <= tInj1;
+
+            end
+
             mu = mean( eegDecTmp( tBaseZIdx ) );
             sigma = std( eegDecTmp( tBaseZIdx ) );
             % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...

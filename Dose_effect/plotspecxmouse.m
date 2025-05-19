@@ -40,6 +40,9 @@ switch lower( drug )
     case { "ket", "pro" }
         units = 109; % milli
 
+    otherwise
+        units = 32; % blank space
+
 end
 
 

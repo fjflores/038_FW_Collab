@@ -121,12 +121,13 @@ allDexMice = { "M101", "M102", "M103", "M105", "M106",...
    "M107", "M108", "M109", "M111", "M112", "M113" };
 allKetMice = { "M114", "M115", "M116", "M117", "M118",...
     "M119", "M120", "M121", "M122", "M123" };
+allFWMice = { "FW14", "FW16", "FW17", "FW18" };
 
-mList = allDexMice;
-% mList = allKetMice;
+% mList = allDexMice;
+mList = allFWMice;
 % mList = { "M115", "M118" };
 
-drug = "dex";
+drug = "combo";
 %csvFile = "abc_experiment_list.xlsm";
 % tLims = [ 600 4200 ]; % for dex experiments
 tLims = [ 600 5400 ]; % for ket experiments
