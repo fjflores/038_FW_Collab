@@ -52,7 +52,7 @@ elseif strcmp( drug, "ket" )
     fLims = [ 0.5 80 ];
 
 else
-    fLims = [ 0.5 40 ];
+    fLims = [ 0.5 50 ];
 
 end
 
