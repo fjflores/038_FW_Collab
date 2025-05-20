@@ -99,6 +99,7 @@ for expIdx = 1 : nExp
     % Extract tail pinch video clips.
     evTs = evTsTmp - difRec;
     pad = [ 10 40 ];
+    disp( vidPathSide )
     extractvidclip( vidPathSide, evTs,...
         'Pad', pad, 'EvMsg', 'tailpinch',...
         'SaveDir', saveDir, 'SaveFlag', true );

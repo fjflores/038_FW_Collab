@@ -4,7 +4,7 @@ root = getrootdir;
 resDir = fullfile( root, 'Results' );
 
 %% Full exp figs.
-expList = [ 100 172 ]; % 172 142 148 154 169 143 170 ];
+expList = [ 185 ]; % 100 172 142 148 154 169 143 170 ];
 
 specYLims = [ 0.5 15; 0.5 150 ];
 specCLims = [ 0 35; -10 30 ];
@@ -36,7 +36,7 @@ for expIdx = 1 : length( expList )
     fwTab = readtable(...
         fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
     fwTab.tail_pinch_30_ts = string( fwTab.tail_pinch_30_ts );
-    doseMsg = fwTab.dose_msg( fwTab.exp_id == expID );
+    doseMsg = fwTab.dose_msg{ fwTab.exp_id == expID };
 
     for i = 1 : 6
         xline( hAx( i ), tsTab( expID, 5 ), 'g', 'LineWidth', 2 )
@@ -51,13 +51,13 @@ for expIdx = 1 : length( expList )
 
     end
 
-    % TODO REMOVE EMG IF DEAD
+    % TODO REMOVE EMG IF DEAD --> MAKE THIS AN OPT IN PLOTEXP
 
     for limIdx = 1 : height( specYLims )
         ylim( hAx( [ 2 4 5 ] ), specYLims( limIdx, : ) )
         clim( hAx( [ 2 4 ] ), specCLims( limIdx, : ) )
         fName = sprintf( 'exp%i_%s_to%iHz.png',...
-            expID, doseMsg{ expIdx }, specYLims( limIdx, 2 ) );
+            expID, doseMsg, specYLims( limIdx, 2 ) );
         saveas( gcf, fullfile( resDir, mouse, fName ) )
 
     end
@@ -65,6 +65,7 @@ for expIdx = 1 : length( expList )
     close all
 
 end
+
 
 %% Mouse temp fig.
 
