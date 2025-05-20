@@ -7,7 +7,7 @@ csvFileMaster = "abc_experiment_list.xlsm";
 fTab = readtable( fullfile( root, "Results", csvFileMaster ) );
 expListIdx = fTab.analyze == 1 & ...
     fTab.drug_dose_inj1 == dose & ...
-    fTab.drug_inj1 == drug;
+    strcmp( drug, fTab.drug_inj1 );
 expList = fTab.exp_id( expListIdx );
 
 gap = [ 0.005 0.01 ];
@@ -26,7 +26,8 @@ switch lower( drug )
 
 end
 
-figure( 'WindowState', 'maximized' )
+% figure( 'WindowState', 'maximized' )
+figure
 colormap magma
 nExps = length( expList );
 
@@ -36,7 +37,6 @@ for expIdx = 1 : nExps
     resDir = fullfile( root, "Results", metDat.subject );
     f2load = strcat( "TidyData_", drug, ".mat" );
     load( fullfile( resDir, f2load ), "spec", "notes" );
-    % tsTab = readtable( fullfile( resDir, csvFileSpec ) );
     tabExpIdx = find( [ notes.expId ] == thisExp );
 
     if spec( tabExpIdx ).valid( 1 ) == true % Check if channel is invalid.
@@ -54,8 +54,7 @@ for expIdx = 1 : nExps
     
     thisPlotIdx = ( 2 * expIdx ) - 1;
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SL' ) )
-    axis xy
+    plotspecgram( SL, t, f, 'log' )
     clim( colorLims )
     box off
     xLims = get( gca, 'xlim' );
@@ -80,8 +79,7 @@ for expIdx = 1 : nExps
 
     thisPlotIdx = 2 * expIdx;
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SR' ) )
-    axis xy
+    plotspecgram( SR, t, f, 'log' )
     clim( colorLims )
     box off
     xLims = get( gca, 'xlim' );

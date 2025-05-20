@@ -1,18 +1,16 @@
 %% Plot series of spectrograms
-% close all
-clc
+ccc
 
 addpath( ".\Dose_effect\" )
 % miceList = { "M114", "M115", "M116", "M117", "M118", "M119",...
 %     "M121", "M122", "M123" };
 miceList = "M120";
-epochLims = [ 600 4200 ];
 fLims = [ 0 80 ];
 
 for mouseIdx = 1 : length( miceList )
     thisMouse = miceList{ mouseIdx };
     figure( 'Name', sprintf( '%s', thisMouse ) )
-    plotspecxmouse( thisMouse, "ket", epochLims, fLims )
+    plotspecxmouse( thisMouse, "ket", fLims )
 
 end
 

@@ -29,10 +29,7 @@ margV = [0.1 0.1];
 opts = { gap, margH, margV };
 
 colormap magma
-% expList = masterTab.exp_id( expListIdx );
-% doseList = masterTab.drug_dose_inj1( expListIdx );
 nExps = sum( expListIdx );
-% plotIdx = 1 : 2 : 2 * nExps;
 colorLims = [ -35 -5 ];
 
 % define units
@@ -42,6 +39,9 @@ switch lower( drug )
 
     case { "ket", "pro" }
         units = 109; % milli
+
+    otherwise
+        units = 32; % blank space
 
 end
 
@@ -71,8 +71,7 @@ for expIdx = 1 : nExps
     
     thisPlotIdx = ( 2 * expIdx ) - 1;
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SL' ) )
-    axis xy
+    plotspecgram( SL, t, f, "log" )
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
@@ -104,8 +103,7 @@ for expIdx = 1 : nExps
     
     thisPlotIdx = ( 2 * expIdx );
     hAx( thisPlotIdx ) = subtightplot( nExps, 2, thisPlotIdx, opts{ : } );
-    imagesc( t, f, pow2db( SR' ) )
-    axis xy
+    plotspecgram( SR, t, f, "log" )
     box off
     clim( colorLims )
     xLims = get( gca, 'xlim' );
@@ -125,12 +123,9 @@ set( hAx,...
     'XTickLabel', [],...
     'YTick',  0 : 10 : fLims( end ) - 10  )
 ffcbar( gcf, hAx( end ), "Power (dB)" );
-% hAx( 1 ).Title.String = "Left hemisphere";
-% hAx( 2 ).Title.String = "Right hemisphere";
-
 sgtitle( sprintf(...
-    "Spectrograms from mouse %s at each dose", mouseId ) );
-
+    "Spectrograms from mouse %s at each dose", mouseId ), ...
+    "FontSize", 12 );
 set( hAx( 2 : 2 : end ),...
     "YTickLabel", [] )
 set( hAx( end - 1 : end ),...
@@ -138,6 +133,5 @@ set( hAx( end - 1 : end ),...
     "XTickLabel", 0 : 20 : tLims( 2 ) )
 xlabel( hAx( end - 1 : end ), "Time (min)" );
 set( hAx, 'FontSize', 12, 'TickDir', 'out' )
-set( gcf, "Units", "normalized", "Position", [ 0.30 0.31 0.37 0.47 ] )
 
 

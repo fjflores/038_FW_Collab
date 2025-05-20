@@ -1,26 +1,21 @@
-function gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
+function gettidydata( mouseId, drug, tLims, saveFlag )
 % GETEXAMPLEDATA picks data from full experiments and saves it.
 %
 % Usage:
-% gettidydata( mouseId, drug, csvFile, tLims, saveFlag )
+% gettidydata( mouseId, drug, tLims, saveFlag, csvFile )
 %
 % Input:
 % mouseId: mouse ID.
 % drug: name of the drug to extract (dex, ketamine, etc).
-% csvFile: name of csvFile to use.
 % tLims: epoch to extract around time of injection.
 % saveFlag: boolean to flag whether to save the figure data. Default: true.
-% 
+% csvFile: name of csvFile to use.
+%
 % Output:
 % file saved to the corresponding mouse results folder.
 
 t1 = tic;
 % Set defaults
-if ~exist( "csvFile", "var" )
-    csvFile = "abc_experiment_list.xlsm";
-
-end
-
 if ~exist( "tLims", "var" )
     tLims = [ 300 3600 ];
 
@@ -35,8 +30,7 @@ drug = lower( string( drug ) );
 
 root = getrootdir( );
 resDir = fullfile( root, "Results" );
-tab2read = fullfile( resDir, csvFile );
-% opts = detectImportOptions( tab2read );
+tab2read = fullfile( resDir, "abc_experiment_list.xlsm" );
 masterTab = safereadtable( tab2read );
 
 % get experiments to load
@@ -45,6 +39,15 @@ exps2procIdx = ...
     doseSortTab.analyze == 1 & ...
     doseSortTab.mouse_id == mouseId & ...
     doseSortTab.drug_inj1 == drug;
+
+if sum( exps2procIdx ) == 0
+    fprintf( ...
+        "There are no experiments to process: %s %s.\n  Skipping.\n\n", ...
+        mouseId, drug )
+    return
+
+end
+
 exps2proc = doseSortTab.exp_id( exps2procIdx );
 dosesInj1 = doseSortTab.drug_dose_inj1( exps2procIdx );
 dosesInj2 = doseSortTab.drug_dose_inj2( exps2procIdx );
@@ -58,32 +61,39 @@ for expIdx = 1 : nExps
     [ eegClean, emgRaw ] = loadprocdata(...
         thisExp, { "eegClean", "emgRaw" } );
     fprintf( 'done.\n' )
-    
+
     % get rid of offline to injection period.
     fprintf( " Removing pre injection period..." )
     tOffInj1 = masterTab.ts_offline_inj1( thisExpIdx );
     tInj1 = masterTab.ts_inj1( thisExpIdx );
     tOnInj1 = masterTab.ts_online_inj1( thisExpIdx );
-    % tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
-    % tInj2 = masterTab.ts_inj2( thisExpIdx );
-    % tOnInj2 = masterTab.ts_online_inj2( thisExpIdx );
     tsOrig = emgRaw.ts;
     sigs = [ eegClean.data emgRaw.data ];
-    preIdx = tsOrig <= tOffInj1;
-    postIdx = tsOrig >= tInj1;
-    preData = sigs( preIdx, : );
-    postData = sigs( postIdx, : );
-    preTs = tsOrig( preIdx );
-    postTs = tsOrig( postIdx );
-    postWoArt = replaceartifact(...
-        postData, postTs, [ postTs( 1 ) tOnInj1 ], 'zeros' );
-    newSigs = cat( 1, preData, postWoArt );
-    newTs = linspace(...
-        preTs( 1 ) + ( tInj1 - tOffInj1 ), postTs( end ), size( newSigs, 1 ) );
+
+    if ~isnan( tOffInj1 ) && ~isempty( tOffInj1 )
+        preIdx = tsOrig <= tOffInj1;
+        postIdx = tsOrig >= tInj1;
+        preData = sigs( preIdx, : );
+        postData = sigs( postIdx, : );
+        preTs = tsOrig( preIdx );
+        postTs = tsOrig( postIdx );
+        postWoArt = replaceartifact(...
+            postData, postTs, [ postTs( 1 ) tOnInj1 ], 'zeros' );
+        newSigs = cat( 1, preData, postWoArt );
+        newTs = linspace(...
+            preTs( 1 ) + ( tInj1 - tOffInj1 ), postTs( end ), size( newSigs, 1 ) );
+
+    else
+        tOffInj1 = nan;
+        tOnInj1 = nan;
+        newTs = tsOrig - tInj1;
+        newSigs = sigs;
+
+    end
 
     % Remove second injection (e.g., atipamezole) artifact time (if needed).
     tInj2 = masterTab.ts_inj2( thisExpIdx );
-    if ~isnan( tInj2 )
+    if ~isnan( tInj2 ) || ~isempty( tInj1 )
         tOffInj2 = masterTab.ts_offline_inj2( thisExpIdx );
         tOnInj2 = masterTab.ts_online_inj2( thisExpIdx );
         newSigs = replaceartifact(...
@@ -131,11 +141,19 @@ for expIdx = 1 : nExps
     % isolate baseline and compute z-score
     analyzeEegFlag = logical(...
         masterTab{ thisExpIdx, { 'analyze_EEG_L', 'analyze_EEG_R' } } );
-    
+
     for eegIdx = 1 : 2
         if analyzeEegFlag( eegIdx )
             eegDecTmp = decimate( eegTmp( chunkIdx, eegIdx ), decFactor );
-            tBaseZIdx = tEeg <= tOffInj1;
+
+            if ~isnan( tOffInj1 ) && ~isempty( tOffInj1 )
+                tBaseZIdx = tEeg <= tOffInj1;
+
+            else
+                tBaseZIdx = tEeg <= tInj1;
+
+            end
+
             mu = mean( eegDecTmp( tBaseZIdx ) );
             sigma = std( eegDecTmp( tBaseZIdx ) );
             % sprintf( "EEG: %u, Size(eegAll) %u x %u, Size(eegZAll) %u x %u \n",...
@@ -153,7 +171,7 @@ for expIdx = 1 : nExps
         end
 
     end
-    
+
     fprintf( "done.\n" )
 
     % Get new spectrogram
@@ -164,11 +182,15 @@ for expIdx = 1 : nExps
         'fpass', [ 0.5 100 ],...
         'pad', 1,...
         'win', [ 15 1.5 ] );
-    % [ S, tStmp, f ] = mtspecgramc( eegZ, params.win, params );
-    [ C, phi, S12, S1, S2, tStmp, f ] = cohgramc(...
+    [ C, phi, ~, S1, S2, tStmp, f ] = cohgramc(...
         eegZdata( :, 1 ), eegZdata( :, 2 ), params.win, params );
     tS = tStmp + tEmg( 1 );
     fprintf( "done.\n" )
+
+    % Get emg rms values
+    emgChunks = makesegments( emgFilt, emgFs, params.win );
+    rmsVals = sqrt( mean( emgChunks .^ 2 ) );
+    tRms = median( makesegments( tEmg, emgFs, params.win ), 1 );
 
     notes( expIdx ).expId = thisExp;
     notes( expIdx ).doseInj1 = dosesInj1( expIdx );
@@ -207,6 +229,11 @@ for expIdx = 1 : nExps
     emg( expIdx ).Fs = emgFs;
     emg( expIdx ).valid = analyzeEmgFlag;
 
+    emgRms( expIdx ).data = rmsVals;
+    emgRms( expIdx ).t = tRms;
+    emgRms( expIdx ).Fs = mean( 1 ./ diff( tS ) );
+    emgRms( expIdx ).valid = analyzeEmgFlag;
+
     spec( expIdx ).SL = S1;
     spec( expIdx ).SR = S2;
     spec( expIdx ).t = tS;
@@ -229,7 +256,7 @@ if saveFlag
     fprintf( " Saving tidy data..." )
     f2save = strcat( "TidyData_", drug, ".mat" );
     save( fullfile( resDir, mouseId, f2save ), ...
-        "notes", "eeg", "eegZ", "spec", "emg", "coher", "-v7.3" )
+        "notes", "eeg", "eegZ", "spec", "emg", "emgRms", "coher", "-v7.3" )
     fprintf( "done.\n\n" )
 
 end

@@ -1,18 +1,16 @@
-# Electrical Anesthesia
-Code to analyze the TI and DBS experiments aimed to produce sedation. 
+# DARPA-ABC
+Code to analyze the DARPA-ABC experiments. 
 
 ## Dependencies
 The code in this project has the following dependencies: 
 - My version of the [Chronux](https://github.com/fjflores/ffChronux) toolbox
-- My set of [Utilities](https://github.com/fjflores/Utilities) for neurophysiological data 
-- The [EMG smoothing](https://github.com/fjflores/EMG_smoothing) functions by Pavitra Krishnaswamy
-- My version of [npy_matlab](https://github.com/fjflores/npy_matlab) to write and read npy files in matlab
-- My version of [AllenCCF](https://github.com/fjflores/allenCCF) with some additions for ease of multiplatform manipulation
+- My set of [Utilities](https://github.com/fjflores/Utilities) for neurophysiological data
+This dependencies must be downloaded/cloned and added to the matlab path.
 
 ## Subdirectories
 The code is separated into subdirectories named after the task the directory is intended for. The subdirectories are the following:
 
-**Figures**
+**Dose_effect**
 : Code to process and plot presentation figures.
 
 **Vid_processing**
