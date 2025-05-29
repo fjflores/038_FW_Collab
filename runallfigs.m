@@ -145,6 +145,9 @@ clear all
 clc
 addpath( ".\Dose_effect\" )
 
-doses = [ 0 10 30 50 100 150 ];
-plotavedosespec( doses )
+% doses = [ 0 10 30 50 100 150 ]; % all dex doses
+doses = [ 0 10 50 100 ]; % all ket doses
+drug = "ket";
+
+plotavedosespec( doses, drug );
 

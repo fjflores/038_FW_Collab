@@ -2,9 +2,9 @@
 ccc
 
 % Define experiment of interest.
-expList = 165;
+expList = 204;
 
-% Set parameters.
+% Set parameters.edit protoplot 
 specWin = [ 10 1 ];
 params = struct(...
     'specWin', specWin,...
@@ -12,7 +12,7 @@ params = struct(...
     'tapers', [ 3 5 ],...
     'pad', 0,...
     'err', [ 2 0.05 ],...
-    'fpass', [ 1 / specWin( 1 ) 100 ],...
+    'fpass', [ 1 / specWin( 1 ) 300 ],...
     'filtEeg', [ 1 40 ],...
     'filtEmg', [ 200 700 ] );
 smoothEmg = false;
@@ -30,7 +30,7 @@ clear all
 % clc
 
 % Define experiment of interest.
-expId = 165;
+expId = 195;
 
 % expData = loadmixdata( expID );
 
@@ -43,38 +43,38 @@ figure( 'Name', sprintf( 'Exp. %i', expId ), 'WindowState', 'maximized' )
     'SetShowEmg', 'raw',... % choose raw, filt, or smooth
     'MinOrSec', 'sec' ); 
 
-% TEMPORARY: turn this chunk into an option within plotexp
-metTabPath = fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' );
-opts = detectImportOptions( metTabPath );
-tsTmp = regexp( opts.VariableNames, 'ts_.*\d', 'match' );
-tsCols = string( tsTmp( ~cellfun( @isempty, tsTmp ) ) );
-opts = setvartype( opts, tsCols, 'double' );
-metTab = readtable( metTabPath, opts );
-tsTab = table2array( metTab( :, { 'ts_offline_inj1', 'ts_online_inj1',...
-    'ts_offline_inj2', 'ts_online_inj2', 'ts_inj1', 'ts_inj2' } ) );
-metDat = getmetadata( expId );
-
-fwTab = readtable(...
-    fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
-
-
-fwTab.tail_pinch_30_ts = string( fwTab.tail_pinch_30_ts );
+% % TEMPORARY: turn this chunk into an option within plotexp
+% metTabPath = fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' );
+% opts = detectImportOptions( metTabPath );
+% tsTmp = regexp( opts.VariableNames, 'ts_.*\d', 'match' );
+% tsCols = string( tsTmp( ~cellfun( @isempty, tsTmp ) ) );
+% opts = setvartype( opts, tsCols, 'double' );
+% metTab = readtable( metTabPath, opts );
+% tsTab = table2array( metTab( :, { 'ts_offline_inj1', 'ts_online_inj1',...
+%     'ts_offline_inj2', 'ts_online_inj2', 'ts_inj1', 'ts_inj2' } ) );
+% metDat = getmetadata( expId );
+% 
+% fwTab = readtable(...
+%     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
+% 
+% 
+% fwTab.tail_pinch_30_ts = string( fwTab.tail_pinch_30_ts );
 
 % xline( hAx( 1 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 % xline( hAx( 1 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 1 : 4 ), 'm', 'LineWidth', 2 )
 % xline( hAx( 3 ), tsTab( expId, 5 : 6 ), 'g', 'LineWidth', 2 )
-for i = 1 : 6
-    xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
-    xline( hAx( i ), tsTab( expId, 6 ), 'g', 'LineWidth', 2 )
-
-    if metDat.FWCollab == 1
-        xline( hAx( i ),...
-            str2double( fwTab{ ( fwTab.exp_id == expId ), 12 : 16 } ),...
-            'g', 'LineWidth', 1 ) % FW exps only
-    end
-
-end
+% for i = 1 : 6
+%     xline( hAx( i ), tsTab( expId, 5 ), 'g', 'LineWidth', 2 )
+%     xline( hAx( i ), tsTab( expId, 6 ), 'g', 'LineWidth', 2 )
+% 
+%     if metDat.FWCollab == 1
+%         xline( hAx( i ),...
+%             str2double( fwTab{ ( fwTab.exp_id == expId ), 12 : 16 } ),...
+%             'g', 'LineWidth', 1 ) % FW exps only
+%     end
+% 
+% end
 
 
 %% Batch process and save DLC and video data.
