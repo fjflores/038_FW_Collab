@@ -189,7 +189,8 @@ for expIdx = 1 : nExps
 
     % Get emg rms values
     emgChunks = makesegments( emgFilt, emgFs, params.win );
-    rmsVals = sqrt( mean( emgChunks .^ 2 ) );
+    rmsValsRaw = sqrt( mean( emgChunks .^ 2 ) );
+    rmsValsStd = minmaxscale( rmsValsRaw ); 
     tRms = median( makesegments( tEmg, emgFs, params.win ), 1 );
 
     notes( expIdx ).expId = thisExp;
@@ -229,7 +230,7 @@ for expIdx = 1 : nExps
     emg( expIdx ).Fs = emgFs;
     emg( expIdx ).valid = analyzeEmgFlag;
 
-    emgRms( expIdx ).data = rmsVals;
+    emgRms( expIdx ).data = rmsValsStd;
     emgRms( expIdx ).t = tRms;
     emgRms( expIdx ).Fs = mean( 1 ./ diff( tS ) );
     emgRms( expIdx ).valid = analyzeEmgFlag;

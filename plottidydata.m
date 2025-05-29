@@ -83,11 +83,15 @@ end
 function plotxdose( drug, dose, thisVar )
 
 % Define freq lims
-if strcmp( drug, "dex" )
+switch drug
+    case "dex"
     fLims = [ 0.5 30 ];
-
-elseif strcmp( drug, "ket" )
+    
+    case "ket"
     fLims = [ 0.5 80 ];
+
+    otherwise
+        fLims = [ 0.5 50 ];
 
 end
 
