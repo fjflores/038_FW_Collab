@@ -3,9 +3,9 @@
 
 % ccc
 
-expID = 146;
-dexTime = "12:22:25";
-atiTime = "4:54:45";
+expID = 204;
+dexTime = "4:44:30";
+atiTime = "4:49:35";
 
 % Get actual REC timestamp.
 metDat = getmetadata( expID );
@@ -15,7 +15,7 @@ mDatDir = fullfile( getrootdir, 'Data', subj );
 
 ephysLog = fileread( fullfile( mDatDir, nlynxDir, 'CheetahLogFile.txt' ) );
 ephysRecTs = regexp( ephysLog,...
-    [ '(\d{2})\:(\d{2})\:(\d{2}\.\d{3})',...
+    [ '(\d{1,2})\:(\d{2})\:(\d{2}\.\d{3})',...
     '(?: - )\d+(?: - AcquisitionControl::StartRecording)' ],...
     'tokens' );
 ephysRecTs = str2double( ephysRecTs{ : } );
@@ -31,14 +31,14 @@ rec = datetime( 1, 1, 1,...
     ephysRecTs( 1 ), ephysRecTs( 2 ), ephysRecTs( 3 ) );
 dexTmp = regexp( dexTime, "(\d+):(\d{2}):(\d{2})", "tokens" );
 dexTmp = str2double( dexTmp{ : } );
-if dexTmp( 1 ) < 10
+if dexTmp( 1 ) < 9 % convert 12-hr to 24-hr time
     dexTmp( 1 ) = dexTmp( 1 ) + 12;
 end
 dex = datetime( 1, 1, 1,... 
     dexTmp( 1 ), dexTmp( 2 ), dexTmp( 3 ) );
 atiTmp = regexp( atiTime, "(\d+):(\d{2}):(\d{2})", "tokens" );
 atiTmp = str2double( atiTmp{ : } );
-if atiTmp( 1 ) < 10
+if atiTmp( 1 ) < 9 % convert 12-hr to 24-hr time
     atiTmp( 1 ) = atiTmp( 1 ) + 12;
 end
 ati = datetime( 1, 1, 1,... 
