@@ -124,13 +124,13 @@ allKetMice = { "M114", "M115", "M116", "M117", "M118",...
 allFWMice = { "FW14", "FW16", "FW17", "FW18" };
 
 % mList = allDexMice;
-mList = allFWMice;
+mList = {"M121"};
 % mList = { "M115", "M118" };
 
-drug = "combo";
+drug = "ket";
 %csvFile = "abc_experiment_list.xlsm";
 % tLims = [ 600 4200 ]; % for dex experiments
-tLims = [ 600 5400 ]; % for ket experiments
+tLims = [ 600 7200 ]; % for ket experiments
 saveFlag = true;  
 warning off
 batchtidydata( mList, drug, tLims, saveFlag )
@@ -142,12 +142,13 @@ ccc
 addpath( ".\Dose_effect\" )
 
 doses = [ 0 10 30 50 100 150 ];
-tLims = [ -5 5 65 ];
+tLims = [ -5 5 70 ];
 % doses = [ 150 ];
 % tLims = [ 55 5 65 ];
 drug = "dex";
-saveFlag = false;
+saveFlag = true;
 warning off
+profile on
 allFeats = savetimefeats( doses, tLims, drug, saveFlag );
 warning on
 
