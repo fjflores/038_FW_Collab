@@ -60,13 +60,13 @@ for expIdx = 1 : nExp
     vidPathSide = fullfile( mDatDir, vNameSide );
     vidPathTop = fullfile( mDatDir, vNameTop );
 
-    % Check if video pair is already in 'FW_tail_pinch_key'.    
-    if any( ~cellfun( @isempty,...
-            strfind( renameKeyOG.expInfo, bonsaiSuff ) ) )
-        skipCnt = skipCnt + 1;
-        continue
-    end
-    clear bonsaiSuff
+    % % Check if video pair is already in 'FW_tail_pinch_key'.    
+    % if any( ~cellfun( @isempty,...
+    %         strfind( renameKeyOG.expInfo, bonsaiSuff ) ) )
+    %     skipCnt = skipCnt + 1;
+    %     continue
+    % end
+    % clear bonsaiSuff
 
     % Get tail pinch timestamps (seconds, in ephys timestamps).
     tailPinchTs = fwTab{ fwTab.exp_id == expID, tailPinchCols };
@@ -78,7 +78,7 @@ for expIdx = 1 : nExp
     ephysLog = fileread(...
         fullfile( mDatDir, nlynxDir, 'CheetahLogFile.txt' ) );
     ephysRecTs = regexp( ephysLog,...
-        [ '(\d{2})\:(\d{2})\:(\d{2}\.\d{3})',...
+        [ '(\d{1,2})\:(\d{2})\:(\d{2}\.\d{3})',...
         '(?: - )\d+(?: - AcquisitionControl::StartRecording)' ],...
         'tokens' );
     ephysRecTs = str2double( ephysRecTs{ : } );
@@ -99,7 +99,6 @@ for expIdx = 1 : nExp
     % Extract tail pinch video clips.
     evTs = evTsTmp - difRec;
     pad = [ 10 40 ];
-    disp( vidPathSide )
     extractvidclip( vidPathSide, evTs,...
         'Pad', pad, 'EvMsg', 'tailpinch',...
         'SaveDir', saveDir, 'SaveFlag', true );
@@ -234,6 +233,7 @@ for expIdx = 1 : length( expList )
         expID( cnt, 1 ) = thisExpID;
         mID( cnt, 1 ) = thisExp.mouse_id;
         bonsaiSuff{ cnt, 1 } = thisBonsaiSuff;
+        floorTemp( cnt, 1 ) = thisExp.chamber_floor_approx_temp;
         dexDose1( cnt, 1 ) = thisExp.dex_dose_inj1;
         ketDose1( cnt, 1 ) = thisExp.ket_dose_inj1;
         vasoDose1( cnt, 1 ) = thisExp.vaso_dose_inj1;
@@ -266,9 +266,11 @@ scoreDif = scorePD - scoreIDB;
 scoreAvg = mean( [ scorePD scoreIDB ], 2, 'omitnan' );
 if any( isnan( scorePD ) ) || any( isnan( scoreIDB ) )
     warning( 'At least one scorer is missing some scores.' )
+else
+    fprintf( 'Both scorers are caught up!\n' )
 end
 
-tpTab = table( expID, mID, bonsaiSuff,...
+tpTab = table( expID, mID, bonsaiSuff, floorTemp,...
     dexDose1, ketDose1, vasoDose1, pdDose1,...
     dexDose2, ketDose2, vasoDose2, pdDose2,...
     inj1ts, inj2ts,...
@@ -607,132 +609,7 @@ legend ( hAx( [ 2 9 1 ] ),... % MAKE THIS BETTER
 set( hAx, 'FontSize', 12 )
 
 
-%% Plot tail pinch scores for combo only (no heat pad), including Priya's 
-% og cohort.
 
-% ccc
-clear all
-clc
-
-% Get dirs.
-root = getrootdir;
-datDir = fullfile( root, 'Data' );
-resDir = fullfile( root, 'Results' );
-
-tpTabPathEEGCoh = fullfile( resDir, 'FW_tail_pinch_table.csv');
-tpTabPathOGCoh = fullfile(...
-    resDir, 'FW_collab' ,'FW_tail_pinch_table_ogmice.csv' );
-
-opts = detectImportOptions( tpTabPathEEGCoh );
-doseTmp = regexp( opts.VariableNames, '.*Dose.*', 'match' );
-doseCols = string( doseTmp( ~cellfun( @isempty, doseTmp ) ) );
-tsTmp = regexp( opts.VariableNames, '.*ts.*', 'match', 'ignorecase' );
-tsCols = string( tsTmp( ~cellfun( @isempty, tsTmp ) ) );
-opts = setvartype( opts, [ doseCols, tsCols ], 'double' );
-tpTabEEG = readtable( tpTabPathEEGCoh, opts );
-tpTabOG = readtable( tpTabPathOGCoh, opts );
-tpTab = vertcat( tpTabEEG, tpTabOG );
-tpTab.approxMinCode = zeros( height( tpTab ), 1 ); % change this elsewhere
-tpTab.approxMinCode( tpTab.approxMin == 30 ) = 1;
-tpTab.approxMinCode( tpTab.approxMin == 60 ) = 2;
-tpTab.approxMinCode( tpTab.approxMin == 120 ) = 3;
-
-ctrlCol = [ 0.4 0.4 0.4 ];
-combo025Col = [ 107 174 214 ] / 255;
-combo05Col = [ 49 130 189 ] / 255;
-combo1Col = [ 8 81 156 ] / 255;
-
-cols = [ combo025Col; combo05Col; combo1Col ];
-
-% Get exps of interest.
-% So far, all vaso doses = 10 ug/kg.
-pdDoses = [ 0.25 0.5 1 ];
-dexDoses = 0;
-ketDoses = 0;
-floorTemps = [ 20 ];
-tpMins2exclude = [ 0 5 35 120 ]; % exclude baseline tail pinches
-exp2exclude = [ 129 138 143 154 ]; % exclude delayed ket bc ketIdcs not working properly 
-
-pdIdcs = ismember( tpTab.pdDose1, pdDoses ) | ismember( tpTab.pdDose2, pdDoses );
-dexIdcs = ismember( tpTab.dexDose1, dexDoses ) | ismember( tpTab.dexDose2, dexDoses );
-ketIdcs = ismember( tpTab.ketDose1, ketDoses ) | ismember( tpTab.ketDose2, ketDoses ); % MAKES THIS ACTUALLY WORK
-tempIdcs = ismember( tpTab.floorTemp, floorTemps );
-minIdcs = ~ismember( tpTab.approxMin, tpMins2exclude );
-expIdcs = ~ismember( tpTab.expID, exp2exclude );
-expOIIdcs = all( [ pdIdcs dexIdcs ketIdcs tempIdcs minIdcs expIdcs ], 2 );
-
-subTpTab = tpTab( expOIIdcs, : );
-expList = unique( subTpTab.expID );
-condTab = subTpTab( :, [ doseCols "floorTemp" ] ); % unique exp conditions
-condTabTmp = table2array( condTab );
-for rowIdx = 1 : height( condTab )
-    condTabTmp( rowIdx, isnan( condTabTmp( rowIdx, : ) ) ) = -99;
-end
-expTypes = unique( condTabTmp, 'rows' );
-nExpTypes = height( expTypes );
-offsets = linspace( -0.25, 0.25, nExpTypes );
-
-% combine saline + baseline conditions
-salIdcs = tpTab.vasoDose1 == 0;
-blIdcs = tpTab.approxMin == 0;
-ctrlIdcs = any( [ salIdcs blIdcs ], 2 );
-subTpBLTab = tpTab( ctrlIdcs, : );
-
-mins = unique( subTpTab.approxMin );
-cnt = 1;
-
-figure
-hold on
-for pdIdx = 1 : length( pdDoses )
-    thisDose = pdDoses( pdIdx );
-    theseExps = subTpTab( subTpTab.pdDose1 == thisDose, : );
-    offset = offsets( pdIdx );
-    thisCol = cols( pdIdx, : );    
-
-    for minIdx = 1 : length( mins )
-        thisMin = mins( minIdx );
-        theseTPs = theseExps( theseExps.approxMin == thisMin, : );
-        thisMean = mean( theseTPs.scoreAvg );
-        thisStdErr = std( theseTPs.scoreAvg ) / sqrt( length( theseTPs.scoreAvg ) );
-
-        bAx( pdIdx ) = bar( minIdx + offset, thisMean, 0.2,...
-            'EdgeColor', 'none', 'FaceColor', thisCol, 'FaceAlpha', 1 );
-        hAx( pdIdx ) = scatterjit( theseTPs.approxMinCode + offset,...
-        theseTPs.scoreAvg,...
-        40, 'filled', 'MarkerFaceColor', 'k',...
-        'MarkerFaceAlpha', 0.7, 'Jit', [ 0.08 ], 'Axis', 'x' );
-        errorbar( minIdx + offset, thisMean, thisStdErr, 'Color', 'k' );
-
-    end
-
-    
-
-end
-
-blMean = mean( subTpBLTab.scoreAvg );
-blStdErr = std( subTpBLTab.scoreAvg ) / sqrt( length( subTpBLTab.scoreAvg ) );
-bAx( pdIdx + 1 ) = bar( 0, blMean, 0.2,...
-    'EdgeColor', 'none', 'FaceColor', ctrlCol, 'FaceAlpha', 1 );
-hAx( pdIdx + 1 ) = scatterjit( zeros( height( subTpBLTab ), 1 ),...
-    subTpBLTab.scoreAvg,...
-    40, 'filled', 'MarkerFaceColor', 'k',...
-    'MarkerFaceAlpha', 0.7, 'Jit', [ 0.08 ], 'Axis', 'x' );
-errorbar( 0, blMean, blStdErr, 'Color', 'k' );
-
-% xlim( [ -5 130 ] )
-xlim( [ -0.6 2.8 ] )
-ylim( [ 0 4.5 ] )
-% xticks( [ 0 5 30 35 60 120 ] )
-xticks( [ 0 : 1 : 3 ] )
-xticklabels( { 'baseline', '30', '60', '120' } )
-yticks( [ 1 : 1 : 4 ] )
-xlabel( 'Time after injection (min)' )
-ylabel( 'Tail pinch score' )
-legend ( hAx( [ 1 2 3 ] ),... % MAKE THIS BETTER
-    { 'Combo 0.25', 'Combo 0.5', 'Combo 1' }, 'EdgeColor', 'none' )
-legend ( bAx( [ 1 2 3 ] ),... % MAKE THIS BETTER
-    { 'Combo 0.25', 'Combo 0.5', 'Combo 1' }, 'EdgeColor', 'none' )
-set( gca, 'FontSize', 12, 'TickDir', 'out' )
 
 
 %% Compare IDB and PD scoring.
@@ -742,7 +619,7 @@ clear all
 IDB = readtable( fullfile( getrootdir, 'Results', 'scores_IDB.xlsx' ) );
 PD = readtable( fullfile( 'D:\Dropbox (Personal)\FW_tail_pinch_vids',...
     'scores_PD.xlsx' ) );
-scores = table( IDB.tail_pinch_id, PD.score_PD, IDB.score_IDB,...
+scores = table( IDB.tail_pinch_id, PD.score, IDB.score,...
     'VariableNames', { 'tpID', 'PD', 'IDB' } );
 
 scores = sortrows( scores, 'IDB' );

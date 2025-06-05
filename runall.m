@@ -2,9 +2,9 @@
 ccc
 
 % Define experiment of interest.
-expList = 204;
+expList = 209;
 
-% Set parameters.edit protoplot 
+% Set parameters.
 specWin = [ 10 1 ];
 params = struct(...
     'specWin', specWin,...
