@@ -1,4 +1,4 @@
-function expMsg = plotexptemp( expID, style )
+function expMsg = plotexptemp( expID, style, plotColor )
 % PLOTEXPTEMP plots mouse surface temps for given experiment.
 % Note: currently only works for FW collab experiments.
 %
@@ -87,11 +87,21 @@ expTemps = sortrows( expTemps, 'tsSec' );
 
 switch style
     case { 'curve', 'line', 'plot' }
-        plot( expTemps.tsSec / 60, expTemps.temp )
+        if exist( 'plotColor' )
+            plot( expTemps.tsSec / 60, expTemps.temp,...
+                'LineWidth', 2, 'Color', plotColor )
+        else
+            plot( expTemps.tsSec / 60, expTemps.temp )
+        end
 
     case { 'scatter', 'dot', 'dots' }
-        scatter( expTemps.tsSec / 60, expTemps.temp,...
-            'filled', 'MarkerFaceAlpha', 0.7 )
+        if exist( 'plotColor' )
+            scatter( expTemps.tsSec / 60, expTemps.temp,...
+                'filled', 'MarkerFaceAlpha', 0.7, 'MarkerFaceColor', plotColor )
+        else
+            scatter( expTemps.tsSec / 60, expTemps.temp,...
+                'filled', 'MarkerFaceAlpha', 0.7 )
+        end
 
 end
 

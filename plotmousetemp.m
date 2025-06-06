@@ -7,8 +7,9 @@ fwTab = readtable(...
     fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
 fwTab = sortrows( fwTab, 'dex_dose_inj1' );
 fwTab = sortrows( fwTab, 'ket_dose_inj1' );
-fwTab = sortrows( fwTab, 'ket_dose_inj2' );
+fwTab = sortrows( fwTab, 'ket_dose_inj2', 'descend' );
 fwTab = sortrows( fwTab, 'pd_dose_inj1' );
+
 
 % Get mouse list.
 mice = string( mice );

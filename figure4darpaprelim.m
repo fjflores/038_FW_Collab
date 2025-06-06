@@ -126,8 +126,7 @@ legend ( bAx( [ 1 2 3 ] ),...
 set( gca, 'FontSize', 12, 'TickDir', 'out' )
 
 
-%% Same as above but include all combo tail pinches (no heat pad, heat pad,
-% + Priya's og cohort).
+%% Same as above but include all combo tail pinches (no heat + heat).
 
 % ccc
 clear all
@@ -149,8 +148,8 @@ tsTmp = regexp( opts.VariableNames, '.*ts.*', 'match', 'ignorecase' );
 tsCols = string( tsTmp( ~cellfun( @isempty, tsTmp ) ) );
 opts = setvartype( opts, [ doseCols, tsCols ], 'double' );
 tpTabEEG = readtable( tpTabPathEEGCoh, opts );
-tpTabOG = readtable( tpTabPathOGCoh, opts );
-% tpTab = vertcat( tpTabEEG, tpTabOG );
+% tpTabOG = readtable( tpTabPathOGCoh, opts ); % Priya's og cohort
+% tpTab = vertcat( tpTabEEG, tpTabOG ); 
 tpTab = tpTabEEG;
 tpTab.approxMinCode = zeros( height( tpTab ), 1 ); 
 tpTab.approxMinCode( tpTab.approxMin == 5 ) = 1;

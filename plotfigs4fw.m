@@ -71,13 +71,10 @@ end
 
 % clear all
 
-mouse = 'FW14';
+mouse = 'FW19';
 plotmousetemp( mouse );
 
 % saveas( gcf, fullfile( resDir, mouse, 'temperature_comparison.png' ) )
-
-
-%%
 
 
 %% Example exp
