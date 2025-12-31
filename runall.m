@@ -182,3 +182,10 @@ for epIdx = 1 : length( timeFeats )
 end
 
 save( featsFile, 'timeFeats', '-append' )
+
+%% Plot temperature for a single experiment
+ccc
+expId = 100;
+figure( 'Name', sprintf( 'Exp. %i Temperature', expId ) )
+disp( "Plotting temperature..." )
+plotexptemp( expId )

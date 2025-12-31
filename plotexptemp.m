@@ -18,25 +18,25 @@ if nargin < 2
 end
 
 % Get exp metadata.
+root = getrootdir( "remote" );
 metDat = getmetadata( expID );
 mID = metDat.subject;
 
 % Load appropriate table.
 if metDat.FWCollab == 1
     bigTab = readtable(...
-        fullfile( getrootdir, 'Results', 'FW_collab_exp_details.xlsx' ) );
+        fullfile( root, 'Results', 'FW_collab_exp_details.xlsx' ) );
 
 elseif metDat.FWCollab == 0
     bigTab = readtable(...
-        fullfile( getrootdir, 'Results', 'abc_experiment_list.xlsm' ) );
-
+        fullfile( root, 'Results', 'abc_experiment_list.xlsm' ) );
 end
 
 expTab = bigTab( bigTab.exp_id == expID, : );
 
 % Load csv with this exp's temps.
 fName = sprintf( 'exp%i_temps.xlsx', expID );
-fPath = fullfile( getrootdir, 'Data', mID, fName );
+fPath = fullfile( root, 'Data', mID, fName );
 if exist( fPath )
     expTemps = readtable( fPath );
 
